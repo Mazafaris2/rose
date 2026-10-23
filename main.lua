@@ -1543,6 +1543,7 @@ id = "rbxassetid://109527418380162",
 backgroundSelectorLabel = nil
 backgroundImage = nil
 backgroundImagePB = nil
+local yaisSideLayers = setmetatable({}, { __mode = "k" })
 applyBackground = function(index)
 backgroundIndex = clamp(index or 1, 1, #BACKGROUND_IMAGES)
 local background = BACKGROUND_IMAGES[backgroundIndex]
@@ -1590,7 +1591,7 @@ end
 return false
 end
 local function applyTo(inst)
-local layer = inst:FindFirstChild("YaisButtonBackground")
+local layer = yaisSideLayers[inst] or inst:FindFirstChild("YaisButtonBackground")
 if not hasImage then
 if layer then
 layer.Visible = false
@@ -1600,6 +1601,15 @@ return
 end
 if not wantsImage(inst) then
 return
+end
+local hasLayout = inst:FindFirstChildOfClass("UIListLayout") or inst:FindFirstChildOfClass("UIGridLayout") or inst:FindFirstChildOfClass("UIPageLayout") or inst:FindFirstChildOfClass("UITableLayout")
+local host = inst
+if hasLayout then
+-- a child image would be pushed around by the layout (breaks the tab bar), so put it behind as a sibling
+host = inst.Parent
+if not host or host:FindFirstChildOfClass("UIListLayout") or host:FindFirstChildOfClass("UIGridLayout") or host:FindFirstChildOfClass("UIPageLayout") or host:FindFirstChildOfClass("UITableLayout") then
+return
+end
 end
 if not layer then
 layer = Instance.new("ImageLabel")
@@ -1611,7 +1621,14 @@ layer.Position = UDim2.new(0, 0, 0, 0)
 layer.ScaleType = Enum.ScaleType.Crop
 layer.Active = false
 layer.Selectable = false
-layer.Parent = inst
+layer.Parent = host
+if hasLayout then
+yaisSideLayers[inst] = layer
+layer.AnchorPoint = inst.AnchorPoint
+layer.Position = inst.Position
+layer.Size = inst.Size
+layer.ZIndex = inst.ZIndex - 1
+end
 -- keep the image behind every other child (labels, toggles, icons)
 local lowest = inst.ZIndex
 for _, c in ipairs(inst:GetChildren()) do
@@ -1619,7 +1636,9 @@ if c ~= layer and c:IsA("GuiObject") and c.ZIndex < lowest then
 lowest = c.ZIndex
 end
 end
+if not hasLayout then
 layer.ZIndex = lowest - 1
+end
 local corner = inst:FindFirstChildOfClass("UICorner")
 if corner then
 local imageCorner = Instance.new("UICorner")
