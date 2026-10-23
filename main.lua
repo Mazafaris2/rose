@@ -1611,8 +1611,15 @@ layer.Position = UDim2.new(0, 0, 0, 0)
 layer.ScaleType = Enum.ScaleType.Crop
 layer.Active = false
 layer.Selectable = false
-layer.ZIndex = inst.ZIndex
 layer.Parent = inst
+-- keep the image behind every other child (labels, toggles, icons)
+local lowest = inst.ZIndex
+for _, c in ipairs(inst:GetChildren()) do
+if c ~= layer and c:IsA("GuiObject") and c.ZIndex < lowest then
+lowest = c.ZIndex
+end
+end
+layer.ZIndex = lowest - 1
 local corner = inst:FindFirstChildOfClass("UICorner")
 if corner then
 local imageCorner = Instance.new("UICorner")
@@ -1621,7 +1628,8 @@ imageCorner.Parent = layer
 end
 end
 layer.Image = id
-layer.ImageTransparency = math.clamp(transparency + 0.25, 0.35, 0.8)
+local minT = inst:IsA("GuiButton") and 0.5 or 0.35
+layer.ImageTransparency = math.clamp(transparency + 0.25, minT, 0.85)
 layer.Visible = true
 end
 local function applyRoot(root)
