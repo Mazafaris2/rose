@@ -20,13 +20,13 @@ label.Size = size or UDim2.new(1, -16, 0, 16)
 label.Position = position or UDim2.new(0, 8, 1, -20)
 label.BackgroundTransparency = 1
 label.Text = YAIS_BRANDING
-label.TextColor3 = Color3.fromRGB(255, 195, 35)
+label.TextColor3 = Color3.fromRGB(255, 220, 35)
 label.TextTransparency = 0.08
 label.Font = Enum.Font.PermanentMarker
 label.TextSize = math.max(6, math.floor((textSize or 10) * 0.8))
 label.TextXAlignment = Enum.TextXAlignment.Center
 label.TextYAlignment = Enum.TextYAlignment.Center
-label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+label.TextStrokeColor3 = Color3.fromRGB(105, 60, 0)
 label.TextStrokeTransparency = 0.65
 label.ZIndex = 999
 return label
@@ -37,7 +37,7 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     holder.Name = "YaisIcon"
     holder.AnchorPoint = Vector2.new(0.5, 0.5)
     holder.Size = UDim2.fromOffset(100, 100)
-    holder.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
+    holder.BackgroundColor3 = Color3.fromRGB(255, 195, 20)
     holder.BorderSizePixel = 0
     holder.ZIndex = z
     local scale = Instance.new("UIScale")
@@ -47,14 +47,14 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     corner.CornerRadius = UDim.new(1, 0)
     corner.Parent = holder
     local outline = Instance.new("UIStroke")
-    outline.Color = Color3.fromRGB(255, 190, 35)
+    outline.Color = Color3.fromRGB(145, 85, 0)
     outline.Thickness = 3
     outline.Parent = holder
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 238, 100)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 180, 15)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(130, 75, 0)),
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 90)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 210, 20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 115, 0)),
     })
     gradient.Rotation = 90
     outline.Parent = holder
@@ -67,7 +67,7 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     crown.Font = Enum.Font.GothamBlack
     crown.TextScaled = true
     crown.TextColor3 = Color3.fromRGB(255, 211, 48)
-    crown.TextStrokeColor3 = Color3.fromRGB(80, 40, 0)
+    crown.TextStrokeColor3 = Color3.fromRGB(125, 75, 0)
     crown.TextStrokeTransparency = 0.15
     crown.ZIndex = z + 2
     crown.Parent = holder
@@ -80,7 +80,7 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     title.Font = Enum.Font.GothamBlack
     title.TextScaled = true
     title.TextColor3 = Color3.fromRGB(255, 204, 25)
-    title.TextStrokeColor3 = Color3.fromRGB(70, 35, 0)
+    title.TextStrokeColor3 = Color3.fromRGB(125, 75, 0)
     title.TextStrokeTransparency = 0
     title.ZIndex = z + 2
     title.Parent = holder
@@ -6264,7 +6264,7 @@ label.TextColor3 = color
 label.Font = Enum.Font.GothamBold
 label.TextScaled = true
 label.TextStrokeTransparency = 1
-label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+label.TextStrokeColor3 = Color3.fromRGB(105, 60, 0)
 enemySpeedLabels[player] = label
 end
 elseif label.Parent and label.Parent.Parent ~= character then
