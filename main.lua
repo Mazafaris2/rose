@@ -1550,6 +1550,7 @@ if not background then
 return
 end
 local id = background.id or ""
+local hasImage = id ~= ""
 local transparency = background.id and backgroundImageTransparency or 1
 if backgroundImage and backgroundImage.Parent then
 backgroundImage.Image = id
@@ -1557,40 +1558,84 @@ backgroundImage.ImageTransparency = transparency
 end
 if backgroundImagePB and backgroundImagePB.Parent then
 backgroundImagePB.Image = id
-backgroundImagePB.ImageTransparency = id ~= "" and math.min(transparency + 0.15, 1) or 1
+backgroundImagePB.ImageTransparency = hasImage and math.min(transparency + 0.15, 1) or 1
 end
--- Apply the selected background to buttons as a cosmetic layer only.
--- Keep the image layer non-interactive so buttons still receive clicks.
-local rootGui = backgroundImage and backgroundImage.Parent
-if rootGui then
-for _, button in ipairs(rootGui:GetDescendants()) do
-if button:IsA("TextButton") or button:IsA("ImageButton") then
-local imageLayer = button:FindFirstChild("YaisButtonBackground")
-if not imageLayer then
-imageLayer = Instance.new("ImageLabel")
-imageLayer.Name = "YaisButtonBackground"
-imageLayer.BackgroundTransparency = 1
-imageLayer.BorderSizePixel = 0
-imageLayer.Size = UDim2.new(1, 0, 1, 0)
-imageLayer.Position = UDim2.new(0, 0, 0, 0)
-imageLayer.ScaleType = Enum.ScaleType.Crop
-imageLayer.Active = false
-imageLayer.Selectable = false
-imageLayer.ZIndex = button.ZIndex + 1
-imageLayer.Parent = button
-local corner = button:FindFirstChildOfClass("UICorner")
+-- decides which element gets the image layer
+local function wantsImage(inst)
+if inst == miniBtn or inst == pbFrame or inst.Name == "YaisButtonBackground" or inst.Name == "YaisIcon" then
+return false
+end
+if miniBtn and inst:IsDescendantOf(miniBtn) then
+return false
+end
+if pbFrame and inst:IsDescendantOf(pbFrame) then
+return false
+end
+if tabButtons and table.find(tabButtons, inst) then
+return false
+end
+if inst:IsA("TextButton") or inst:IsA("ImageButton") then
+return inst.BackgroundTransparency < 1
+end
+if inst:IsA("Frame") then
+if inst.Name == "BackgroundPreview" or inst.Name == "Track" or inst.Name == "Knob" or inst.Name == "Shine" then
+return false
+end
+if not inst:FindFirstChildOfClass("UICorner") or not inst:FindFirstChildOfClass("UIStroke") then
+return false
+end
+local h = inst.Size.Y.Offset
+return h >= 30 and h <= 120
+end
+return false
+end
+local function applyTo(inst)
+local layer = inst:FindFirstChild("YaisButtonBackground")
+if not hasImage then
+if layer then
+layer.Visible = false
+layer.Image = ""
+end
+return
+end
+if not wantsImage(inst) then
+return
+end
+if not layer then
+layer = Instance.new("ImageLabel")
+layer.Name = "YaisButtonBackground"
+layer.BackgroundTransparency = 1
+layer.BorderSizePixel = 0
+layer.Size = UDim2.new(1, 0, 1, 0)
+layer.Position = UDim2.new(0, 0, 0, 0)
+layer.ScaleType = Enum.ScaleType.Crop
+layer.Active = false
+layer.Selectable = false
+layer.ZIndex = inst.ZIndex
+layer.Parent = inst
+local corner = inst:FindFirstChildOfClass("UICorner")
 if corner then
 local imageCorner = Instance.new("UICorner")
 imageCorner.CornerRadius = corner.CornerRadius
-imageCorner.Parent = imageLayer
+imageCorner.Parent = layer
 end
 end
-imageLayer.Image = id
-imageLayer.ImageTransparency = id ~= "" and math.clamp(transparency + 0.25, 0.35, 0.8) or 1
-imageLayer.Visible = id ~= ""
+layer.Image = id
+layer.ImageTransparency = math.clamp(transparency + 0.25, 0.35, 0.8)
+layer.Visible = true
+end
+local function applyRoot(root)
+if root and root.Parent then
+for _, d in ipairs(root:GetDescendants()) do
+applyTo(d)
 end
 end
 end
+applyRoot(gui)
+applyRoot(MobilePanel)
+applyRoot(batV2FloatingButton)
+applyRoot(instaResetFloatingButton)
+applyRoot(tpBatFloatingButton)
 if backgroundSelectorLabel then
 backgroundSelectorLabel.Text = background.label
 end
@@ -11866,22 +11911,6 @@ bar.BorderSizePixel = 0
 bar.ZIndex = 2
 return bar
 end
-for _, spec in ipairs({
-{ 50, 110, 90, 15 },
-{ 275, 95, 70, -20 },
-{ 165, 175, 120, 30 },
-{ 40, 265, 80, -10 },
-{ 290, 255, 100, 40 },
-{ 150, 335, 70, 10 },
-{ 60, 410, 110, -30 },
-{ 270, 405, 80, 25 },
-{ 205, 60, 40, 5 },
-{ 110, 235, 44, -15 },
-}) do
-local yaisDecor = makeYaisIcon(decor, spec[3], 2)
-yaisDecor.Position = UDim2.fromOffset(spec[1], spec[2])
-yaisDecor.Rotation = spec[4]
-end
 mainUIScale = Instance.new("UIScale", main)
 mainUIScale.Scale = uiScaleValue / 100
 local frame = Instance.new("Frame", main)
@@ -11913,12 +11942,6 @@ local imageLabelStroke = Instance.new("UIStroke", imageLabel)
 imageLabelStroke.Thickness = 4
 imageLabelStroke.Color = Color3.fromRGB(6, 60, 25)
 imageLabel.ZIndex = 21
-local titleYaisIcon = makeYaisIcon(frame, 46, 21)
-titleYaisIcon.Position = UDim2.new(0, 30, 0.5, 0)
-titleYaisIcon.Rotation = -12
-local titleYaisIconR = makeYaisIcon(frame, 46, 21)
-titleYaisIconR.Position = UDim2.new(1, -30, 0.5, 0)
-titleYaisIconR.Rotation = 12
 local textButton = Instance.new("TextButton", main)
 textButton.Size = UDim2.new(0, 28, 0, 28)
 textButton.Position = UDim2.new(1, -38, 0, 10)
