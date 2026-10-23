@@ -1172,10 +1172,14 @@ carryController.getCurrentSpeed = function(self)
 return self:getActiveSpeed()
 end
 colorThemes = {
-Gris = Color3.fromRGB(4, 29, 11),
+Blue = Color3.fromRGB(35, 125, 255),
+Red = Color3.fromRGB(235, 55, 65),
+Yellow = Color3.fromRGB(255, 195, 35),
+Green = Color3.fromRGB(30, 185, 73),
+Purple = Color3.fromRGB(155, 85, 255),
 }
-currentColorTheme = "Gris"
-selectedColor = colorThemes["Gris"]
+currentColorTheme = "Green"
+selectedColor = colorThemes[currentColorTheme]
 getThemeColor = function()
 return selectedColor
 end
@@ -1200,19 +1204,19 @@ end
 object = time
 object266 = color
 if progressFill then
-progressFill.BackgroundColor3 = Color3.fromRGB(30, 185, 73)
+progressFill.BackgroundColor3 = color
 local fillStroke = progressFill:FindFirstChild("FillStroke")
 if fillStroke then
-fillStroke.Color = Color3.fromRGB(30, 185, 73)
+fillStroke.Color = color
 end
 local uiGradient = progressFill:FindFirstChildOfClass("UIGradient")
 if uiGradient then
 local data = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(21, 134, 53))
-local object282 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 185, 73))
+local object = ColorSequenceKeypoint.new(0, color)
+local object282 = ColorSequenceKeypoint.new(0.5, color)
 data[1] = object
 data[2] = object282
-data[3] = ColorSequenceKeypoint.new(1, Color3.fromRGB(32, 202, 80))
+data[3] = ColorSequenceKeypoint.new(1, color)
 uiGradient.Color = ColorSequence.new(data)
 end
 end
@@ -1223,17 +1227,17 @@ local fillRegion = progressRow:FindFirstChild("FillRegion")
 if fillRegion then
 local uIStroke = fillRegion:FindFirstChild("UIStroke")
 if uIStroke then
-uIStroke.Color = Color3.fromRGB(30, 185, 73)
+uIStroke.Color = color
 end
 end
 end
 local discordLabel = pbFrame:FindFirstChild("DiscordLabel")
 if discordLabel then
-discordLabel.TextColor3 = Color3.fromRGB(30, 185, 73)
+discordLabel.TextColor3 = color
 end
 local textLabel = pbFrame:FindFirstChild("FPSNeon")
 if textLabel then
-textLabel.TextColor3 = Color3.fromRGB(30, 185, 73)
+textLabel.TextColor3 = color
 end
 end
 local function searchAndUpdateText(parent)
@@ -1247,7 +1251,7 @@ or descendant.Name == "YaisHubSpeedIndicator"
 or descendant.Text:find("FPS")
 or descendant.Text:find("speed")
 then
-descendant.TextColor3 = Color3.fromRGB(30, 185, 73)
+descendant.TextColor3 = color
 end
 end
 if descendant:IsA("UIStroke") then
@@ -1323,7 +1327,7 @@ end
 end
 end
 if miniBtn then
-miniBtn.TextColor3 = Color3.fromRGB(30, 185, 73)
+miniBtn.TextColor3 = color
 end
 local playerGui = localPlayer:FindFirstChild("PlayerGui")
 if playerGui then
@@ -1335,7 +1339,7 @@ textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 local uiGradient = textLabel:FindFirstChildOfClass("UIGradient")
 if uiGradient then
 local gradientKeypoints = {}
-local gradientStart = ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 177, 70))
+local gradientStart = ColorSequenceKeypoint.new(0, color)
 local gradientHighlightStart = ColorSequenceKeypoint.new(0.3, Color3.new(1, 1, 1))
 local gradientHighlightEnd = ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1))
 local gradientEnd = ColorSequenceKeypoint.new(0.7, Color3.new(1, 1, 1))
@@ -1343,7 +1347,7 @@ gradientKeypoints[1] = gradientStart
 gradientKeypoints[2] = gradientHighlightStart
 gradientKeypoints[3] = gradientHighlightEnd
 gradientKeypoints[4] = gradientEnd
-gradientKeypoints[5] = ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 177, 70))
+gradientKeypoints[5] = ColorSequenceKeypoint.new(1, color)
 uiGradient.Color = ColorSequence.new(gradientKeypoints)
 end
 end
@@ -1484,47 +1488,47 @@ label = "Off",
 id = nil,
 },
 {
-label = "BG 1",
+label = "Background 1",
 id = "rbxassetid://77785523954153",
 },
 {
-label = "BG 2",
+label = "Background 2",
 id = "rbxassetid://122815453745063",
 },
 {
-label = "BG 3",
+label = "Background 3",
 id = "rbxassetid://77581705786454",
 },
 {
-label = "BG 4",
+label = "Background 4",
 id = "rbxassetid://86508089972764",
 },
 {
-label = "BG 5",
+label = "Background 5",
 id = "rbxassetid://99747773532595",
 },
 {
-label = "BG 6",
+label = "Background 6",
 id = "rbxassetid://139362780018712",
 },
 {
-label = "BG 7",
+label = "Background 7",
 id = "rbxassetid://81570223894096",
 },
 {
-label = "BG 8",
+label = "Background 8",
 id = "rbxassetid://94047991986188",
 },
 {
-label = "BG 9",
+label = "Background 9",
 id = "rbxassetid://118783198922289",
 },
 {
-label = "BG 10",
+label = "Background 10",
 id = "rbxassetid://101833990704596",
 },
 {
-label = "BG 11",
+label = "Background 11",
 id = "rbxassetid://109527418380162",
 },
 }
@@ -10744,8 +10748,8 @@ toggleESP(true)
 else
 toggleESP(false)
 end
-currentColorTheme = "Gris"
-selectedColor = colorThemes["Gris"]
+currentColorTheme = (result.themeColor and colorThemes[result.themeColor]) and result.themeColor or "Green"
+selectedColor = colorThemes[currentColorTheme]
 _G.AceAntiBypassLoadFromConfig(result)
 autoBatV2Enabled = _G.AceAntiBypassAimbotOn == true
 if autoBatV2Enabled then
@@ -11145,8 +11149,8 @@ for _, entry1857 in ipairs(keyButtonRefs) do
 local entry = entry1857.entry
 entry1857.btn.Text = entry.gp and entry.gp.Name or entry.kb and entry.kb.Name or "None"
 end
-currentColorTheme = "Gris"
-selectedColor = colorThemes["Gris"]
+currentColorTheme = "Green"
+selectedColor = colorThemes[currentColorTheme]
 updateAllUIThemeColors(selectedColor)
 backgroundIndex = 1
 if backgroundImage then
@@ -11372,8 +11376,8 @@ _G.__tpBatV2Distance = 8
 currentAnimPack = "Off"
 disableAnimationPack()
 currentOutfitIndex = 1
-currentColorTheme = "Gris"
-selectedColor = colorThemes.Gris
+currentColorTheme = "Green"
+selectedColor = colorThemes[currentColorTheme]
 backgroundIndex = 1
 backgroundImageTransparency = 0.35
 applyBackground(1)
@@ -13223,6 +13227,12 @@ YaisHubShowE01Warning = on
 saveAllSettings()
 end)
 createFrame(visual, "Environment")
+local uiThemeFrame = createFrame2(visual, 38)
+mkLabel(uiThemeFrame, "UI Theme")
+local uiThemeOptions = {"Green", "Blue", "Red", "Yellow", "Purple"}
+local uiThemeSelectorLabel = createCarouselSelector(uiThemeFrame, currentColorTheme, uiThemeOptions, function(themeName)
+    applyColorTheme(themeName)
+end)
 local frame22199 = createFrame2(visual, 38)
 mkLabel(frame22199, "Sky Theme")
 skySelectorLabel = createCarouselSelector(frame22199, skyTheme, SKY_PRESETS_LIST, function(skyTheme2200)
@@ -13469,7 +13479,7 @@ end
 )
 end
 local frame22218 = createFrame2(visual, 56)
-mkLabel(frame22218, "Background")
+mkLabel(frame22218, "Background Image")
 local rootPart2219 = Instance.new("Frame", frame22218)
 rootPart2219.Name = "BackgroundPreview"
 rootPart2219.Size = UDim2.new(0, 44, 0, 34)
