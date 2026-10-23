@@ -1266,6 +1266,14 @@ end
 end
 if gui then
 searchAndUpdateText(gui)
+-- Keep standard buttons in sync with the selected UI theme.
+for _, button in ipairs(gui:GetDescendants()) do
+if button:IsA("TextButton") or button:IsA("ImageButton") then
+if not button:FindFirstChild("YaisButtonBackground") then
+button.BackgroundColor3 = color
+end
+end
+end
 end
 if tpBatFloatingButton then
 local object = batDesyncTpEnabled
@@ -1550,6 +1558,38 @@ end
 if backgroundImagePB and backgroundImagePB.Parent then
 backgroundImagePB.Image = id
 backgroundImagePB.ImageTransparency = id ~= "" and math.min(transparency + 0.15, 1) or 1
+end
+-- Apply the selected background to buttons as a cosmetic layer only.
+-- Keep the image layer non-interactive so buttons still receive clicks.
+local rootGui = backgroundImage and backgroundImage.Parent
+if rootGui then
+for _, button in ipairs(rootGui:GetDescendants()) do
+if button:IsA("TextButton") or button:IsA("ImageButton") then
+local imageLayer = button:FindFirstChild("YaisButtonBackground")
+if not imageLayer then
+imageLayer = Instance.new("ImageLabel")
+imageLayer.Name = "YaisButtonBackground"
+imageLayer.BackgroundTransparency = 1
+imageLayer.BorderSizePixel = 0
+imageLayer.Size = UDim2.new(1, 0, 1, 0)
+imageLayer.Position = UDim2.new(0, 0, 0, 0)
+imageLayer.ScaleType = Enum.ScaleType.Crop
+imageLayer.Active = false
+imageLayer.Selectable = false
+imageLayer.ZIndex = button.ZIndex + 1
+imageLayer.Parent = button
+local corner = button:FindFirstChildOfClass("UICorner")
+if corner then
+local imageCorner = Instance.new("UICorner")
+imageCorner.CornerRadius = corner.CornerRadius
+imageCorner.Parent = imageLayer
+end
+end
+imageLayer.Image = id
+imageLayer.ImageTransparency = id ~= "" and math.clamp(transparency + 0.25, 0.35, 0.8) or 1
+imageLayer.Visible = id ~= ""
+end
+end
 end
 if backgroundSelectorLabel then
 backgroundSelectorLabel.Text = background.label
