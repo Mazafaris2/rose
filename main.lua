@@ -4,22 +4,22 @@ local lookAtCFrame, getPlayersCached, waitForCharacterReady, carryController, co
 local velocityHookedRoots, registerVelocityRoot, installVelocityReadHook, isHumanoidRagdolled, applyMovementVelocity, applyAnimationPack, disableAnimationPack, autoStealConnection, autoStealState, autoStealBusy
 local getAutoStealVariantName, getAutoStealVariantIndex, teleportDown, antiRagdollController, antiRagdollV2State, enableAntiRagdollV2, disableAntiRagdollV2, antiDie, reapplyAntiDie, antiFlingShield
 local showRagdollCountdown
-local CLOVER_BRANDING = "Clover Duels"
-local function addCloverBranding(parent, position, size, textSize)
+local YAIS_BRANDING = "Yais Duels"
+local function addYaisBranding(parent, position, size, textSize)
 if not parent then
 return nil
 end
-local existing = parent:FindFirstChild("CloverBranding")
+local existing = parent:FindFirstChild("YaisBranding")
 if existing then
 return existing
 end
 local label = Instance.new("TextLabel")
-label.Name = "CloverBranding"
+label.Name = "YaisBranding"
 label.Parent = parent
 label.Size = size or UDim2.new(1, -16, 0, 16)
 label.Position = position or UDim2.new(0, 8, 1, -20)
 label.BackgroundTransparency = 1
-label.Text = CLOVER_BRANDING
+label.Text = YAIS_BRANDING
 label.TextColor3 = Color3.fromRGB(30, 185, 73)
 label.TextTransparency = 0.08
 label.Font = Enum.Font.PermanentMarker
@@ -31,58 +31,70 @@ label.TextStrokeTransparency = 0.65
 label.ZIndex = 999
 return label
 end
-local function makeCloverIcon(parent, pixelSize, zIndex)
-local z = zIndex or 5
-local holder = Instance.new("Frame")
-holder.Name = "CloverIcon"
-holder.AnchorPoint = Vector2.new(0.5, 0.5)
-holder.Size = UDim2.fromOffset(100, 100)
-holder.BackgroundTransparency = 1
-holder.ZIndex = z
-local iconScale = Instance.new("UIScale", holder)
-iconScale.Scale = (pixelSize or 100) / 100
-local leafColor = Color3.fromRGB(46, 196, 94)
-local stemColor = Color3.fromRGB(20, 120, 55)
-local a = 30
-local d = a / math.sqrt(2)
-local function piece(group, w, h, cx, cy, rot, round, color, zi)
-local f = Instance.new("Frame", group)
-f.AnchorPoint = Vector2.new(0.5, 0.5)
-f.Size = UDim2.fromOffset(w, h)
-f.Position = UDim2.fromOffset(50 + cx, 50 + cy)
-f.Rotation = rot
-f.BackgroundColor3 = color
-f.BorderSizePixel = 0
-f.ZIndex = zi
-if round then
-Instance.new("UICorner", f).CornerRadius = UDim.new(1, 0)
-end
-return f
-end
-piece(holder, 6, 50, 17, 17, -45, true, stemColor, z)
-for i = 0, 3 do
-local group = Instance.new("Frame", holder)
-group.Name = "Leaf" .. i
-group.BackgroundTransparency = 1
-group.Size = UDim2.fromOffset(100, 100)
-group.Rotation = i * 90
-group.ZIndex = z + 1
-piece(group, a, a, 0, -d, 45, false, leafColor, z + 1)
-piece(group, a, a, -d / 2, -1.5 * d, 0, true, leafColor, z + 1)
-piece(group, a, a, d / 2, -1.5 * d, 0, true, leafColor, z + 1)
-end
-local core = piece(holder, 8, 8, 0, 0, 0, true, Color3.fromRGB(170, 245, 195), z + 2)
-holder.Parent = parent
-return holder
+local function makeYaisIcon(parent, pixelSize, zIndex)
+    local z = zIndex or 5
+    local holder = Instance.new("Frame")
+    holder.Name = "YaisIcon"
+    holder.AnchorPoint = Vector2.new(0.5, 0.5)
+    holder.Size = UDim2.fromOffset(100, 100)
+    holder.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
+    holder.BorderSizePixel = 0
+    holder.ZIndex = z
+    local scale = Instance.new("UIScale")
+    scale.Scale = (pixelSize or 100) / 100
+    scale.Parent = holder
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = holder
+    local outline = Instance.new("UIStroke")
+    outline.Color = Color3.fromRGB(255, 190, 35)
+    outline.Thickness = 3
+    outline.Parent = holder
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 238, 100)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 180, 15)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(130, 75, 0)),
+    })
+    gradient.Rotation = 90
+    outline.Parent = holder
+    local crown = Instance.new("TextLabel")
+    crown.Name = "YaisCrown"
+    crown.BackgroundTransparency = 1
+    crown.Size = UDim2.fromScale(0.68, 0.32)
+    crown.Position = UDim2.fromScale(0.16, 0.05)
+    crown.Text = "♛"
+    crown.Font = Enum.Font.GothamBlack
+    crown.TextScaled = true
+    crown.TextColor3 = Color3.fromRGB(255, 211, 48)
+    crown.TextStrokeColor3 = Color3.fromRGB(80, 40, 0)
+    crown.TextStrokeTransparency = 0.15
+    crown.ZIndex = z + 2
+    crown.Parent = holder
+    local title = Instance.new("TextLabel")
+    title.Name = "YaisLogoText"
+    title.BackgroundTransparency = 1
+    title.Size = UDim2.fromScale(0.94, 0.48)
+    title.Position = UDim2.fromScale(0.03, 0.37)
+    title.Text = "YAIS"
+    title.Font = Enum.Font.GothamBlack
+    title.TextScaled = true
+    title.TextColor3 = Color3.fromRGB(255, 204, 25)
+    title.TextStrokeColor3 = Color3.fromRGB(70, 35, 0)
+    title.TextStrokeTransparency = 0
+    title.ZIndex = z + 2
+    title.Parent = holder
+    holder.Parent = parent
+    return holder
 end
 do
 local ReplicatedStorage
 do
 local introTweenService, introRunService, introPlayer, introTrack, introSongFileName, introSound, introHeartbeatConnection
-if _G.CloverHubRunning then
+if _G.YaisHubRunning then
 return
 end
-_G.CloverHubRunning = true
+_G.YaisHubRunning = true
 repeat
 task.wait()
 until game:IsLoaded()
@@ -111,16 +123,16 @@ introSongIds = {
 }
 currentIntroSongIndex = 1
 pcall(function()
-if isfile and readfile and isfile("CloverHub.json") then
-local settingsData = game:GetService("HttpService"):JSONDecode(readfile("CloverHub.json"))
-if type(settingsData.cloverHubSongIndex) == "number" then
+if isfile and readfile and isfile("YaisHub.json") then
+local settingsData = game:GetService("HttpService"):JSONDecode(readfile("YaisHub.json"))
+if type(settingsData.yaisHubSongIndex) == "number" then
 local songCount = #introSongIds
-currentIntroSongIndex = math.clamp(math.floor(settingsData.cloverHubSongIndex), 1, songCount)
+currentIntroSongIndex = math.clamp(math.floor(settingsData.yaisHubSongIndex), 1, songCount)
 end
 end
 end)
 introTrack = introSongIds[currentIntroSongIndex]
-introSongFileName = "cloverhub_intro_song_" .. currentIntroSongIndex .. ".mp3"
+introSongFileName = "yaishub_intro_song_" .. currentIntroSongIndex .. ".mp3"
 introSound = nil
 introHeartbeatConnection = nil
 do
@@ -144,7 +156,7 @@ introGui.IgnoreGuiInset = true
 introGui.ResetOnSpawn = false
 introGui.DisplayOrder = 100000
 introGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-addCloverBranding(introGui, UDim2.new(0, 0, 1, -42), UDim2.new(1, 0, 0, 22), 11)
+addYaisBranding(introGui, UDim2.new(0, 0, 1, -42), UDim2.new(1, 0, 0, 22), 11)
 pcall(function()
 if syn and syn.protect_gui then
 syn.protect_gui(introGui)
@@ -164,7 +176,7 @@ title.AnchorPoint = Vector2.new(0.5, 0.5)
 title.Size = UDim2.fromOffset(520, 90)
 title.Position = UDim2.new(0.5, 0, 0.5, -10)
 title.BackgroundTransparency = 1
-title.Text = "CLOVER DUELS"
+title.Text = "YAIS DUELS"
 title.Font = Enum.Font.PermanentMarker
 title.TextSize = 68
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -202,7 +214,7 @@ tagline.AnchorPoint = Vector2.new(0.5, 0.5)
 tagline.Size = UDim2.fromOffset(320, 22)
 tagline.Position = UDim2.new(0.5, 0, 0.5, 78)
 tagline.BackgroundTransparency = 1
-tagline.Text = "discord.gg/cloverduels"
+tagline.Text = "discord.gg/yaisduels"
 tagline.Font = Enum.Font.GothamBold
 tagline.TextSize = 15
 tagline.TextColor3 = Color3.fromRGB(120, 235, 160)
@@ -366,7 +378,7 @@ BAT_AIMBOT_SPEED = 58
 BYPASS_AIMBOT_SPEED = 60
 MOBILE_PANEL_WIDTH = 128
 MOBILE_PANEL_HEIGHT = 294
-CONFIG_FILE = "CloverHub.json"
+CONFIG_FILE = "YaisHub.json"
 BAT_V2_HIT_DIST = 4.5
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -615,7 +627,7 @@ _G.NewBatAimbot = {
     config = BAT_AIMBOT_CONFIG,
 }
 
-print("[CloverHub] New Bat Aimbot (Anti-Bat Bypass) loaded")
+print("[YaisHub] New Bat Aimbot (Anti-Bat Bypass) loaded")
 
 -- Keep chase speed in sync with the UI box
 task.spawn(function()
@@ -1231,7 +1243,7 @@ if
 descendant.Text:find("discord.gg")
 or descendant.Text:find("Spd:")
 or descendant.Name == "DiscordText"
-or descendant.Name == "CloverHubSpeedIndicator"
+or descendant.Name == "YaisHubSpeedIndicator"
 or descendant.Text:find("FPS")
 or descendant.Text:find("speed")
 then
@@ -1816,7 +1828,7 @@ end
 for _, item in ipairs(items) do
 local clone = item:Clone()
 if clone:IsA("Accessory") then
-clone.Name = "CloverAvatar_" .. clone.Name
+clone.Name = "YaisAvatar_" .. clone.Name
 pcall(function()
 humanoid:AddAccessory(clone)
 end)
@@ -1871,7 +1883,7 @@ task.wait(0.3)
 character = localPlayer.Character or character
 humanoid = character:FindFirstChildOfClass("Humanoid") or humanoid
 for _, child in ipairs(character:GetChildren()) do
-if child:IsA("Accessory") and child.Name:sub(1, 13) == "CloverAvatar_" then
+if child:IsA("Accessory") and child.Name:sub(1, 13) == "YaisAvatar_" then
 child:Destroy()
 end
 end
@@ -1900,7 +1912,7 @@ end
 for _, id in ipairs(ids) do
 local ok = loadAvatarItem(character, humanoid, id)
 if not ok then
-warn("[Clover] avatar item failed to load: " .. tostring(id))
+warn("[Yais] avatar item failed to load: " .. tostring(id))
 end
 end
 if preset.headless then
@@ -1925,7 +1937,7 @@ if not humanoid or not AVATAR_ORIGINAL_DESC then
 return
 end
 for _, child in ipairs(character:GetChildren()) do
-if child:IsA("Accessory") and child.Name:sub(1, 13) == "CloverAvatar_" then
+if child:IsA("Accessory") and child.Name:sub(1, 13) == "YaisAvatar_" then
 child:Destroy()
 end
 end
@@ -2101,11 +2113,11 @@ return
 end
 local root = character:FindFirstChild("HumanoidRootPart")
 if root then
-local spin = root:FindFirstChild("CloverSpin")
+local spin = root:FindFirstChild("YaisSpin")
 if spin then
 spin:Destroy()
 end
-local att = root:FindFirstChild("CloverSpinAtt")
+local att = root:FindFirstChild("YaisSpinAtt")
 if att then
 att:Destroy()
 end
@@ -2285,7 +2297,7 @@ or inst:IsA("Smoke")
 or inst:IsA("Fire")
 or inst:IsA("Sparkles")
 or inst:IsA("PostEffect") then
-if inst.Enabled and inst.Name ~= "CloverHubESP" then
+if inst.Enabled and inst.Name ~= "YaisHubESP" then
 state.stripped[#state.stripped + 1] = inst
 inst.Enabled = false
 end
@@ -2469,7 +2481,7 @@ or inst:IsA("Beam")
 or inst:IsA("Smoke")
 or inst:IsA("Fire")
 or inst:IsA("Sparkles") then
-if inst.Name ~= "CloverHubESP" and inst.Enabled then
+if inst.Name ~= "YaisHubESP" and inst.Enabled then
 saved.effects[#saved.effects + 1] = inst
 inst.Enabled = false
 end
@@ -2532,7 +2544,7 @@ if child:IsA("BlurEffect")
 or child:IsA("SunRaysEffect")
 or child:IsA("BloomEffect")
 or child:IsA("DepthOfFieldEffect") then
-if child.Enabled and not child:GetAttribute("_CloverHubSky") then
+if child.Enabled and not child:GetAttribute("_YaisHubSky") then
 saved.post[#saved.post + 1] = child
 child.Enabled = false
 end
@@ -2901,9 +2913,9 @@ local function addKatanaRedEffects(parent)
 if not parent or not parent:IsA("BasePart") then
 return
 end
-local cloverHubSpeedIndicator = parent:FindFirstChild("CloverHubSpeedIndicator")
-if cloverHubSpeedIndicator then
-cloverHubSpeedIndicator:Destroy()
+local yaisHubSpeedIndicator = parent:FindFirstChild("YaisHubSpeedIndicator")
+if yaisHubSpeedIndicator then
+yaisHubSpeedIndicator:Destroy()
 end
 local topAttachment = Instance.new("Attachment")
 topAttachment.Name = "FlowerSkin_ExtraRedVFX"
@@ -4160,10 +4172,10 @@ tryardHeartbeatConn:Disconnect()
 end
 tryardHeartbeatConn = RunService.Heartbeat:Connect(function()
 local animNow = os.clock()
-if animNow - (_G.__cloverAnimT or 0) < 0.25 then
+if animNow - (_G.__yaisAnimT or 0) < 0.25 then
 return
 end
-_G.__cloverAnimT = animNow
+_G.__yaisAnimT = animNow
 local character = localPlayer.Character
 if not character then
 return
@@ -5886,7 +5898,7 @@ highlight:Destroy()
 end)
 end
 highlight = Instance.new("Highlight")
-highlight.Name = "CloverHubESP"
+highlight.Name = "YaisHubESP"
 highlight.FillColor = color
 highlight.FillTransparency = 0.72
 highlight.OutlineColor = color
@@ -5981,7 +5993,7 @@ ex.box:Destroy()
 end)
 end
 local espBox = Instance.new("SelectionBox")
-espBox.Name = "CloverHubESP"
+espBox.Name = "YaisHubESP"
 espBox.Adornee = character2
 espBox.Color3 = color
 espBox.LineThickness = 0.035
@@ -6000,7 +6012,7 @@ myAtt:Destroy()
 end)
 end
 myAtt = Instance.new("Attachment")
-myAtt.Name = "CloverHubTracerA0"
+myAtt.Name = "YaisHubTracerA0"
 myAtt.Parent = myRoot
 end
 if not ex.att or ex.att.Parent ~= humanoidRootPart then
@@ -6010,12 +6022,12 @@ ex.att:Destroy()
 end)
 end
 ex.att = Instance.new("Attachment")
-ex.att.Name = "CloverHubTracerA1"
+ex.att.Name = "YaisHubTracerA1"
 ex.att.Parent = humanoidRootPart
 end
 if not ex.beam or not ex.beam.Parent then
 local beam = Instance.new("Beam")
-beam.Name = "CloverHubESP"
+beam.Name = "YaisHubESP"
 beam.Width0 = 0.18
 beam.Width1 = 0.18
 beam.FaceCamera = true
@@ -6334,16 +6346,16 @@ local head = callback:WaitForChild("Head", 5)
 if not head then
 return
 end
-local cloverHubSpeedIndicator = head:FindFirstChild("CloverHubSpeedIndicator")
-if cloverHubSpeedIndicator then
-cloverHubSpeedIndicator:Destroy()
+local yaisHubSpeedIndicator = head:FindFirstChild("YaisHubSpeedIndicator")
+if yaisHubSpeedIndicator then
+yaisHubSpeedIndicator:Destroy()
 end
 local discordText = head:FindFirstChild("DiscordText")
 if discordText then
 discordText:Destroy()
 end
 local billboardGui = Instance.new("BillboardGui", head)
-billboardGui.Name = "CloverHubSpeedIndicator"
+billboardGui.Name = "YaisHubSpeedIndicator"
 billboardGui.Size = UDim2.new(0, 340, 0, 92)
 billboardGui.StudsOffset = newVector3(0, 2.9, 0)
 billboardGui.AlwaysOnTop = true
@@ -6361,14 +6373,14 @@ speedLabel.Font = Enum.Font.GothamBlack
 speedLabel.TextSize = 24
 speedLabel.TextXAlignment = Enum.TextXAlignment.Center
 speedLabel.ZIndex = 10
-local speedBranding = addCloverBranding(
+local speedBranding = addYaisBranding(
 billboardGui,
 UDim2.new(0, 0, 0, 32),
 UDim2.new(1, 0, 0, 56),
 44
 )
 if speedBranding then
-speedBranding.Text = "discord.gg/cloverduels"
+speedBranding.Text = "discord.gg/yaisduels"
 speedBranding.TextSize = 28
 speedBranding.Font = Enum.Font.PermanentMarker
 speedBranding.TextTransparency = 0
@@ -8151,7 +8163,7 @@ end
 do
 local function optimizeInstanceForAntiLag(callback)
 pcall(function()
-if callback:GetAttribute("_CloverHubSky") ~= nil then
+if callback:GetAttribute("_YaisHubSky") ~= nil then
 return
 end
 if callback:IsA("Sky") or callback:IsA("Atmosphere") or callback:IsA("Clouds") then
@@ -8204,7 +8216,7 @@ then
 callback.Enabled = false
 elseif callback:IsA("PointLight") or callback:IsA("SpotLight") or callback:IsA("SurfaceLight") then
 callback.Enabled = false
-elseif callback:IsA("SelectionBox") and callback.Name ~= "CloverHubESP" then
+elseif callback:IsA("SelectionBox") and callback.Name ~= "YaisHubESP" then
 pcall(function()
 callback:Destroy()
 end)
@@ -8287,7 +8299,7 @@ if antiLagDescConn then
 antiLagDescConn:Disconnect()
 end
 antiLagDescConn = workspace.DescendantAdded:Connect(function(descendant)
-if descendant:GetAttribute("_CloverHubSky") then
+if descendant:GetAttribute("_YaisHubSky") then
 return
 end
 if descendant:IsA("Sky") or descendant:IsA("Atmosphere") or descendant:IsA("Clouds") then
@@ -8322,7 +8334,7 @@ Lighting.GlobalShadows = true
 end)
 end
 end
-CUSTOM_FOV_BIND = "CloverHubCustomFOV"
+CUSTOM_FOV_BIND = "YaisHubCustomFOV"
 enableCustomFov = function()
 local currentCamera2 = workspace.CurrentCamera
 if currentCamera2 and origFOV == nil then
@@ -10552,10 +10564,10 @@ antiBypassAimbotEnabled = _G.AceAntiBypassAimbotOn == true,
 katanaSkinEnabled = katanaSkinEnabled,
 minecraftBatSkinEnabled = minecraftBatSkinEnabled,
 minecraftBatSkinColorMode = minecraftBatSkinColorMode,
-cloverHubSongIndex = currentIntroSongIndex,
-cloverHubAutoTPDown = CloverHubAutoTPDown,
-cloverHubAutoTPDownHeight = CloverHubAutoTPDownHeight,
-cloverHubShowE01Warning = CloverHubShowE01Warning,
+yaisHubSongIndex = currentIntroSongIndex,
+yaisHubAutoTPDown = YaisHubAutoTPDown,
+yaisHubAutoTPDownHeight = YaisHubAutoTPDownHeight,
+yaisHubShowE01Warning = YaisHubShowE01Warning,
 unwalk = unwalkEnabled,
 holdJumpEnabled = infJumpEnabled,
 holdJumpMode = infJumpMode,
@@ -10655,14 +10667,14 @@ if _isResetting or _isLoading then
 return true
 end
 if not writefile then
-warn("[CloverHub] writefile not supported by this executor")
+warn("[YaisHub] writefile not supported by this executor")
 return false
 end
 local okBuild, json = pcall(function()
 return HttpService:JSONEncode(buildConfigTable())
 end)
 if not okBuild or type(json) ~= "string" then
-warn("[CloverHub] Config build failed: " .. tostring(json))
+warn("[YaisHub] Config build failed: " .. tostring(json))
 return false
 end
 local fileExists = false
@@ -10677,11 +10689,11 @@ local ok, err = pcall(writefile, CONFIG_FILE, json)
 if ok then
 _lastSavedJSON = json
 else
-warn("[CloverHub] Config write failed: " .. tostring(err))
+warn("[YaisHub] Config write failed: " .. tostring(err))
 end
 return ok
 end
-_G.__CloverLoadInner = function()
+_G.__YaisLoadInner = function()
 if not isfile or not isfile(CONFIG_FILE) then
 return false
 end
@@ -10767,18 +10779,18 @@ task.defer(function()
 pcall(minecraftBatSkinController.Remove)
 end)
 end
-if type(result.cloverHubSongIndex) == "number" then
+if type(result.yaisHubSongIndex) == "number" then
 local value = #introSongIds
-currentIntroSongIndex = math.clamp(math.floor(result.cloverHubSongIndex), 1, value)
+currentIntroSongIndex = math.clamp(math.floor(result.yaisHubSongIndex), 1, value)
 end
-CloverHubAutoTPDown = result.cloverHubAutoTPDown == true
-CloverHubAutoTPDownHeight = math.clamp(tonumber(result.cloverHubAutoTPDownHeight) or CloverHubAutoTPDownHeight, 0, 500)
-CloverHubShowE01Warning = result.cloverHubShowE01Warning == true
-if CloverHubAutoTPDownSetVisual then
-CloverHubAutoTPDownSetVisual(CloverHubAutoTPDown)
+YaisHubAutoTPDown = result.yaisHubAutoTPDown == true
+YaisHubAutoTPDownHeight = math.clamp(tonumber(result.yaisHubAutoTPDownHeight) or YaisHubAutoTPDownHeight, 0, 500)
+YaisHubShowE01Warning = result.yaisHubShowE01Warning == true
+if YaisHubAutoTPDownSetVisual then
+YaisHubAutoTPDownSetVisual(YaisHubAutoTPDown)
 end
-if CloverHubShowE01WarningSetVisual then
-CloverHubShowE01WarningSetVisual(CloverHubShowE01Warning)
+if YaisHubShowE01WarningSetVisual then
+YaisHubShowE01WarningSetVisual(YaisHubShowE01Warning)
 end
 if katanaSkinEnabled then
 task.defer(function()
@@ -10994,9 +11006,9 @@ _isLoading = false
 return true
 end
 loadAllSettings = function()
-local okLoad, loadResult = pcall(_G.__CloverLoadInner)
+local okLoad, loadResult = pcall(_G.__YaisLoadInner)
 if not okLoad then
-warn("[CloverHub] Config load error: " .. tostring(loadResult))
+warn("[YaisHub] Config load error: " .. tostring(loadResult))
 _isLoading = false
 return false
 end
@@ -11472,7 +11484,7 @@ BatV2Button = "batV2",
 InstaResetButton = "instaReset",
 }
 for _, entry in ipairs({
-"CloverHubMobilePanel",
+"YaisHubMobilePanel",
 "BatV2Button",
 "InstaResetButton",
 }) do
@@ -11732,19 +11744,19 @@ Color3.fromRGB(4, 25, 10)
 local textColor3 = color
 Color3.fromRGB(3, 21, 8)
 Color3.fromRGB(6, 42, 16)
-local cloverHub = game:GetService("CoreGui"):FindFirstChild("CloverHub")
-if cloverHub then
-cloverHub:Destroy()
+local yaisHub = game:GetService("CoreGui"):FindFirstChild("YaisHub")
+if yaisHub then
+yaisHub:Destroy()
 end
 local playerGui = localPlayer:FindFirstChild("PlayerGui")
 if playerGui then
-local cloverHub2 = playerGui:FindFirstChild("CloverHub")
-if cloverHub2 then
-cloverHub2:Destroy()
+local yaisHub2 = playerGui:FindFirstChild("YaisHub")
+if yaisHub2 then
+yaisHub2:Destroy()
 end
 end
 gui = Instance.new("ScreenGui")
-gui.Name = "CloverHub"
+gui.Name = "YaisHub"
 gui.ResetOnSpawn = false
 gui.DisplayOrder = 10
 gui.IgnoreGuiInset = true
@@ -11776,7 +11788,7 @@ ColorSequenceKeypoint.new(1, Color3.fromRGB(1, 8, 3)),
 })
 end
 do
-local mainBranding = addCloverBranding(main, UDim2.new(0, 0, 1, -13), UDim2.new(1, -14, 0, 11), 10)
+local mainBranding = addYaisBranding(main, UDim2.new(0, 0, 1, -13), UDim2.new(1, -14, 0, 11), 10)
 if mainBranding then
 mainBranding.TextXAlignment = Enum.TextXAlignment.Right
 end
@@ -11822,9 +11834,9 @@ for _, spec in ipairs({
 { 205, 60, 40, 5 },
 { 110, 235, 44, -15 },
 }) do
-local cloverDecor = makeCloverIcon(decor, spec[3], 2)
-cloverDecor.Position = UDim2.fromOffset(spec[1], spec[2])
-cloverDecor.Rotation = spec[4]
+local yaisDecor = makeYaisIcon(decor, spec[3], 2)
+yaisDecor.Position = UDim2.fromOffset(spec[1], spec[2])
+yaisDecor.Rotation = spec[4]
 end
 mainUIScale = Instance.new("UIScale", main)
 mainUIScale.Scale = uiScaleValue / 100
@@ -11840,7 +11852,7 @@ imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
 imageLabel.Size = UDim2.new(1, -90, 1, 0)
 imageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
 imageLabel.BackgroundTransparency = 1
-imageLabel.Text = "CLOVER"
+imageLabel.Text = "YAIS"
 imageLabel.Font = Enum.Font.LuckiestGuy
 imageLabel.TextScaled = false
 imageLabel.TextSize = 48
@@ -11857,12 +11869,12 @@ local imageLabelStroke = Instance.new("UIStroke", imageLabel)
 imageLabelStroke.Thickness = 4
 imageLabelStroke.Color = Color3.fromRGB(6, 60, 25)
 imageLabel.ZIndex = 21
-local titleCloverIcon = makeCloverIcon(frame, 46, 21)
-titleCloverIcon.Position = UDim2.new(0, 30, 0.5, 0)
-titleCloverIcon.Rotation = -12
-local titleCloverIconR = makeCloverIcon(frame, 46, 21)
-titleCloverIconR.Position = UDim2.new(1, -30, 0.5, 0)
-titleCloverIconR.Rotation = 12
+local titleYaisIcon = makeYaisIcon(frame, 46, 21)
+titleYaisIcon.Position = UDim2.new(0, 30, 0.5, 0)
+titleYaisIcon.Rotation = -12
+local titleYaisIconR = makeYaisIcon(frame, 46, 21)
+titleYaisIconR.Position = UDim2.new(1, -30, 0.5, 0)
+titleYaisIconR.Rotation = 12
 local textButton = Instance.new("TextButton", main)
 textButton.Size = UDim2.new(0, 28, 0, 28)
 textButton.Position = UDim2.new(1, -38, 0, 10)
@@ -11902,9 +11914,9 @@ miniBtn.TextSize = 16
 miniBtn.ZIndex = 20
 miniBtn.Visible = false
 do
-local miniClover = makeCloverIcon(miniBtn, 70, 21)
-miniClover.Name = "MiniCloverIcon"
-miniClover.Position = UDim2.new(0.5, 0, 0, 40)
+local miniYais = makeYaisIcon(miniBtn, 70, 21)
+miniYais.Name = "MiniYaisIcon"
+miniYais.Position = UDim2.new(0.5, 0, 0, 40)
 end
 local rootPart = Instance.new("TextLabel", miniBtn)
 rootPart.Name = "MiniTitleImage"
@@ -11912,7 +11924,7 @@ rootPart.AnchorPoint = Vector2.new(0.5, 0.5)
 rootPart.Size = UDim2.new(1, 0, 0, 26)
 rootPart.Position = UDim2.new(0.5, 0, 1, -16)
 rootPart.BackgroundTransparency = 1
-rootPart.Text = "CLOVER"
+rootPart.Text = "YAIS"
 rootPart.Font = Enum.Font.LuckiestGuy
 rootPart.TextScaled = false
 rootPart.TextSize = 24
@@ -12882,14 +12894,14 @@ textLabel.Font = Enum.Font.GothamBold
 textLabel.TextSize = 9
 textLabel.TextXAlignment = Enum.TextXAlignment.Right
 textLabel.ZIndex = 8
-CloverHubAutoTPDownSetVisual = mkToggle(speed, "Auto TP Down", function(cloverHubAutoTPDown)
-CloverHubAutoTPDown = cloverHubAutoTPDown
+YaisHubAutoTPDownSetVisual = mkToggle(speed, "Auto TP Down", function(yaisHubAutoTPDown)
+YaisHubAutoTPDown = yaisHubAutoTPDown
 saveAllSettings()
 end)
 local frame22146 = createFrame2(speed, 38)
 mkLabel(frame22146, "TP Down Height")
-createTextBox(frame22146, CloverHubAutoTPDownHeight, 50, 56, function(value)
-CloverHubAutoTPDownHeight = math.clamp(value, 0, 500)
+createTextBox(frame22146, YaisHubAutoTPDownHeight, 50, 56, function(value)
+YaisHubAutoTPDownHeight = math.clamp(value, 0, 500)
 saveAllSettings()
 end)
 mirrorTPDownSetVisual = mkToggle(speed, "Mirror TP Down", function(value)
@@ -13206,8 +13218,8 @@ else
 disableBetterGraphics()
 end
 end)
-CloverHubShowE01WarningSetVisual = mkToggle(visual, "Show E01 Warning", function(on)
-CloverHubShowE01Warning = on
+YaisHubShowE01WarningSetVisual = mkToggle(visual, "Show E01 Warning", function(on)
+YaisHubShowE01Warning = on
 saveAllSettings()
 end)
 createFrame(visual, "Environment")
@@ -13226,7 +13238,7 @@ for _, plr in ipairs(Players:GetPlayers()) do
 local char = plr.Character
 if char then
 if kind ~= "feet" then
-local cham = char:FindFirstChild("CloverHubChams")
+local cham = char:FindFirstChild("YaisHubChams")
 if cham then
 pcall(function()
 cham:Destroy()
@@ -13235,7 +13247,7 @@ end
 end
 if kind ~= "chams" then
 local root = char:FindFirstChild("HumanoidRootPart")
-local feet = root and root:FindFirstChild("CloverHubFeet")
+local feet = root and root:FindFirstChild("YaisHubFeet")
 if feet then
 pcall(function()
 feet:Destroy()
@@ -13245,9 +13257,9 @@ end
 end
 end
 end
-local function buildCloverFeet(root, footOffset)
+local function buildYaisFeet(root, footOffset)
 local folder = Instance.new("Folder")
-folder.Name = "CloverHubFeet"
+folder.Name = "YaisHubFeet"
 local leafColor = Color3.fromRGB(40, 220, 90)
 local stemColor = Color3.fromRGB(15, 120, 50)
 local a = 2.6
@@ -13304,11 +13316,11 @@ local char = plr.Character
 local root = char and char:FindFirstChild("HumanoidRootPart")
 local hum = char and char:FindFirstChildOfClass("Humanoid")
 if root and hum and hum.Health > 0 then
-local cham = char:FindFirstChild("CloverHubChams")
+local cham = char:FindFirstChild("YaisHubChams")
 if chamsOn and plr ~= localPlayer then
 if not cham then
 cham = Instance.new("Highlight")
-cham.Name = "CloverHubChams"
+cham.Name = "YaisHubChams"
 cham.FillColor = Color3.fromRGB(0, 255, 255)
 cham.FillTransparency = 0.15
 cham.OutlineColor = Color3.fromRGB(255, 255, 255)
@@ -13322,14 +13334,14 @@ pcall(function()
 cham:Destroy()
 end)
 end
-local feet = root:FindFirstChild("CloverHubFeet")
+local feet = root:FindFirstChild("YaisHubFeet")
 if feetCircleOn then
 if not feet then
 local footOffset = root.Size.Y / 2 + hum.HipHeight
 if footOffset < 2.5 then
 footOffset = 3
 end
-feet = buildCloverFeet(root, footOffset)
+feet = buildYaisFeet(root, footOffset)
 end
 elseif feet then
 pcall(function()
@@ -14055,7 +14067,7 @@ do
 local isActive, object, isPlayerRagdolled, hasAnimationalEquipped, findNearbyArmedPlayer, tryHitBatCounterV2
 createMobilePanel = function()
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CloverHubMobilePanel"
+screenGui.Name = "YaisHubMobilePanel"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function()
@@ -14086,7 +14098,7 @@ btnContainer.Name = "ButtonsContainer"
 btnContainer.Size = UDim2.new(1, 0, 1, 0)
 btnContainer.BackgroundTransparency = 1
 btnContainer.ClipsDescendants = false
-addCloverBranding(
+addYaisBranding(
 container,
 UDim2.new(0, 0, 1, -16),
 UDim2.new(1, 0, 0, 14),
@@ -15387,14 +15399,14 @@ instaResetFloatingPos.YOffset or -130
 end
 end
 end
-CloverHubAutoTPDown = false
-CloverHubAutoTPDownHeight = 20
-CloverHubShowE01Warning = false
-CloverHubAutoTPLastAt = 0
-CloverHubE01StartedAt = nil
-CloverHubE01Gui = nil
+YaisHubAutoTPDown = false
+YaisHubAutoTPDownHeight = 20
+YaisHubShowE01Warning = false
+YaisHubAutoTPLastAt = 0
+YaisHubE01StartedAt = nil
+YaisHubE01Gui = nil
 RunService.Heartbeat:Connect(function()
-if not CloverHubAutoTPDown then
+if not YaisHubAutoTPDown then
 return
 end
 local character = localPlayer.Character
@@ -15403,24 +15415,24 @@ character = character and character:FindFirstChildOfClass("Humanoid")
 local shouldTeleportDown = rootPart
 and character
 and character.FloorMaterial == Enum.Material.Air
-and rootPart.Position.Y >= CloverHubAutoTPDownHeight
+and rootPart.Position.Y >= YaisHubAutoTPDownHeight
 if shouldTeleportDown then
-local lastTeleportTime = CloverHubAutoTPLastAt
+local lastTeleportTime = YaisHubAutoTPLastAt
 shouldTeleportDown = tick() - lastTeleportTime >= 0.35
 end
 if shouldTeleportDown then
-CloverHubAutoTPLastAt = tick()
+YaisHubAutoTPLastAt = tick()
 teleportDown()
 end
 end)
 do
 local function isCarryingTarget()
 local carryNow = os.clock()
-if carryNow - (_G.__cloverCarryT or 0) < 0.15 then
-return _G.__cloverCarryV == true
+if carryNow - (_G.__yaisCarryT or 0) < 0.15 then
+return _G.__yaisCarryV == true
 end
-_G.__cloverCarryT = carryNow
-_G.__cloverCarryV = false
+_G.__yaisCarryT = carryNow
+_G.__yaisCarryV = false
 local character = localPlayer.Character
 if not character then
 return false
@@ -15433,33 +15445,33 @@ or lowercaseText:find("animal", 1, true)
 or lowercaseText:find("carry", 1, true)
 or lowercaseText:find("steal", 1, true)
 then
-_G.__cloverCarryV = true
+_G.__yaisCarryV = true
 return true
 end
 end
 local humanoid = character:FindFirstChildOfClass("Humanoid")
 local carrying = humanoid ~= nil and humanoid.WalkSpeed > 0 and humanoid.WalkSpeed <= 25 and humanoid.WalkSpeed ~= 16
-_G.__cloverCarryV = carrying
+_G.__yaisCarryV = carrying
 return carrying
 end
 RunService.Heartbeat:Connect(function()
-if not CloverHubShowE01Warning or not isCarryingTarget() then
-if CloverHubE01Gui then
-CloverHubE01Gui.Enabled = false
+if not YaisHubShowE01Warning or not isCarryingTarget() then
+if YaisHubE01Gui then
+YaisHubE01Gui.Enabled = false
 end
-CloverHubE01StartedAt = nil
+YaisHubE01StartedAt = nil
 return
 end
-CloverHubE01StartedAt = CloverHubE01StartedAt or tick()
-local object = CloverHubE01StartedAt
+YaisHubE01StartedAt = YaisHubE01StartedAt or tick()
+local object = YaisHubE01StartedAt
 local value = math.clamp((tick() - object) / 2.6, 0, 1)
-if not CloverHubE01Gui then
-CloverHubE01Gui = Instance.new("ScreenGui")
-CloverHubE01Gui.Name = "CloverHubE01Warning"
-CloverHubE01Gui.ResetOnSpawn = false
-CloverHubE01Gui.IgnoreGuiInset = true
-CloverHubE01Gui.Parent = localPlayer:WaitForChild("PlayerGui")
-local frame = Instance.new("Frame", CloverHubE01Gui)
+if not YaisHubE01Gui then
+YaisHubE01Gui = Instance.new("ScreenGui")
+YaisHubE01Gui.Name = "YaisHubE01Warning"
+YaisHubE01Gui.ResetOnSpawn = false
+YaisHubE01Gui.IgnoreGuiInset = true
+YaisHubE01Gui.Parent = localPlayer:WaitForChild("PlayerGui")
+local frame = Instance.new("Frame", YaisHubE01Gui)
 frame.Name = "Bar"
 frame.AnchorPoint = Vector2.new(0.5, 0)
 frame.Position = UDim2.new(0.5, 0, 0, 18)
@@ -15496,12 +15508,12 @@ textLabel.TextStrokeTransparency = 0.18
 textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 textLabel.ZIndex = 2
 end
-CloverHubE01Gui.Enabled = true
+YaisHubE01Gui.Enabled = true
 local warningReady = value >= 1
-CloverHubE01Gui.Bar.Label.Text = warningReady and "STEAL" or "DONT STEAL"
-CloverHubE01Gui.Bar.Label.TextColor3 = warningReady and Color3.fromRGB(85, 255, 125)
+YaisHubE01Gui.Bar.Label.Text = warningReady and "STEAL" or "DONT STEAL"
+YaisHubE01Gui.Bar.Label.TextColor3 = warningReady and Color3.fromRGB(85, 255, 125)
 or Color3.fromRGB(11, 71, 28)
-CloverHubE01Gui.Bar.Track.Fill.Size = UDim2.new(value, 0, 1, 0)
+YaisHubE01Gui.Bar.Track.Fill.Size = UDim2.new(value, 0, 1, 0)
 end)
 end
 buildGui()
@@ -15601,7 +15613,7 @@ local cFrame = CFrame.new(rootPart.Position.X, -7, rootPart.Position.Z) * rotati
 local marker = trackerState.marker
 if not marker or not marker.Parent then
 marker = Instance.new("Part")
-marker.Name = "CloverHubLastPosition"
+marker.Name = "YaisHubLastPosition"
 marker.Shape = Enum.PartType.Ball
 marker.Size = Vector3.new(3, 3, 3)
 marker.Color = color
@@ -15832,9 +15844,9 @@ IsInsideMap = isInsideMapBounds,
 }
 return rootPart
 end
-local cloverHubLastPosMarker = createLastPositionTracker()
-_G.CloverHubLastPosMarker = cloverHubLastPosMarker
-cloverHubLastPosMarker.Start()
+local yaisHubLastPosMarker = createLastPositionTracker()
+_G.YaisHubLastPosMarker = yaisHubLastPosMarker
+yaisHubLastPosMarker.Start()
 end
 if loadAllSettings() then
 updateUIFromLoaded()
