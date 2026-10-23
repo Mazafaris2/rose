@@ -6494,7 +6494,7 @@ speedLabel.Size = UDim2.new(1, 0, 0, 30)
 speedLabel.Position = UDim2.new(0, 0, 0, 0)
 speedLabel.BackgroundTransparency = 1
 speedLabel.Text = "Spd: 0.0"
-speedLabel.TextColor3 = Color3.fromRGB(85, 255, 85)
+speedLabel.TextColor3 = getThemeColor()
 speedLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 speedLabel.TextStrokeTransparency = 0.08
 speedLabel.Font = Enum.Font.GothamBlack
@@ -6519,7 +6519,7 @@ local brandGradient = Instance.new("UIGradient", speedBranding)
 brandGradient.Rotation = 90
 brandGradient.Color = ColorSequence.new({
 ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 255, 240)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 190, 90)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 195, 35)),
 ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 220, 95)),
 })
 local brandStroke = Instance.new("UIStroke", speedBranding)
@@ -12100,7 +12100,7 @@ local rootPart1955 = Instance.new("Frame", main)
 rootPart1955.Name = "TabsDivider"
 rootPart1955.Size = UDim2.new(1, -32, 0, 1)
 rootPart1955.Position = UDim2.new(0, 16, 0, 56)
-rootPart1955.BackgroundColor3 = Color3.fromRGB(50, 220, 100)
+rootPart1955.BackgroundColor3 = getThemeColor()
 rootPart1955.BackgroundTransparency = 0.7
 rootPart1955.BorderSizePixel = 0
 rootPart1955.ZIndex = 11
@@ -12221,7 +12221,7 @@ f.ZIndex = 7
 local bar = Instance.new("Frame", f)
 bar.Size = UDim2.new(0, 3, 0, 14)
 bar.Position = UDim2.new(0, 4, 0.5, -7)
-bar.BackgroundColor3 = Color3.fromRGB(50, 220, 100)
+bar.BackgroundColor3 = getThemeColor()
 bar.BorderSizePixel = 0
 bar.ZIndex = 8
 local l = Instance.new("TextLabel", f)
@@ -12239,7 +12239,7 @@ l.ZIndex = 8
 local line = Instance.new("Frame", f)
 line.Size = UDim2.new(1, -40, 0, 1)
 line.Position = UDim2.new(0, 36, 0.5, 0)
-line.BackgroundColor3 = Color3.fromRGB(50, 220, 100)
+line.BackgroundColor3 = getThemeColor()
 line.BackgroundTransparency = 0.55
 line.BorderSizePixel = 0
 line.ZIndex = 8
@@ -12300,7 +12300,7 @@ pill.Name = "Track"
 pill.Size = UDim2.new(0, 34, 0, 18)
 pill.AnchorPoint = Vector2.new(0.5, 0.5)
 pill.Position = UDim2.new(1, -(offset or 48), 0.5, 0)
-pill.BackgroundColor3 = Color3.fromRGB(50, 220, 100)
+pill.BackgroundColor3 = getThemeColor()
 pill.BackgroundTransparency = 0.2
 pill.BorderSizePixel = 0
 pill.ZIndex = 8
@@ -12336,7 +12336,7 @@ local themeColor = getThemeColor()
 local tweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 TweenService:Create(dot, tweenInfo, {
 Position = on and UDim2.new(1, -16, 0.5, -6) or UDim2.new(0, 3, 0.5, -6),
-BackgroundColor3 = on and Color3.fromRGB(50, 220, 100) or Color3.fromRGB(3, 18, 7),
+BackgroundColor3 = on and getThemeColor() or Color3.fromRGB(3, 18, 7),
 }):Play()
 TweenService:Create(pill, tweenInfo, {
 BackgroundColor3 = on and themeColor or Color3.fromRGB(255, 255, 255),
@@ -13377,8 +13377,8 @@ end
 local function buildYaisFeet(root, footOffset)
 local folder = Instance.new("Folder")
 folder.Name = "YaisHubFeet"
-local leafColor = Color3.fromRGB(40, 220, 90)
-local stemColor = Color3.fromRGB(15, 120, 50)
+local leafColor = Color3.fromRGB(255, 195, 35)
+local stemColor = Color3.fromRGB(190, 125, 10)
 local a = 2.6
 local d = a / math.sqrt(2)
 local y = -footOffset + 0.1
@@ -13942,7 +13942,7 @@ local resetRow = CONFIG_BTN_ROW
 local resetBtn = Instance.new("TextButton", resetRow)
 resetBtn.Size = UDim2.new(0.5, -14, 0.82, 0)
 resetBtn.Position = UDim2.new(0.5, 4, 0.09, 0)
-resetBtn.BackgroundColor3 = Color3.fromRGB(50, 220, 100)
+resetBtn.BackgroundColor3 = getThemeColor()
 resetBtn.BorderSizePixel = 0
 resetBtn.Text = ""
 resetBtn.AutoButtonColor = false
