@@ -4387,6 +4387,10 @@ InstaReset = {
 kb = Enum.KeyCode.H,
 gp = nil,
 },
+LockUI = {
+kb = Enum.KeyCode.K,
+gp = nil,
+},
 }
 KB = {
 DropBrainrot = {
@@ -4432,6 +4436,10 @@ gp = DEFAULT_KB.BatV2.gp,
 InstaReset = {
 kb = DEFAULT_KB.InstaReset.kb,
 gp = DEFAULT_KB.InstaReset.gp,
+},
+LockUI = {
+kb = DEFAULT_KB.LockUI.kb,
+gp = DEFAULT_KB.LockUI.gp,
 },
 }
 _isResetting = false
@@ -10735,6 +10743,10 @@ instaResetKey = {
 kb = KB.InstaReset.kb and KB.InstaReset.kb.Name,
 gp = KB.InstaReset.gp and KB.InstaReset.gp.Name,
 },
+lockUiKey = {
+kb = KB.LockUI.kb and KB.LockUI.kb.Name,
+gp = KB.LockUI.gp and KB.LockUI.gp.Name,
+},
 layoutV = 4,
 tpBatFloatingPos = tpBatFloatingPos,
 batV2FloatingPos = batV2FloatingPos,
@@ -11002,6 +11014,7 @@ lk(KB.LaggerMode, result.laggerModeKey)
 lk(KB.TPBat, result.tpBatKey)
 lk(KB.BatV2, result.batV2Key)
 lk(KB.InstaReset, result.instaResetKey)
+lk(KB.LockUI, result.lockUiKey)
 if result.mobileButtonPositions then
 savedButtonPositions = result.mobileButtonPositions
 end
@@ -14010,6 +14023,7 @@ createActionRow(keybinds, "Insta Reset", KB.InstaReset)
 createActionRow(keybinds, "TP Down", KB.TPFloor)
 createActionRow(keybinds, "Drop Brainrot", KB.DropBrainrot)
 createActionRow(keybinds, "Hide GUI", KB.GuiHide)
+createActionRow(keybinds, "Lock UI", KB.LockUI)
 local vector2318 = Instance.new("Frame", keybinds)
 vector2318.Size = UDim2.new(1, 0, 0, 16)
 vector2318.BackgroundTransparency = 1
@@ -15620,6 +15634,91 @@ buildGui()
 MobilePanel = createMobilePanel()
 batV2FloatingButton = createBatV2FloatingButton()
 instaResetFloatingButton = createInstaResetFloatingButton()
+-- floating Lock/Unlock UI button (mobile)
+do
+local lockGui = Instance.new("ScreenGui")
+lockGui.Name = "YaisHubLockUIButton"
+lockGui.ResetOnSpawn = false
+lockGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+pcall(function()
+if syn and syn.protect_gui then
+syn.protect_gui(lockGui)
+end
+end)
+if not pcall(function()
+lockGui.Parent = game:GetService("CoreGui")
+end) then
+lockGui.Parent = localPlayer:WaitForChild("PlayerGui")
+end
+local lockBtn = Instance.new("TextButton", lockGui)
+lockBtn.Name = "LockUIButton"
+lockBtn.Size = UDim2.new(0, 60, 0, 60)
+lockBtn.AnchorPoint = Vector2.new(1, 0)
+lockBtn.Position = UDim2.new(1, -150, 1, -140)
+lockBtn.BackgroundColor3 = Color3.fromRGB(1, 8, 3)
+lockBtn.BorderSizePixel = 0
+lockBtn.Text = ""
+lockBtn.AutoButtonColor = false
+lockBtn.ZIndex = 10
+Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 10)
+local lockStroke = Instance.new("UIStroke", lockBtn)
+lockStroke.Color = Color3.fromRGB(40, 200, 90)
+lockStroke.Thickness = 1
+lockStroke.Transparency = 0.45
+local lockLabel = Instance.new("TextLabel", lockBtn)
+lockLabel.Size = UDim2.new(1, 0, 1, 0)
+lockLabel.BackgroundTransparency = 1
+lockLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+lockLabel.Font = Enum.Font.GothamBlack
+lockLabel.TextSize = 10
+lockLabel.TextWrapped = true
+lockLabel.ZIndex = 11
+local function refreshLockBtn()
+lockLabel.Text = uiLocked and "UNLOCK\nUI" or "LOCK\nUI"
+lockStroke.Color = uiLocked and Color3.fromRGB(255, 200, 60) or Color3.fromRGB(40, 200, 90)
+end
+refreshLockBtn()
+local origToggleLockUI = toggleLockUI
+toggleLockUI = function(state)
+origToggleLockUI(state)
+refreshLockBtn()
+end
+-- tap = lock/unlock, drag (only while unlocked) = move the button
+local dragStart, startPos, moved = nil, nil, false
+lockBtn.InputBegan:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragStart = input.Position
+startPos = lockBtn.Position
+moved = false
+end
+end)
+UserInputService.InputChanged:Connect(function(input)
+if not dragStart or uiLocked then
+return
+end
+if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+local delta = input.Position - dragStart
+if delta.Magnitude > 6 then
+moved = true
+end
+if moved then
+lockBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+end
+end)
+UserInputService.InputEnded:Connect(function(input)
+if not dragStart then
+return
+end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+local wasMoved = moved
+dragStart = nil
+if not wasMoved then
+toggleLockUI()
+end
+end
+end)
+end
 do
 local function createLastPositionTracker()
 local trackerPlayersService = game:GetService("Players")
@@ -16232,6 +16331,10 @@ if btnFrame then
 paintFloatingBtn(btnFrame, autoBatV2Enabled)
 end
 end
+return
+end
+if kbMatch(KB.LockUI, keyCode) then
+toggleLockUI()
 return
 end
 if kbMatch(KB.GuiHide, keyCode) then
