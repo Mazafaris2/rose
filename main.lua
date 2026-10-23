@@ -20,7 +20,7 @@ label.Size = size or UDim2.new(1, -16, 0, 16)
 label.Position = position or UDim2.new(0, 8, 1, -20)
 label.BackgroundTransparency = 1
 label.Text = YAIS_BRANDING
-label.TextColor3 = Color3.fromRGB(30, 185, 73)
+label.TextColor3 = Color3.fromRGB(255, 195, 35)
 label.TextTransparency = 0.08
 label.Font = Enum.Font.PermanentMarker
 label.TextSize = math.max(6, math.floor((textSize or 10) * 0.8))
@@ -185,9 +185,9 @@ title.ZIndex = 5
 local titleGradient = Instance.new("UIGradient", title)
 titleGradient.Rotation = 90
 titleGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(215, 255, 225)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(70, 225, 115)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 150, 65)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 248, 205)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 205, 55)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 125, 10)),
 })
 local titleStroke = Instance.new("UIStroke", title)
 titleStroke.Thickness = 3
@@ -203,7 +203,7 @@ line.Name = "Line"
 line.AnchorPoint = Vector2.new(0.5, 0.5)
 line.Size = UDim2.fromOffset(0, 4)
 line.Position = UDim2.new(0.5, 0, 0.5, 50)
-line.BackgroundColor3 = Color3.fromRGB(70, 225, 115)
+line.BackgroundColor3 = Color3.fromRGB(255, 205, 55)
 line.BorderSizePixel = 0
 line.ZIndex = 5
 Instance.new("UICorner", line).CornerRadius = UDim.new(1, 0)
@@ -217,7 +217,7 @@ tagline.BackgroundTransparency = 1
 tagline.Text = "discord.gg/yaisduels"
 tagline.Font = Enum.Font.GothamBold
 tagline.TextSize = 15
-tagline.TextColor3 = Color3.fromRGB(120, 235, 160)
+tagline.TextColor3 = Color3.fromRGB(255, 220, 95)
 tagline.TextTransparency = 1
 tagline.ZIndex = 5
 task.delay(0.8, function()
@@ -1175,10 +1175,14 @@ colorThemes = {
 Blue = Color3.fromRGB(35, 125, 255),
 Red = Color3.fromRGB(235, 55, 65),
 Yellow = Color3.fromRGB(255, 195, 35),
-Green = Color3.fromRGB(30, 185, 73),
 Purple = Color3.fromRGB(155, 85, 255),
+Pink = Color3.fromRGB(255, 80, 175),
+Cyan = Color3.fromRGB(35, 220, 235),
+Orange = Color3.fromRGB(255, 125, 35),
+Lime = Color3.fromRGB(145, 235, 45),
+White = Color3.fromRGB(235, 240, 255),
 }
-currentColorTheme = "Green"
+currentColorTheme = "Yellow"
 selectedColor = colorThemes[currentColorTheme]
 getThemeColor = function()
 return selectedColor
@@ -1256,8 +1260,8 @@ end
 end
 if descendant:IsA("UIStroke") then
 if
-descendant.Color == Color3.fromRGB(14, 88, 35)
-or descendant.Color == Color3.fromRGB(26, 160, 63)
+descendant.Color == Color3.fromRGB(120, 78, 0)
+or descendant.Color == Color3.fromRGB(255, 195, 35)
 then
 descendant.Color = color
 end
@@ -1286,8 +1290,8 @@ end
 local data = tabButtons or {}
 for _, label in ipairs(data) do
 if
-label.TextColor3 == Color3.fromRGB(26, 160, 63)
-or label.TextColor3 == Color3.fromRGB(14, 88, 35)
+label.TextColor3 == Color3.fromRGB(255, 195, 35)
+or label.TextColor3 == Color3.fromRGB(120, 78, 0)
 then
 label.TextColor3 = color
 end
@@ -1325,8 +1329,8 @@ for _, descendant in ipairs(titleFrame:GetDescendants()) do
 if
 descendant:IsA("UIStroke")
 and (
-descendant.Color == Color3.fromRGB(14, 88, 35)
-or descendant.Color == Color3.fromRGB(26, 160, 63)
+descendant.Color == Color3.fromRGB(120, 78, 0)
+or descendant.Color == Color3.fromRGB(255, 195, 35)
 )
 then
 descendant.Color = color
@@ -5776,7 +5780,7 @@ rootPart.Text = ""
 rootPart.Parent = billboardGui
 local uiGradient = Instance.new("UIGradient", rootPart)
 local data = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 177, 70))
+local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 185, 25))
 local object1133 = ColorSequenceKeypoint.new(0.3, Color3.new(1, 1, 1))
 local object1134 = ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1))
 local object1135 = ColorSequenceKeypoint.new(0.7, Color3.new(1, 1, 1))
@@ -5784,7 +5788,7 @@ data[1] = object
 data[2] = object1133
 data[3] = object1134
 data[4] = object1135
-data[5] = ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 177, 70))
+data[5] = ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 185, 25))
 uiGradient.Color = ColorSequence.new(data)
 uiGradient.Rotation = 45
 uiGradient.Offset = Vector2.new(0, 0)
@@ -6516,7 +6520,7 @@ brandGradient.Rotation = 90
 brandGradient.Color = ColorSequence.new({
 ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 255, 240)),
 ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 190, 90)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 235, 160)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 220, 95)),
 })
 local brandStroke = Instance.new("UIStroke", speedBranding)
 brandStroke.Thickness = 2.5
@@ -10872,7 +10876,7 @@ toggleESP(true)
 else
 toggleESP(false)
 end
-currentColorTheme = (result.themeColor and colorThemes[result.themeColor]) and result.themeColor or "Green"
+currentColorTheme = (result.themeColor and colorThemes[result.themeColor]) and result.themeColor or "Yellow"
 selectedColor = colorThemes[currentColorTheme]
 _G.AceAntiBypassLoadFromConfig(result)
 autoBatV2Enabled = _G.AceAntiBypassAimbotOn == true
@@ -11274,7 +11278,7 @@ for _, entry1857 in ipairs(keyButtonRefs) do
 local entry = entry1857.entry
 entry1857.btn.Text = entry.gp and entry.gp.Name or entry.kb and entry.kb.Name or "None"
 end
-currentColorTheme = "Green"
+currentColorTheme = "Yellow"
 selectedColor = colorThemes[currentColorTheme]
 updateAllUIThemeColors(selectedColor)
 backgroundIndex = 1
@@ -11297,7 +11301,7 @@ end
 end
 end
 if miniBtn then
-miniBtn.TextColor3 = Color3.fromRGB(30, 185, 73)
+miniBtn.TextColor3 = Color3.fromRGB(255, 195, 35)
 end
 local playerGui = localPlayer:FindFirstChild("PlayerGui")
 if playerGui then
@@ -11501,7 +11505,7 @@ _G.__tpBatV2Distance = 8
 currentAnimPack = "Off"
 disableAnimationPack()
 currentOutfitIndex = 1
-currentColorTheme = "Green"
+currentColorTheme = "Yellow"
 selectedColor = colorThemes[currentColorTheme]
 backgroundIndex = 1
 backgroundImageTransparency = 0.35
@@ -11859,8 +11863,8 @@ Trigger = instaReset,
 end
 end
 buildGui = function()
-Color3.fromRGB(26, 160, 63)
-local color = Color3.fromRGB(24, 151, 60)
+Color3.fromRGB(255, 195, 35)
+local color = Color3.fromRGB(230, 165, 20)
 Color3.fromRGB(31, 193, 76)
 Color3.fromRGB(0, 0, 0)
 Color3.fromRGB(1, 8, 3)
@@ -11985,7 +11989,7 @@ imageLabel.ZIndex = 21
 local textButton = Instance.new("TextButton", main)
 textButton.Size = UDim2.new(0, 28, 0, 28)
 textButton.Position = UDim2.new(1, -38, 0, 10)
-textButton.BackgroundColor3 = Color3.fromRGB(4, 29, 11)
+textButton.BackgroundColor3 = Color3.fromRGB(55, 38, 0)
 textButton.BackgroundTransparency = 0.6
 textButton.BorderSizePixel = 0
 textButton.Text = "X"
@@ -12004,7 +12008,7 @@ end)
 textButton.MouseLeave:Connect(function()
 TweenService:Create(textButton, TweenInfo.new(0.12), {
 TextColor3 = color4,
-BackgroundColor3 = Color3.fromRGB(4, 29, 11),
+BackgroundColor3 = Color3.fromRGB(55, 38, 0),
 }):Play()
 end)
 miniBtn = Instance.new("TextButton", gui)
@@ -12015,7 +12019,7 @@ miniBtn.BackgroundTransparency = 1
 miniBtn.BorderSizePixel = 0
 miniBtn.ClipsDescendants = false
 miniBtn.Text = ""
-miniBtn.TextColor3 = Color3.fromRGB(30, 185, 73)
+miniBtn.TextColor3 = Color3.fromRGB(255, 195, 35)
 miniBtn.Font = Enum.Font.SciFi
 miniBtn.TextSize = 16
 miniBtn.ZIndex = 20
@@ -12133,7 +12137,7 @@ for i, text1960 in ipairs({
 }) do
 local textButton = Instance.new("TextButton", rootPart1954)
 textButton.Size = UDim2.new(0.185, 0, 1, -8)
-textButton.BackgroundColor3 = Color3.fromRGB(30, 185, 73)
+textButton.BackgroundColor3 = Color3.fromRGB(255, 195, 35)
 textButton.BackgroundTransparency = 1
 textButton.BorderSizePixel = 0
 textButton.Text = text1960
@@ -12151,7 +12155,7 @@ scrollingFrame.BackgroundTransparency = 0.6
 scrollingFrame.BorderSizePixel = 0
 scrollingFrame.ClipsDescendants = true
 scrollingFrame.ScrollBarThickness = 2
-scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(4, 29, 11)
+scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(55, 38, 0)
 scrollingFrame.ScrollBarImageTransparency = 0.3
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -13332,7 +13336,7 @@ end)
 createFrame(visual, "Environment")
 local uiThemeFrame = createFrame2(visual, 38)
 mkLabel(uiThemeFrame, "UI Theme")
-local uiThemeOptions = {"Green", "Blue", "Red", "Yellow", "Purple"}
+local uiThemeOptions = {"Yellow", "Blue", "Red", "Purple", "Pink", "Cyan", "Orange", "Lime", "White"}
 local uiThemeSelectorLabel = createCarouselSelector(uiThemeFrame, currentColorTheme, uiThemeOptions, function(themeName)
     applyColorTheme(themeName)
 end)
@@ -14086,14 +14090,14 @@ Instance.new("UICorner", frame2321).CornerRadius = UDim.new(1, 0)
 progressFill = Instance.new("Frame", frame2321)
 progressFill.Size = UDim2.new(0, 0, 1, 0)
 progressFill.Position = UDim2.new(0, 0, 0, 0)
-progressFill.BackgroundColor3 = Color3.fromRGB(30, 185, 73)
+progressFill.BackgroundColor3 = Color3.fromRGB(255, 195, 35)
 progressFill.BorderSizePixel = 0
 progressFill.ZIndex = 13
 Instance.new("UICorner", progressFill).CornerRadius = UDim.new(1, 0)
 local uiGradient4 = Instance.new("UIGradient", progressFill)
 uiGradient4.Color = ColorSequence.new({
 ColorSequenceKeypoint.new(0, Color3.fromRGB(21, 134, 53)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 185, 73)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 195, 35)),
 ColorSequenceKeypoint.new(1, Color3.fromRGB(32, 202, 80)),
 })
 uiGradient4.Rotation = 0
@@ -15725,12 +15729,12 @@ local trackerPlayersService = game:GetService("Players")
 local trackerRunService = game:GetService("RunService")
 local trackerWorkspace = game:GetService("Workspace")
 local trackerPlayer = trackerPlayersService.LocalPlayer
-local color = Color3.fromRGB(26, 160, 63)
-Color3.fromRGB(24, 151, 60)
-local color2 = Color3.fromRGB(32, 198, 78)
-local color3 = Color3.fromRGB(32, 198, 78)
-local color4 = Color3.fromRGB(4, 29, 11)
-local color5 = Color3.fromRGB(28, 177, 70)
+local color = Color3.fromRGB(255, 195, 35)
+Color3.fromRGB(230, 165, 20)
+local color2 = Color3.fromRGB(255, 205, 55)
+local color3 = Color3.fromRGB(255, 205, 55)
+local color4 = Color3.fromRGB(55, 38, 0)
+local color5 = Color3.fromRGB(245, 185, 25)
 local mapMinX = -536.2
 local mapMaxX = -422
 local mapMinY = -10
