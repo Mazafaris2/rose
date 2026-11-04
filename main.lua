@@ -16302,28 +16302,65 @@ local function sampleGround(hrp)
     return _lastGroundNormalY, false
 end
 
-local function setSpeedConstraint(hrp, horizVel)
+-- YAIS Yellow speed movement: gradual acceleration + bounded impulses.
+-- This keeps the donor's smooth ramp / rubber-band handling while avoiding
+-- large per-frame velocity jumps that can freeze the client at high speeds.
+local _speedCurrent = nil
+local _speedLastFlatPos = nil
+local _speedRubberbandUntil = 0
+
+local function setSpeedConstraint(hrp, horizVel, dt)
     if not hrp or not hrp.Parent then return end
     local hx, hz = horizVel.X, horizVel.Z
-    local mag = math.sqrt(hx * hx + hz * hz)
-    _lastHorizSpeed = mag
-    _speedActive = mag > 0.05
-    if mag < 0.05 then return end
+    local desiredMag = math.sqrt(hx * hx + hz * hz)
+    _lastHorizSpeed = desiredMag
+    _speedActive = desiredMag > 0.05
+    if desiredMag < 0.05 then return end
+
     pcall(function()
-        local ny, grounded = sampleGround(hrp)
-        local v = hrp.AssemblyLinearVelocity
+        local step = math.clamp(tonumber(dt) or (1/60), 1/240, 0.05)
+        local velocity = hrp.AssemblyLinearVelocity
+        local currentFlat = Vector3.new(hrp.Position.X, 0, hrp.Position.Z)
+        local direction = Vector3.new(hx, 0, hz).Unit
+        local now = os.clock()
+
+        if _speedLastFlatPos then
+            local displacement = currentFlat - _speedLastFlatPos
+            if displacement.Magnitude > 6 and displacement:Dot(direction) < 0 then
+                _speedRubberbandUntil = now + 0.5
+                _speedCurrent = math.min(_speedCurrent or desiredMag, math.max(16, tonumber(M.NS) or 59))
+            end
+        end
+        _speedLastFlatPos = currentFlat
+
+        local normalSpeed = math.max(1, tonumber(M.NS) or 59)
+        local targetSpeed = desiredMag
+        if now < _speedRubberbandUntil then
+            targetSpeed = math.min(targetSpeed, normalSpeed)
+        end
+
+        local currentSpeed = _speedCurrent or math.min(targetSpeed, normalSpeed)
+        if currentSpeed < targetSpeed then
+            currentSpeed = math.min(targetSpeed, currentSpeed + 120 * step)
+        elseif currentSpeed > targetSpeed then
+            currentSpeed = math.max(targetSpeed, currentSpeed - 250 * step)
+        end
+        _speedCurrent = currentSpeed
+
+        local target = direction * currentSpeed
+        local current = Vector3.new(velocity.X, 0, velocity.Z)
+        local delta = target - current
+
+        -- Cap acceleration per frame so 110+ settings ramp smoothly instead
+        -- of applying a huge impulse repeatedly on Heartbeat.
+        local maxDelta = 140 * step
+        if delta.Magnitude > maxDelta then
+            delta = delta.Unit * maxDelta
+        end
+
         local mass = hrp.AssemblyMass
         if not mass or mass ~= mass or mass <= 0 then mass = 1 end
-        local gain = 0.85
-        if grounded then
-            if ny < 0.55 then gain = 0.45
-            elseif ny < 0.78 then gain = 0.62
-            else gain = 0.9 end
-        else
-            gain = 0.7
-        end
-        local target = Vector3.new(hx, v.Y, hz)
-        hrp:ApplyImpulse((target - v) * mass * gain)
+        hrp:ApplyImpulse(delta * mass)
     end)
 end
 
@@ -16385,6 +16422,8 @@ RunService.Heartbeat:Connect(function(dt)
         M.lastMoveDir = Vector3.new(0, 0, 0)
         _speedActive = false
         _lastHorizSpeed = 0
+        _speedCurrent = nil
+        _speedLastFlatPos = nil
         brakeHorizontal(hrp)
         return
     end
@@ -16394,10 +16433,12 @@ RunService.Heartbeat:Connect(function(dt)
         local md = hum.MoveDirection
         if md.Magnitude > 0.05 then
             M.lastMoveDir = Vector3.new(md.X, 0, md.Z).Unit
-            setSpeedConstraint(hrp, M.lastMoveDir * spd)
+            setSpeedConstraint(hrp, M.lastMoveDir * spd, dt)
         else
             _speedActive = false
             _lastHorizSpeed = 0
+            _speedCurrent = nil
+            _speedLastFlatPos = nil
             brakeHorizontal(hrp)
         end
     else
