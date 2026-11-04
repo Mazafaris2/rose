@@ -41,7 +41,7 @@ local function YAIS_emergencyToast(msg)
         local t = Instance.new("TextLabel", f)
         t.Size = UDim2.fromScale(1, 1)
         t.BackgroundTransparency = 1
-        t.Text = tostring(msg or "YAIS loading...")
+        t.Text = tostring(msg or "VYNX loading...")
         t.TextColor3 = Color3.fromRGB(200, 230, 255)
         t.Font = Enum.Font.GothamBold
         t.TextSize = 14
@@ -257,7 +257,7 @@ end
 M.TITLE_VS_COLOR = Color3.fromRGB(150, 220, 255)
 
 function M.headerTitleRich()
-    return '<font color="rgb(70,170,255)">YAIS</font> <font color="rgb(255,255,255)">HUB</font>'
+    return '<font color="rgb(70,170,255)">VYNX</font> <font color="rgb(255,255,255)">HUB</font>'
 end
 
 function M.applyHeaderTitle(lbl)
@@ -2678,7 +2678,7 @@ function M.setupHeadIndicator(char)
     discordLbl.Size = UDim2.new(1, 0, 0, 28)
     discordLbl.Position = UDim2.new(0, 0, 0, 0)
     discordLbl.BackgroundTransparency = 1
-    discordLbl.Text = "discord.gg/yaisduels"
+    discordLbl.Text = "discord.gg/vynxduels"
     discordLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     discordLbl.Font = Enum.Font.GothamBold
     discordLbl.TextSize = 18
@@ -2757,7 +2757,7 @@ function M.updateHeadTheme()
         for _, c in ipairs(M.headIndicator.discord:GetChildren()) do
             if c:IsA("UIGradient") or c:IsA("UIStroke") then pcall(function() c:Destroy() end) end
         end
-        M.headIndicator.discord.Text = "discord.gg/yaisduels"
+        M.headIndicator.discord.Text = "discord.gg/vynxduels"
         M.headIndicator.discord.TextColor3 = Color3.fromRGB(255, 255, 255)
         M.headIndicator.discord.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         M.headIndicator.discord.TextStrokeTransparency = 0.35
@@ -2947,7 +2947,7 @@ function M.buildNewStatusUI()
     title.Size = UDim2.new(1, -120, 0, 14)
     title.Position = UDim2.new(0, 56, 0, 6)
     title.BackgroundTransparency = 1
-    title.Text = "YAIS.VS"
+    title.Text = "VYNX.VS"
     title.TextColor3 = Color3.fromRGB(40, 140, 255)
     title.Font = Enum.Font.GothamBlack
     title.TextSize = 12
@@ -2959,7 +2959,7 @@ function M.buildNewStatusUI()
     sub.Size = UDim2.new(1, -120, 0, 11)
     sub.Position = UDim2.new(0, 56, 0, 20)
     sub.BackgroundTransparency = 1
-    sub.Text = "discord.gg/yaisduels"
+    sub.Text = "discord.gg/vynxduels"
     sub.TextColor3 = Color3.fromRGB(140, 175, 210)
     sub.Font = Enum.Font.GothamBold
     sub.TextSize = 9
@@ -3119,7 +3119,7 @@ function M.buildNewStatusUI()
                 pcall(function() pingMs = math.floor(player:GetNetworkPing() * 1000 + 0.5) end)
             end
             if M.statusInfoLbl then
-                M.statusInfoLbl.Text = "FPS:" .. tostring(fps) .. "  discord.gg/yaisduels  PING: " .. tostring(pingMs) .. "ms"
+                M.statusInfoLbl.Text = "FPS:" .. tostring(fps) .. "  discord.gg/vynxduels  PING: " .. tostring(pingMs) .. "ms"
             end
             if M.statusRadiusLbl then
                 M.statusRadiusLbl.Text = "Radius: " .. tostring((M.Steal and M.Steal.StealRadius) or 60)
@@ -10196,7 +10196,7 @@ function M.applyChromeTheme()
         local disc = hdr:FindFirstChild("HeaderDiscord") or M.headerDiscordLbl
         if disc and disc:IsA("TextLabel") then
             disc.Visible = true
-            disc.Text = "discord.gg/yaisduels"
+            disc.Text = "discord.gg/vynxduels"
             disc.Position = UDim2.new(0, 58, 0, 34)
             disc.Size = UDim2.new(1, -110, 0, 20)
             disc.BackgroundTransparency = 1
@@ -12830,7 +12830,7 @@ end
     discordLbl.Position = UDim2.new(0, 58, 0, 34)
     discordLbl.Size = UDim2.new(1, -110, 0, 20)
     discordLbl.BackgroundTransparency = 1
-    discordLbl.Text = "discord.gg/yaisduels"
+    discordLbl.Text = "discord.gg/vynxduels"
     discordLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
     discordLbl.TextTransparency = 0
     discordLbl.TextStrokeTransparency = 1
@@ -12857,7 +12857,7 @@ end
         end
         if discordLbl and discordLbl.Parent then
             discordLbl.Visible = true
-            discordLbl.Text = "discord.gg/yaisduels"
+            discordLbl.Text = "discord.gg/vynxduels"
             discordLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
             discordLbl.TextTransparency = 0
             discordLbl.TextSize = 14
