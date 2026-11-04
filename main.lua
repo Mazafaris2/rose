@@ -20,13 +20,13 @@ label.Size = size or UDim2.new(1, -16, 0, 16)
 label.Position = position or UDim2.new(0, 8, 1, -20)
 label.BackgroundTransparency = 1
 label.Text = YAIS_BRANDING
-label.TextColor3 = Color3.fromRGB(60, 170, 255)
+label.TextColor3 = Color3.fromRGB(255, 220, 35)
 label.TextTransparency = 0.08
 label.Font = Enum.Font.PermanentMarker
 label.TextSize = math.max(6, math.floor((textSize or 10) * 0.8))
 label.TextXAlignment = Enum.TextXAlignment.Center
 label.TextYAlignment = Enum.TextYAlignment.Center
-label.TextStrokeColor3 = Color3.fromRGB(22, 22, 26)
+label.TextStrokeColor3 = Color3.fromRGB(105, 60, 0)
 label.TextStrokeTransparency = 0.65
 label.ZIndex = 999
 return label
@@ -37,7 +37,7 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     holder.Name = "YaisIcon"
     holder.AnchorPoint = Vector2.new(0.5, 0.5)
     holder.Size = UDim2.fromOffset(100, 100)
-    holder.BackgroundColor3 = Color3.fromRGB(0, 130, 200)
+    holder.BackgroundColor3 = Color3.fromRGB(255, 195, 20)
     holder.BorderSizePixel = 0
     holder.ZIndex = z
     local scale = Instance.new("UIScale")
@@ -47,14 +47,14 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     corner.CornerRadius = UDim.new(1, 0)
     corner.Parent = holder
     local outline = Instance.new("UIStroke")
-    outline.Color = Color3.fromRGB(30, 30, 32)
+    outline.Color = Color3.fromRGB(145, 85, 0)
     outline.Thickness = 3
     outline.Parent = holder
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 220, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 140, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 45)),
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 90)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 210, 20)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 115, 0)),
     })
     gradient.Rotation = 90
     outline.Parent = holder
@@ -66,8 +66,8 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     crown.Text = "♛"
     crown.Font = Enum.Font.GothamBlack
     crown.TextScaled = true
-    crown.TextColor3 = Color3.fromRGB(60, 170, 255)
-    crown.TextStrokeColor3 = Color3.fromRGB(28, 28, 34)
+    crown.TextColor3 = Color3.fromRGB(255, 211, 48)
+    crown.TextStrokeColor3 = Color3.fromRGB(125, 75, 0)
     crown.TextStrokeTransparency = 0.15
     crown.ZIndex = z + 2
     crown.Parent = holder
@@ -79,8 +79,8 @@ local function makeYaisIcon(parent, pixelSize, zIndex)
     title.Text = "YAIS"
     title.Font = Enum.Font.GothamBlack
     title.TextScaled = true
-    title.TextColor3 = Color3.fromRGB(0, 130, 200)
-    title.TextStrokeColor3 = Color3.fromRGB(28, 28, 34)
+    title.TextColor3 = Color3.fromRGB(255, 204, 25)
+    title.TextStrokeColor3 = Color3.fromRGB(125, 75, 0)
     title.TextStrokeTransparency = 0
     title.ZIndex = z + 2
     title.Parent = holder
@@ -185,13 +185,13 @@ title.ZIndex = 5
 local titleGradient = Instance.new("UIGradient", title)
 titleGradient.Rotation = 90
 titleGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 230, 255)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(40, 140, 255)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 45)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 248, 205)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 205, 55)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 125, 10)),
 })
 local titleStroke = Instance.new("UIStroke", title)
 titleStroke.Thickness = 3
-titleStroke.Color = Color3.fromRGB(20, 20, 24)
+titleStroke.Color = Color3.fromRGB(4, 40, 18)
 titleStroke.Transparency = 1
 local titleScale = Instance.new("UIScale", title)
 titleScale.Scale = 0.85
@@ -203,7 +203,7 @@ line.Name = "Line"
 line.AnchorPoint = Vector2.new(0.5, 0.5)
 line.Size = UDim2.fromOffset(0, 4)
 line.Position = UDim2.new(0.5, 0, 0.5, 50)
-line.BackgroundColor3 = Color3.fromRGB(40, 140, 255)
+line.BackgroundColor3 = Color3.fromRGB(255, 205, 55)
 line.BorderSizePixel = 0
 line.ZIndex = 5
 Instance.new("UICorner", line).CornerRadius = UDim.new(1, 0)
@@ -217,7 +217,7 @@ tagline.BackgroundTransparency = 1
 tagline.Text = "discord.gg/yaisduels"
 tagline.Font = Enum.Font.GothamBold
 tagline.TextSize = 15
-tagline.TextColor3 = Color3.fromRGB(90, 185, 255)
+tagline.TextColor3 = Color3.fromRGB(255, 220, 95)
 tagline.TextTransparency = 1
 tagline.ZIndex = 5
 task.delay(0.8, function()
@@ -1174,7 +1174,7 @@ end
 colorThemes = {
 Blue = Color3.fromRGB(35, 125, 255),
 Red = Color3.fromRGB(235, 55, 65),
-Yellow = Color3.fromRGB(0, 130, 200),
+Yellow = Color3.fromRGB(255, 195, 35),
 Purple = Color3.fromRGB(155, 85, 255),
 Pink = Color3.fromRGB(255, 80, 175),
 Cyan = Color3.fromRGB(35, 220, 235),
@@ -1260,8 +1260,8 @@ end
 end
 if descendant:IsA("UIStroke") then
 if
-descendant.Color == Color3.fromRGB(30, 30, 32)
-or descendant.Color == Color3.fromRGB(0, 130, 200)
+descendant.Color == Color3.fromRGB(120, 78, 0)
+or descendant.Color == Color3.fromRGB(255, 195, 35)
 then
 descendant.Color = color
 end
@@ -1290,8 +1290,8 @@ end
 local data = tabButtons or {}
 for _, label in ipairs(data) do
 if
-label.TextColor3 == Color3.fromRGB(0, 130, 200)
-or label.TextColor3 == Color3.fromRGB(30, 30, 32)
+label.TextColor3 == Color3.fromRGB(255, 195, 35)
+or label.TextColor3 == Color3.fromRGB(120, 78, 0)
 then
 label.TextColor3 = color
 end
@@ -1329,8 +1329,8 @@ for _, descendant in ipairs(titleFrame:GetDescendants()) do
 if
 descendant:IsA("UIStroke")
 and (
-descendant.Color == Color3.fromRGB(30, 30, 32)
-or descendant.Color == Color3.fromRGB(0, 130, 200)
+descendant.Color == Color3.fromRGB(120, 78, 0)
+or descendant.Color == Color3.fromRGB(255, 195, 35)
 )
 then
 descendant.Color = color
@@ -3485,10 +3485,10 @@ local batGripRotation = CFrame.Angles(0.78539816339744828, 0, 0.0872664625997164
 local minecraftBatColors = {
 ["Default"] = nil,
 ["Abyss Blue"] = Color3.fromRGB(0, 40, 150),
-["Venom Green"] = Color3.fromRGB(30, 30, 32),
-["Royal Gold"] = Color3.fromRGB(0, 130, 200),
-["Velvet Rose"] = Color3.fromRGB(40, 160, 255),
-["Crimson Night"] = Color3.fromRGB(20, 90, 180),
+["Venom Green"] = Color3.fromRGB(20, 85, 50),
+["Royal Gold"] = Color3.fromRGB(255, 200, 0),
+["Velvet Rose"] = Color3.fromRGB(20, 220, 100),
+["Crimson Night"] = Color3.fromRGB(0, 90, 30),
 }
 local minecraftBatState = {
 enabled = false,
@@ -5780,7 +5780,7 @@ rootPart.Text = ""
 rootPart.Parent = billboardGui
 local uiGradient = Instance.new("UIGradient", rootPart)
 local data = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 130, 200))
+local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(245, 185, 25))
 local object1133 = ColorSequenceKeypoint.new(0.3, Color3.new(1, 1, 1))
 local object1134 = ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1))
 local object1135 = ColorSequenceKeypoint.new(0.7, Color3.new(1, 1, 1))
@@ -5788,7 +5788,7 @@ data[1] = object
 data[2] = object1133
 data[3] = object1134
 data[4] = object1135
-data[5] = ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 130, 200))
+data[5] = ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 185, 25))
 uiGradient.Color = ColorSequence.new(data)
 uiGradient.Rotation = 45
 uiGradient.Offset = Vector2.new(0, 0)
@@ -6264,7 +6264,7 @@ label.TextColor3 = color
 label.Font = Enum.Font.GothamBold
 label.TextScaled = true
 label.TextStrokeTransparency = 1
-label.TextStrokeColor3 = Color3.fromRGB(22, 22, 26)
+label.TextStrokeColor3 = Color3.fromRGB(105, 60, 0)
 enemySpeedLabels[player] = label
 end
 elseif label.Parent and label.Parent.Parent ~= character then
@@ -6518,13 +6518,13 @@ if not speedBranding:FindFirstChildOfClass("UIGradient") then
 local brandGradient = Instance.new("UIGradient", speedBranding)
 brandGradient.Rotation = 90
 brandGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 230, 255)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 130, 200)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 185, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 255, 240)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 195, 35)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 220, 95)),
 })
 local brandStroke = Instance.new("UIStroke", speedBranding)
 brandStroke.Thickness = 2.5
-brandStroke.Color = Color3.fromRGB(22, 22, 26)
+brandStroke.Color = Color3.fromRGB(6, 60, 25)
 end
 end
 end
@@ -9791,25 +9791,25 @@ if false then
 if btnGrad then
 if active then
 btnGrad.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 230, 255)),
-ColorSequenceKeypoint.new(0.35, Color3.fromRGB(150, 220, 255)),
-ColorSequenceKeypoint.new(0.7, Color3.fromRGB(90, 185, 255)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 140, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 255, 220)),
+ColorSequenceKeypoint.new(0.35, Color3.fromRGB(120, 255, 160)),
+ColorSequenceKeypoint.new(0.7, Color3.fromRGB(70, 235, 120)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 200, 90)),
 })
 else
 btnGrad.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 170, 255)),
-ColorSequenceKeypoint.new(0.35, Color3.fromRGB(40, 140, 255)),
-ColorSequenceKeypoint.new(0.7, Color3.fromRGB(20, 90, 180)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 90, 180)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 220, 110)),
+ColorSequenceKeypoint.new(0.35, Color3.fromRGB(40, 185, 85)),
+ColorSequenceKeypoint.new(0.7, Color3.fromRGB(28, 150, 65)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 110, 48)),
 })
 end
 end
 if textLabel then
-textLabel.TextColor3 = active and Color3.fromRGB(20, 20, 24) or Color3.fromRGB(255, 255, 255)
+textLabel.TextColor3 = active and Color3.fromRGB(2, 15, 6) or Color3.fromRGB(255, 255, 255)
 end
 if uiStroke then
-uiStroke.Color = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(170, 230, 255)
+uiStroke.Color = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 255, 180)
 uiStroke.Thickness = active and 1.8 or 1.5
 uiStroke.Transparency = active and 0.05 or 0.2
 end
@@ -9818,17 +9818,17 @@ end
 if active then
 if btnGrad then
 local activeGradientKeypoints = {}
-local activeGradientStart = ColorSequenceKeypoint.new(0, Color3.fromRGB(170, 230, 255))
-local activeGradientMiddle = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(60, 170, 255))
-local activeGradientEnd = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(40, 160, 255))
+local activeGradientStart = ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 255, 185))
+local activeGradientMiddle = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(50, 235, 105))
+local activeGradientEnd = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(36, 200, 88))
 activeGradientKeypoints[1] = activeGradientStart
 activeGradientKeypoints[2] = activeGradientMiddle
 activeGradientKeypoints[3] = activeGradientEnd
-activeGradientKeypoints[4] = ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 140, 255))
+activeGradientKeypoints[4] = ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 175, 69))
 btnGrad.Color = ColorSequence.new(activeGradientKeypoints)
 end
 if textLabel then
-textLabel.TextColor3 = Color3.fromRGB(20, 20, 24)
+textLabel.TextColor3 = Color3.fromRGB(2, 15, 6)
 end
 if uiStroke then
 uiStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -9838,9 +9838,9 @@ end
 else
 if btnGrad then
 local inactiveGradientKeypoints = {}
-local inactiveGradientStart = ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 24))
-local inactiveGradientMiddle = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(10, 12, 14))
-local inactiveGradientEnd = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(10, 10, 12))
+local inactiveGradientStart = ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 65, 26))
+local inactiveGradientMiddle = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(4, 28, 11))
+local inactiveGradientEnd = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(1, 11, 4))
 inactiveGradientKeypoints[1] = inactiveGradientStart
 inactiveGradientKeypoints[2] = inactiveGradientMiddle
 inactiveGradientKeypoints[3] = inactiveGradientEnd
@@ -9851,7 +9851,7 @@ if textLabel then
 textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 end
 if uiStroke then
-uiStroke.Color = Color3.fromRGB(20, 20, 24)
+uiStroke.Color = Color3.fromRGB(10, 65, 26)
 uiStroke.Thickness = 1
 uiStroke.Transparency = 0.45
 end
@@ -11301,7 +11301,7 @@ end
 end
 end
 if miniBtn then
-miniBtn.TextColor3 = Color3.fromRGB(0, 130, 200)
+miniBtn.TextColor3 = Color3.fromRGB(255, 195, 35)
 end
 local playerGui = localPlayer:FindFirstChild("PlayerGui")
 if playerGui then
@@ -11309,7 +11309,7 @@ local ragCountdownBillboard = playerGui:FindFirstChild("RagCountdownBillboard")
 if ragCountdownBillboard then
 local textLabel = ragCountdownBillboard:FindFirstChildOfClass("TextLabel")
 if textLabel then
-textLabel.TextColor3 = Color3.fromRGB(150, 220, 255)
+textLabel.TextColor3 = Color3.fromRGB(90, 245, 140)
 end
 end
 end
@@ -11567,9 +11567,9 @@ local color = getThemeColor()
 local uiGradient = Instance.new("UIGradient", object)
 local data = {}
 local object = ColorSequenceKeypoint.new(0, color)
-local object1953 = ColorSequenceKeypoint.new(0.3, Color3.fromRGB(30, 110, 170))
-local object1954 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 220, 255))
-local object1955 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(30, 110, 170))
+local object1953 = ColorSequenceKeypoint.new(0.3, Color3.fromRGB(27, 168, 66))
+local object1954 = ColorSequenceKeypoint.new(0.5, Color3.fromRGB(90, 245, 140))
+local object1955 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(27, 168, 66))
 data[1] = object
 data[2] = object1953
 data[3] = object1954
@@ -11863,20 +11863,20 @@ Trigger = instaReset,
 end
 end
 buildGui = function()
-Color3.fromRGB(0, 130, 200)
-local color = Color3.fromRGB(40, 140, 255)
-Color3.fromRGB(0, 130, 200)
+Color3.fromRGB(255, 195, 35)
+local color = Color3.fromRGB(230, 165, 20)
+Color3.fromRGB(31, 193, 76)
 Color3.fromRGB(0, 0, 0)
-Color3.fromRGB(6, 10, 16)
-local color2 = Color3.fromRGB(6, 10, 16)
-local color3 = Color3.fromRGB(22, 22, 26)
+Color3.fromRGB(1, 8, 3)
+local color2 = Color3.fromRGB(1, 8, 3)
+local color3 = Color3.fromRGB(6, 42, 16)
 local color4 = Color3.fromRGB(255, 255, 255)
 Color3.fromRGB(8, 50, 20)
-local color5 = Color3.fromRGB(10, 10, 12)
-Color3.fromRGB(10, 12, 14)
+local color5 = Color3.fromRGB(2, 12, 5)
+Color3.fromRGB(4, 25, 10)
 local textColor3 = color
-Color3.fromRGB(10, 10, 12)
-Color3.fromRGB(22, 22, 26)
+Color3.fromRGB(3, 21, 8)
+Color3.fromRGB(6, 42, 16)
 local yaisHub = game:GetService("CoreGui"):FindFirstChild("YaisHub")
 if yaisHub then
 yaisHub:Destroy()
@@ -11906,7 +11906,7 @@ end
 main = Instance.new("Frame", gui)
 main.Size = UDim2.new(0, 330, 0, 500)
 main.Position = UDim2.new(0, 20, 0, 2)
-main.BackgroundColor3 = Color3.fromRGB(6, 10, 16)
+main.BackgroundColor3 = Color3.fromRGB(1, 6, 2)
 main.BackgroundTransparency = 0
 main.BorderSizePixel = 0
 main.ClipsDescendants = true
@@ -11915,9 +11915,9 @@ do
 local mainBgGradient = Instance.new("UIGradient", main)
 mainBgGradient.Rotation = 90
 mainBgGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 22, 26)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 12, 14)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(6, 10, 16)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 52, 24)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(4, 24, 11)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(1, 8, 3)),
 })
 end
 do
@@ -11977,19 +11977,19 @@ imageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 local imageLabelGradient = Instance.new("UIGradient", imageLabel)
 imageLabelGradient.Rotation = 90
 imageLabelGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 230, 255)),
-ColorSequenceKeypoint.new(0.45, Color3.fromRGB(40, 140, 255)),
-ColorSequenceKeypoint.new(0.55, Color3.fromRGB(20, 90, 180)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 230, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 255, 240)),
+ColorSequenceKeypoint.new(0.45, Color3.fromRGB(60, 200, 100)),
+ColorSequenceKeypoint.new(0.55, Color3.fromRGB(15, 120, 50)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 240, 170)),
 })
 local imageLabelStroke = Instance.new("UIStroke", imageLabel)
 imageLabelStroke.Thickness = 4
-imageLabelStroke.Color = Color3.fromRGB(22, 22, 26)
+imageLabelStroke.Color = Color3.fromRGB(6, 60, 25)
 imageLabel.ZIndex = 21
 local textButton = Instance.new("TextButton", main)
 textButton.Size = UDim2.new(0, 28, 0, 28)
 textButton.Position = UDim2.new(1, -38, 0, 10)
-textButton.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+textButton.BackgroundColor3 = Color3.fromRGB(55, 38, 0)
 textButton.BackgroundTransparency = 0.6
 textButton.BorderSizePixel = 0
 textButton.Text = "X"
@@ -12008,7 +12008,7 @@ end)
 textButton.MouseLeave:Connect(function()
 TweenService:Create(textButton, TweenInfo.new(0.12), {
 TextColor3 = color4,
-BackgroundColor3 = Color3.fromRGB(20, 20, 24),
+BackgroundColor3 = Color3.fromRGB(55, 38, 0),
 }):Play()
 end)
 miniBtn = Instance.new("TextButton", gui)
@@ -12019,7 +12019,7 @@ miniBtn.BackgroundTransparency = 1
 miniBtn.BorderSizePixel = 0
 miniBtn.ClipsDescendants = false
 miniBtn.Text = ""
-miniBtn.TextColor3 = Color3.fromRGB(0, 130, 200)
+miniBtn.TextColor3 = Color3.fromRGB(255, 195, 35)
 miniBtn.Font = Enum.Font.SciFi
 miniBtn.TextSize = 16
 miniBtn.ZIndex = 20
@@ -12043,14 +12043,14 @@ rootPart.TextColor3 = Color3.fromRGB(255, 255, 255)
 local rootPartGradient = Instance.new("UIGradient", rootPart)
 rootPartGradient.Rotation = 90
 rootPartGradient.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 230, 255)),
-ColorSequenceKeypoint.new(0.45, Color3.fromRGB(40, 140, 255)),
-ColorSequenceKeypoint.new(0.55, Color3.fromRGB(20, 90, 180)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 230, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(235, 255, 240)),
+ColorSequenceKeypoint.new(0.45, Color3.fromRGB(60, 200, 100)),
+ColorSequenceKeypoint.new(0.55, Color3.fromRGB(15, 120, 50)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 240, 170)),
 })
 local rootPartStroke = Instance.new("UIStroke", rootPart)
 rootPartStroke.Thickness = 2
-rootPartStroke.Color = Color3.fromRGB(22, 22, 26)
+rootPartStroke.Color = Color3.fromRGB(6, 60, 25)
 rootPart.ZIndex = 21
 local tween = nil
 local position = main.Position
@@ -12107,11 +12107,11 @@ rootPart1955.ZIndex = 11
 rootPart1955.Visible = false
 rootPart1954.Position = UDim2.new(0, 8, 1, -52)
 rootPart1954.Size = UDim2.new(1, -16, 0, 40)
-rootPart1954.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+rootPart1954.BackgroundColor3 = Color3.fromRGB(2, 14, 6)
 rootPart1954.BackgroundTransparency = 0.25
 Instance.new("UICorner", rootPart1954).CornerRadius = UDim.new(1, 0)
 local tabBarStroke = Instance.new("UIStroke", rootPart1954)
-tabBarStroke.Color = Color3.fromRGB(40, 140, 255)
+tabBarStroke.Color = Color3.fromRGB(40, 200, 90)
 tabBarStroke.Thickness = 1.5
 tabBarStroke.Transparency = 0.2
 rootPart1954.ZIndex = 10
@@ -12137,7 +12137,7 @@ for i, text1960 in ipairs({
 }) do
 local textButton = Instance.new("TextButton", rootPart1954)
 textButton.Size = UDim2.new(0.185, 0, 1, -8)
-textButton.BackgroundColor3 = Color3.fromRGB(0, 130, 200)
+textButton.BackgroundColor3 = Color3.fromRGB(255, 195, 35)
 textButton.BackgroundTransparency = 1
 textButton.BorderSizePixel = 0
 textButton.Text = text1960
@@ -12150,12 +12150,12 @@ Instance.new("UICorner", textButton).CornerRadius = UDim.new(1, 0)
 local scrollingFrame = Instance.new("ScrollingFrame", rootPart1957)
 scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
 scrollingFrame.Position = UDim2.new(0, 0, 0, 0)
-scrollingFrame.BackgroundColor3 = Color3.fromRGB(6, 10, 16)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(0, 4, 1)
 scrollingFrame.BackgroundTransparency = 0.6
 scrollingFrame.BorderSizePixel = 0
 scrollingFrame.ClipsDescendants = true
 scrollingFrame.ScrollBarThickness = 2
-scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(20, 20, 24)
+scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(55, 38, 0)
 scrollingFrame.ScrollBarImageTransparency = 0.3
 scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -12230,7 +12230,7 @@ l.AutomaticSize = Enum.AutomaticSize.X
 l.Position = UDim2.new(0, 14, 0, 0)
 l.BackgroundTransparency = 1
 l.Text = txt:upper()
-l.TextColor3 = Color3.fromRGB(170, 200, 230)
+l.TextColor3 = Color3.fromRGB(190, 225, 200)
 l.Font = Enum.Font.GothamBold
 l.TextSize = 11
 l.TextXAlignment = Enum.TextXAlignment.Left
@@ -12262,7 +12262,7 @@ frame.LayoutOrder = nextLayoutOrder(value)
 frame.ZIndex = 7
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
 local uiStroke = Instance.new("UIStroke", frame)
-uiStroke.Color = Color3.fromRGB(40, 140, 255)
+uiStroke.Color = Color3.fromRGB(40, 200, 90)
 uiStroke.Thickness = 1.5
 uiStroke.Transparency = 0.2
 frame.MouseEnter:Connect(function()
@@ -12284,7 +12284,7 @@ l.Size = UDim2.new(0.55, 0, 1, 0)
 l.Position = UDim2.new(0, 10, 0, 0)
 l.BackgroundTransparency = 1
 l.Text = text
-l.TextColor3 = Color3.fromRGB(200, 230, 255)
+l.TextColor3 = Color3.fromRGB(235, 248, 240)
 l.Font = Enum.Font.GothamBold
 l.TextSize = 12
 l.TextXAlignment = Enum.TextXAlignment.Left
@@ -12315,7 +12315,7 @@ dot.Name = "Knob"
 dot.Size = UDim2.new(0, 13, 0, 13)
 dot.AnchorPoint = Vector2.new(0, 0)
 dot.Position = UDim2.new(0, 3, 0.5, -6)
-dot.BackgroundColor3 = Color3.fromRGB(10, 12, 14)
+dot.BackgroundColor3 = Color3.fromRGB(3, 18, 7)
 dot.BorderSizePixel = 0
 dot.ZIndex = 9
 Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
@@ -12336,7 +12336,7 @@ local themeColor = getThemeColor()
 local tweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 TweenService:Create(dot, tweenInfo, {
 Position = on and UDim2.new(1, -16, 0.5, -6) or UDim2.new(0, 3, 0.5, -6),
-BackgroundColor3 = on and getThemeColor() or Color3.fromRGB(10, 12, 14),
+BackgroundColor3 = on and getThemeColor() or Color3.fromRGB(3, 18, 7),
 }):Play()
 TweenService:Create(pill, tweenInfo, {
 BackgroundColor3 = on and themeColor or Color3.fromRGB(255, 255, 255),
@@ -12632,7 +12632,7 @@ local function createCarouselSelector(parent, currentValue, options, onChanged)
 local frame = Instance.new("Frame", parent)
 frame.Size = UDim2.new(0, 175, 0, 30)
 frame.Position = UDim2.new(1, -183, 0.5, -15)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
+frame.BackgroundColor3 = Color3.fromRGB(6, 24, 12)
 frame.BackgroundTransparency = 0.1
 frame.BorderSizePixel = 0
 frame.ZIndex = 8
@@ -12644,7 +12644,7 @@ stroke.Transparency = 0.35
 local rootPart = Instance.new("Frame", frame)
 rootPart.Size = UDim2.new(0, 3, 0.55, 0)
 rootPart.Position = UDim2.new(0, 6, 0.225, 0)
-rootPart.BackgroundColor3 = Color3.fromRGB(0, 130, 200)
+rootPart.BackgroundColor3 = Color3.fromRGB(31, 193, 76)
 rootPart.BorderSizePixel = 0
 rootPart.ZIndex = 9
 rootPart.Visible = false
@@ -12654,7 +12654,7 @@ textLabel.Size = UDim2.new(1, -28, 1, 0)
 textLabel.Position = UDim2.new(0, 14, 0, 0)
 textLabel.BackgroundTransparency = 1
 textLabel.Text = tostring(currentValue)
-textLabel.TextColor3 = Color3.fromRGB(200, 230, 255)
+textLabel.TextColor3 = Color3.fromRGB(235, 255, 240)
 textLabel.Font = Enum.Font.GothamBold
 textLabel.TextSize = 12
 textLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -12666,7 +12666,7 @@ arrowLabel.Size = UDim2.new(0, 14, 1, 0)
 arrowLabel.Position = arrow[2]
 arrowLabel.BackgroundTransparency = 1
 arrowLabel.Text = arrow[1]
-arrowLabel.TextColor3 = Color3.fromRGB(60, 170, 255)
+arrowLabel.TextColor3 = Color3.fromRGB(46, 204, 113)
 arrowLabel.Font = Enum.Font.GothamBlack
 arrowLabel.TextSize = 18
 arrowLabel.ZIndex = 9
@@ -12686,7 +12686,7 @@ local indicatorFrames = {}
 for i = 1, math.min(#options, 8) do
 local frame = Instance.new("Frame", rootPart2076)
 frame.Size = UDim2.new(0, 5, 0, 5)
-frame.BackgroundColor3 = Color3.fromRGB(20, 90, 180)
+frame.BackgroundColor3 = Color3.fromRGB(21, 134, 53)
 frame.BorderSizePixel = 0
 frame.ZIndex = 10
 Instance.new("UICorner", frame).CornerRadius = UDim.new(1, 0)
@@ -12716,7 +12716,7 @@ rootPart2085.ZIndex = 11
 local function renderIndicators()
 for i, frame in ipairs(indicatorFrames) do
 local selected = i == selectedIndex
-frame.BackgroundColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(20, 90, 180)
+frame.BackgroundColor3 = selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(21, 134, 53)
 frame.Size = selected and UDim2.new(0, 10, 0, 5) or UDim2.new(0, 5, 0, 5)
 end
 end
@@ -12726,7 +12726,7 @@ local selected = i == selectedIndex
 TweenService
 :Create(entry, TweenInfo.new(0.22, Enum.EasingStyle.Quad), {
 BackgroundColor3 = selected and Color3.fromRGB(255, 255, 255)
-or Color3.fromRGB(20, 90, 180),
+or Color3.fromRGB(21, 134, 53),
 Size = selected and UDim2.new(0, 10, 0, 5) or UDim2.new(0, 5, 0, 5),
 })
 :Play()
@@ -12772,7 +12772,7 @@ changeSelection(1)
 end)
 frame.MouseEnter:Connect(function()
 TweenService:Create(stroke, TweenInfo.new(0.12), {
-Color = Color3.fromRGB(0, 130, 200),
+Color = Color3.fromRGB(31, 193, 76),
 Transparency = 0,
 }):Play()
 TweenService:Create(rootPart, TweenInfo.new(0.12), {
@@ -13000,7 +13000,7 @@ textLabel.Size = UDim2.new(0, 70, 1, 0)
 textLabel.Position = UDim2.new(1, -78, 0, 0)
 textLabel.BackgroundTransparency = 1
 textLabel.Text = "ACTIVATE"
-textLabel.TextColor3 = Color3.fromRGB(40, 160, 255)
+textLabel.TextColor3 = Color3.fromRGB(32, 202, 80)
 textLabel.Font = Enum.Font.GothamBold
 textLabel.TextSize = 9
 textLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -13377,8 +13377,8 @@ end
 local function buildYaisFeet(root, footOffset)
 local folder = Instance.new("Folder")
 folder.Name = "YaisHubFeet"
-local leafColor = Color3.fromRGB(0, 130, 200)
-local stemColor = Color3.fromRGB(40, 40, 45)
+local leafColor = Color3.fromRGB(255, 195, 35)
+local stemColor = Color3.fromRGB(190, 125, 10)
 local a = 2.6
 local d = a / math.sqrt(2)
 local y = -footOffset + 0.1
@@ -13591,7 +13591,7 @@ local rootPart2219 = Instance.new("Frame", frame22218)
 rootPart2219.Name = "BackgroundPreview"
 rootPart2219.Size = UDim2.new(0, 44, 0, 34)
 rootPart2219.Position = UDim2.new(0, 84, 0.5, -17)
-rootPart2219.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+rootPart2219.BackgroundColor3 = Color3.fromRGB(1, 10, 4)
 rootPart2219.BackgroundTransparency = 0.15
 rootPart2219.BorderSizePixel = 0
 rootPart2219.ClipsDescendants = true
@@ -13615,7 +13615,7 @@ label2222.Name = "PreviewPlaceholder"
 label2222.Size = UDim2.new(1, 0, 1, 0)
 label2222.BackgroundTransparency = 1
 label2222.Text = "OFF"
-label2222.TextColor3 = Color3.fromRGB(20, 90, 180)
+label2222.TextColor3 = Color3.fromRGB(23, 143, 56)
 label2222.Font = Enum.Font.GothamBlack
 label2222.TextSize = 12
 label2222.ZIndex = 10
@@ -13811,7 +13811,7 @@ uiStroke2.Transparency = 0.5
 local textLabel = Instance.new("TextLabel", frame)
 textLabel.BackgroundTransparency = 1
 textLabel.Text = entry2266.label
-textLabel.TextColor3 = Color3.fromRGB(40, 160, 255)
+textLabel.TextColor3 = Color3.fromRGB(32, 202, 80)
 textLabel.Font = Enum.Font.GothamBold
 textLabel.TextSize = 11
 textLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -13838,7 +13838,7 @@ rootPart2273.Name = "Knob"
 rootPart2273.Size = UDim2.new(0, 13, 0, 13)
 rootPart2273.AnchorPoint = Vector2.new(0, 0)
 rootPart2273.Position = object and UDim2.new(1, -16, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)
-rootPart2273.BackgroundColor3 = object and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(10, 12, 14)
+rootPart2273.BackgroundColor3 = object and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(3, 18, 7)
 rootPart2273.BorderSizePixel = 0
 rootPart2273.ZIndex = 9
 Instance.new("UICorner", rootPart2273).CornerRadius = UDim.new(1, 0)
@@ -13859,9 +13859,9 @@ end
 local rootPart2276 = Instance.new("TextButton", frame22262)
 rootPart2276.Size = UDim2.new(0, 28, 0, 24)
 rootPart2276.Position = UDim2.new(1, -38, 0.5, -12)
-rootPart2276.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+rootPart2276.BackgroundColor3 = Color3.fromRGB(2, 12, 5)
 rootPart2276.Text = "▼"
-rootPart2276.TextColor3 = Color3.fromRGB(0, 130, 200)
+rootPart2276.TextColor3 = Color3.fromRGB(31, 193, 76)
 rootPart2276.Font = Enum.Font.GothamBold
 rootPart2276.TextSize = 14
 rootPart2276.AutoButtonColor = false
@@ -13890,11 +13890,11 @@ Instance.new("UICorner", saveBtn).CornerRadius = UDim.new(0, 10)
 local saveGrad = Instance.new("UIGradient", saveBtn)
 saveGrad.Rotation = 90
 saveGrad.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 150, 255)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 150, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(38, 180, 88)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(38, 180, 88)),
 })
 local saveStroke = Instance.new("UIStroke", saveBtn)
-saveStroke.Color = Color3.fromRGB(170, 230, 255)
+saveStroke.Color = Color3.fromRGB(150, 255, 190)
 saveStroke.Thickness = 1
 saveStroke.Transparency = 1
 local saveLabel = Instance.new("TextLabel", saveBtn)
@@ -13958,14 +13958,14 @@ ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 55, 55)),
 })
 else
 resetGrad.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 28, 34)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 28, 34)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(16, 48, 28)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(16, 48, 28)),
 })
 end
 end
 setResetGrad(false)
 local resetStroke = Instance.new("UIStroke", resetBtn)
-resetStroke.Color = Color3.fromRGB(60, 170, 255)
+resetStroke.Color = Color3.fromRGB(46, 204, 113)
 resetStroke.Thickness = 1.5
 resetStroke.Transparency = 0.2
 local resetLabel = Instance.new("TextLabel", resetBtn)
@@ -14036,7 +14036,7 @@ vector2318.ZIndex = 7
 pbFrame = Instance.new("Frame", gui)
 pbFrame.Size = UDim2.new(0, 340, 0, 46)
 pbFrame.Position = UDim2.new(0.5, -170, 1, -66)
-pbFrame.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
+pbFrame.BackgroundColor3 = Color3.fromRGB(10, 16, 13)
 pbFrame.BackgroundTransparency = 0.08
 pbFrame.BorderSizePixel = 0
 pbFrame.Active = true
@@ -14067,7 +14067,7 @@ end
 Instance.new("UICorner", pbFrame).CornerRadius = UDim.new(0, 10)
 do
 local pbBorder = Instance.new("UIStroke", pbFrame)
-pbBorder.Color = Color3.fromRGB(60, 170, 255)
+pbBorder.Color = Color3.fromRGB(46, 204, 113)
 pbBorder.Thickness = 1
 pbBorder.Transparency = 0.6
 end
@@ -14081,7 +14081,7 @@ local frame2321 = Instance.new("Frame", rootPart2320)
 frame2321.Name = "FillRegion"
 frame2321.Size = UDim2.new(1, -28, 0, 6)
 frame2321.Position = UDim2.new(0, 14, 1, -13)
-frame2321.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+frame2321.BackgroundColor3 = Color3.fromRGB(30, 40, 35)
 frame2321.BackgroundTransparency = 0
 frame2321.BorderSizePixel = 0
 frame2321.ClipsDescendants = true
@@ -14090,15 +14090,15 @@ Instance.new("UICorner", frame2321).CornerRadius = UDim.new(1, 0)
 progressFill = Instance.new("Frame", frame2321)
 progressFill.Size = UDim2.new(0, 0, 1, 0)
 progressFill.Position = UDim2.new(0, 0, 0, 0)
-progressFill.BackgroundColor3 = Color3.fromRGB(0, 130, 200)
+progressFill.BackgroundColor3 = Color3.fromRGB(255, 195, 35)
 progressFill.BorderSizePixel = 0
 progressFill.ZIndex = 13
 Instance.new("UICorner", progressFill).CornerRadius = UDim.new(1, 0)
 local uiGradient4 = Instance.new("UIGradient", progressFill)
 uiGradient4.Color = ColorSequence.new({
-ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 90, 180)),
-ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 130, 200)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 160, 255)),
+ColorSequenceKeypoint.new(0, Color3.fromRGB(21, 134, 53)),
+ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 195, 35)),
+ColorSequenceKeypoint.new(1, Color3.fromRGB(32, 202, 80)),
 })
 uiGradient4.Rotation = 0
 local autoStealTitle = Instance.new("TextLabel", pbFrame)
@@ -14119,7 +14119,7 @@ stealingLabel.Size = UDim2.new(0, 64, 0, 20)
 stealingLabel.Position = UDim2.new(0, 98, 0, 6)
 stealingLabel.BackgroundTransparency = 1
 stealingLabel.Text = "STEALING"
-stealingLabel.TextColor3 = Color3.fromRGB(150, 220, 255)
+stealingLabel.TextColor3 = Color3.fromRGB(120, 205, 150)
 stealingLabel.Font = Enum.Font.GothamBold
 stealingLabel.TextSize = 10
 stealingLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -14130,7 +14130,7 @@ progressPct.Size = UDim2.new(0, 48, 0, 20)
 progressPct.Position = UDim2.new(1, -62, 0, 6)
 progressPct.BackgroundTransparency = 1
 progressPct.Text = "0%"
-progressPct.TextColor3 = Color3.fromRGB(60, 170, 255)
+progressPct.TextColor3 = Color3.fromRGB(46, 204, 113)
 progressPct.Font = Enum.Font.GothamBlack
 progressPct.TextSize = 13
 progressPct.TextXAlignment = Enum.TextXAlignment.Right
@@ -14222,8 +14222,8 @@ UDim2.new(0, 0, 1, -16),
 UDim2.new(1, 0, 0, 14),
 8
 )
-Color3.fromRGB(150, 220, 255)
-local color = Color3.fromRGB(6, 10, 16)
+Color3.fromRGB(255, 255, 85)
+local color = Color3.fromRGB(1, 8, 3)
 local buttons = {}
 local buttonTexts = {
 "DROP\nBR",
@@ -14257,16 +14257,16 @@ local uiGradient = Instance.new("UIGradient", button)
 uiGradient.Name = "BtnGrad"
 uiGradient.Rotation = 90
 local data = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 24))
-local object2464 = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(10, 12, 14))
-local object2465 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(10, 10, 12))
+local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 65, 26))
+local object2464 = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(4, 28, 11))
+local object2465 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(1, 11, 4))
 data[1] = object
 data[2] = object2464
 data[3] = object2465
 data[4] = ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 uiGradient.Color = ColorSequence.new(data)
 local uiStroke = Instance.new("UIStroke", button)
-uiStroke.Color = Color3.fromRGB(20, 20, 24)
+uiStroke.Color = Color3.fromRGB(10, 65, 26)
 uiStroke.Thickness = 1
 uiStroke.Transparency = 0.45
 uiStroke.Name = "NormalStroke"
@@ -14654,7 +14654,7 @@ else
 panel.Position = UDim2.new(1, -146, 1, -286)
 end
 panel.AnchorPoint = Vector2.new(1, 0)
-panel.BackgroundColor3 = Color3.fromRGB(6, 10, 16)
+panel.BackgroundColor3 = Color3.fromRGB(1, 8, 3)
 panel.BackgroundTransparency = 0
 panel.BorderSizePixel = 0
 panel.ZIndex = 20
@@ -14663,16 +14663,16 @@ local uiGradient = Instance.new("UIGradient", panel)
 uiGradient.Name = "BtnGrad"
 uiGradient.Rotation = 90
 local btnFrame = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 24))
-local object2543 = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(10, 12, 14))
-local object2544 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(10, 10, 12))
+local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 65, 26))
+local object2543 = ColorSequenceKeypoint.new(0.35, Color3.fromRGB(4, 28, 11))
+local object2544 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(1, 11, 4))
 btnFrame[1] = object
 btnFrame[2] = object2543
 btnFrame[3] = object2544
 btnFrame[4] = ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 uiGradient.Color = ColorSequence.new(btnFrame)
 local uiStroke = Instance.new("UIStroke", panel)
-uiStroke.Color = Color3.fromRGB(20, 20, 24)
+uiStroke.Color = Color3.fromRGB(10, 65, 26)
 uiStroke.Thickness = 1
 uiStroke.Transparency = 0.45
 local label = Instance.new("TextLabel", panel)
@@ -14785,7 +14785,7 @@ else
 btnFrame.Position = UDim2.new(1, -146, 1, -130)
 end
 btnFrame.AnchorPoint = Vector2.new(1, 0)
-btnFrame.BackgroundColor3 = Color3.fromRGB(6, 10, 16)
+btnFrame.BackgroundColor3 = Color3.fromRGB(1, 8, 3)
 btnFrame.BorderSizePixel = 0
 btnFrame.ZIndex = 20
 Instance.new("UICorner", btnFrame).CornerRadius = UDim.new(0, 10)
@@ -14793,23 +14793,23 @@ local uiGradient = Instance.new("UIGradient", btnFrame)
 uiGradient.Name = "BtnGrad"
 uiGradient.Rotation = 90
 local data = {}
-local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 24))
-local object2569 = ColorSequenceKeypoint.new(0.55, Color3.fromRGB(10, 12, 14))
-local object2570 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(10, 10, 12))
+local object = ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 65, 26))
+local object2569 = ColorSequenceKeypoint.new(0.55, Color3.fromRGB(4, 28, 11))
+local object2570 = ColorSequenceKeypoint.new(0.7, Color3.fromRGB(1, 11, 4))
 data[1] = object
 data[2] = object2569
 data[3] = object2570
 data[4] = ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 uiGradient.Color = ColorSequence.new(data)
 local uiStroke = Instance.new("UIStroke", btnFrame)
-uiStroke.Color = Color3.fromRGB(20, 20, 24)
+uiStroke.Color = Color3.fromRGB(10, 65, 26)
 uiStroke.Thickness = 1
 uiStroke.Transparency = 0.45
 local label = Instance.new("TextLabel", btnFrame)
 label.Size = UDim2.new(1, 0, 1, 0)
 label.BackgroundTransparency = 1
 label.Text = "INSTA\nRESET"
-label.TextColor3 = Color3.fromRGB(150, 220, 255)
+label.TextColor3 = Color3.fromRGB(255, 255, 85)
 label.Font = Enum.Font.GothamBlack
 label.TextSize = 11
 label.TextWrapped = true
@@ -15611,7 +15611,7 @@ Instance.new("UICorner", rootPart).CornerRadius = UDim.new(1, 0)
 local frame2558 = Instance.new("Frame", rootPart)
 frame2558.Name = "Fill"
 frame2558.Size = UDim2.new(0, 0, 1, 0)
-frame2558.BackgroundColor3 = Color3.fromRGB(90, 185, 255)
+frame2558.BackgroundColor3 = Color3.fromRGB(85, 255, 85)
 frame2558.BackgroundTransparency = 0.48
 frame2558.BorderSizePixel = 0
 Instance.new("UICorner", frame2558).CornerRadius = UDim.new(1, 0)
@@ -15629,8 +15629,8 @@ end
 YaisHubE01Gui.Enabled = true
 local warningReady = value >= 1
 YaisHubE01Gui.Bar.Label.Text = warningReady and "STEAL" or "DONT STEAL"
-YaisHubE01Gui.Bar.Label.TextColor3 = warningReady and Color3.fromRGB(90, 185, 255)
-or Color3.fromRGB(20, 20, 24)
+YaisHubE01Gui.Bar.Label.TextColor3 = warningReady and Color3.fromRGB(85, 255, 125)
+or Color3.fromRGB(11, 71, 28)
 YaisHubE01Gui.Bar.Track.Fill.Size = UDim2.new(value, 0, 1, 0)
 end)
 end
@@ -15659,14 +15659,14 @@ lockBtn.Name = "LockUIButton"
 lockBtn.Size = UDim2.new(0, 60, 0, 60)
 lockBtn.AnchorPoint = Vector2.new(1, 0)
 lockBtn.Position = UDim2.new(1, -150, 1, -140)
-lockBtn.BackgroundColor3 = Color3.fromRGB(6, 10, 16)
+lockBtn.BackgroundColor3 = Color3.fromRGB(1, 8, 3)
 lockBtn.BorderSizePixel = 0
 lockBtn.Text = ""
 lockBtn.AutoButtonColor = false
 lockBtn.ZIndex = 10
 Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 10)
 local lockStroke = Instance.new("UIStroke", lockBtn)
-lockStroke.Color = Color3.fromRGB(40, 140, 255)
+lockStroke.Color = Color3.fromRGB(40, 200, 90)
 lockStroke.Thickness = 1
 lockStroke.Transparency = 0.45
 local lockLabel = Instance.new("TextLabel", lockBtn)
@@ -15679,7 +15679,7 @@ lockLabel.TextWrapped = true
 lockLabel.ZIndex = 11
 local function refreshLockBtn()
 lockLabel.Text = uiLocked and "UNLOCK\nUI" or "LOCK\nUI"
-lockStroke.Color = uiLocked and Color3.fromRGB(40, 140, 255) or Color3.fromRGB(40, 140, 255)
+lockStroke.Color = uiLocked and Color3.fromRGB(255, 200, 60) or Color3.fromRGB(40, 200, 90)
 end
 refreshLockBtn()
 local origToggleLockUI = toggleLockUI
@@ -15729,12 +15729,12 @@ local trackerPlayersService = game:GetService("Players")
 local trackerRunService = game:GetService("RunService")
 local trackerWorkspace = game:GetService("Workspace")
 local trackerPlayer = trackerPlayersService.LocalPlayer
-local color = Color3.fromRGB(0, 130, 200)
-Color3.fromRGB(40, 140, 255)
-local color2 = Color3.fromRGB(40, 140, 255)
-local color3 = Color3.fromRGB(40, 140, 255)
-local color4 = Color3.fromRGB(20, 20, 24)
-local color5 = Color3.fromRGB(0, 130, 200)
+local color = Color3.fromRGB(255, 195, 35)
+Color3.fromRGB(230, 165, 20)
+local color2 = Color3.fromRGB(255, 205, 55)
+local color3 = Color3.fromRGB(255, 205, 55)
+local color4 = Color3.fromRGB(55, 38, 0)
+local color5 = Color3.fromRGB(245, 185, 25)
 local mapMinX = -536.2
 local mapMaxX = -422
 local mapMinY = -10
